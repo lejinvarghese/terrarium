@@ -11,6 +11,10 @@ Terrarium is a meta-project for orchestrating a local ecosystem of AI/ML service
 - **ComfyUI**: Art generation using local or remote AI models (located at `/home/starscream/_projects/ComfyUI`)
 - **Ollama**: Local language model runtime
 
+## Accessible Memories
+
+For personal preferences and memories, refer to the `TERRARIUM_MEMORY.md` file. This file contains a log of my memories and your preferences.
+
 ## Architecture
 
 This is primarily an orchestration project. The `src/` directory is currently empty and intended for automation scripts rather than a full application. Configuration is managed via `.env` file (gitignored for secrets and machine-specific settings).
