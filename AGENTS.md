@@ -42,3 +42,7 @@
 ## Security & Configuration Tips
 - Never commit secrets; reference environment variables instead. Rotate credentials immediately if exposure is suspected and log the action in the PR.
 - When introducing network tunnels or exposed ports, document default bindings and remediation steps in the PR to keep the ecosystem safe.
+
+## Accessible Memories
+
+For personal preferences and memories, refer to the `TERRARIUM_MEMORY.md` file. This file contains a log of my memories and your preferences.

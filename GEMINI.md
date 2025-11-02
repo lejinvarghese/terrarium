@@ -58,19 +58,16 @@ As an AI assistant, I will do my best to learn and remember important informatio
 
 ### Storing Important Information
 
-If you have specific details, conventions, or preferences that you want me to remember for future sessions, please let me know. You can say something like:
+When you ask me to remember something, I will do two things:
 
-*   "Remember that all new services should be deployed on port 9000."
-*   "Please save this: my preferred text editor is VS Code."
+1.  **Save to my internal memory:** I will use my `save_memory` tool to store the information for future sessions.
+2.  **Append to `TERRARIUM_MEMORY.md`:** I will also add the memory to the `TERRARIUM_MEMORY.md` file. This creates a human-readable log of my memories that you can review and edit.
 
-I will then use my `save_memory` tool to store this information.
+You can ask me to remember things like this:
+
+*   "Remember that my favorite color is blue."
+*   "Please save this: I prefer to use tabs over spaces."
 
 ### Proactive Memory
 
-I will also try to proactively identify information that seems important to remember, such as:
-
-*   Project-specific paths
-*   Preferred libraries or frameworks
-*   Commonly used commands
-
-If I'm unsure whether to remember something, I may ask you, "Should I remember that for you?"
+I will also try to proactively identify information that seems important to remember. If I'm unsure whether to remember something, I may ask you, "Should I remember that for you?" If you say yes, I will follow the same process of saving to my internal memory and appending to the `TERRARIUM_MEMORY.md` file.
