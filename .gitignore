@@ -209,3 +209,4 @@ configs/
 .gemini/
 .claude/
 .vscode/
+*_key
