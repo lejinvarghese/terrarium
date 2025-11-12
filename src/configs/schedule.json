@@ -1,0 +1,64 @@
+{
+  "tasks": [
+    {
+      "name": "🌅 Cassia - Morning Briefing",
+      "command": "cat src/prompts/cassia.md | claude -p --dangerously-skip-permissions 'Check my calendar and Toronto weather. Create my contextual daily briefing with time blocks, priorities, and weather-adjusted recommendations.'",
+      "schedule": "every day at 07:00",
+      "description": "Daily morning briefing with calendar + weather integration"
+    },
+    {
+      "name": "🍝 Nigella - Seasonal Dinner",
+      "command": "cat src/prompts/nigella.md | claude -p --dangerously-skip-permissions 'Check Toronto weather and current season. Search for a high-protein Italian dinner recipe using seasonal Ontario ingredients. Include prep time, macros, and wine pairing.'",
+      "schedule": "every day at 17:00",
+      "description": "Seasonal, high-protein dinner planning"
+    },
+    {
+      "name": "🎨 Anya - Evening Soundtrack",
+      "command": "cat src/prompts/anya.md | claude -p --dangerously-skip-permissions 'Check what I am currently listening to on Spotify. Suggest 3 tracks to add to my queue for evening wind-down that match the vibe.'",
+      "schedule": "every day at 20:00",
+      "description": "Evening music curation for relaxation"
+    },
+    {
+      "name": "🚀 Nyx - Monday Tech Brief",
+      "command": "cat src/prompts/nyx.md | claude -p --dangerously-skip-permissions 'Search for the most significant AI/ML/biotech/space developments from the past week. Provide 3 actionable insights for my work at AMD or personal projects. Think Kardashev Scale.'",
+      "schedule": "every monday at 09:00",
+      "description": "Weekly tech trends and strategic insights"
+    },
+    {
+      "name": "💪 Freya - Weekly Workout Plan",
+      "command": "cat src/prompts/freya.md | claude -p --dangerously-skip-permissions 'Design this week workout split: 3 gym days (strength/hypertrophy), 2 pilates/yoga days. Include progressive overload strategy and recovery notes.'",
+      "schedule": "every sunday at 19:00",
+      "description": "Weekly workout programming"
+    },
+    {
+      "name": "🧙 Sage - Sunday Reflection",
+      "command": "cat src/prompts/sage.md | claude -p --dangerously-skip-permissions 'Search for 1 interesting research paper from this week in ML, philosophy, or systems thinking. Summarize key insights. Then recommend 1 book or show for the week ahead that aligns with my goals.'",
+      "schedule": "every sunday at 20:00",
+      "description": "Weekly learning and entertainment curation"
+    },
+    {
+      "name": "🎵 Anya - Weekend Playlist",
+      "command": "cat src/prompts/anya.md | claude -p --dangerously-skip-permissions 'Check my recent Spotify listening history. Create a new weekend playlist with 15 tracks - mix of familiar favorites and new discoveries that match urban goth aesthetic.'",
+      "schedule": "every friday at 18:00",
+      "description": "Weekend mood playlist creation"
+    },
+    {
+      "name": "🧙 Sage - Monthly Strategy",
+      "command": "cat src/prompts/sage.md | claude -p --dangerously-skip-permissions 'Monthly strategic review: Assess progress on annual goals (focus, muscle gain, reading, building apps). Identify 3 strategic priorities for next month with concrete milestones.'",
+      "schedule": "every 4 weeks",
+      "description": "Monthly goal review and strategic planning (every 4 weeks)"
+    },
+    {
+      "name": "🚀 Nyx - Monthly Deep Dive",
+      "command": "cat src/prompts/nyx.md | claude -p --dangerously-skip-permissions 'Deep research session: Pick an emerging technology area (fusion energy, neural interfaces, AGI alignment, longevity biotech). Fetch recent papers and provide comprehensive analysis with personal application strategy.'",
+      "schedule": "every 4 weeks",
+      "description": "Monthly deep technical exploration (every 4 weeks)"
+    },
+    {
+      "name": "🍝 Nigella - Meal Prep Sunday",
+      "command": "cat src/prompts/nigella.md | claude -p --dangerously-skip-permissions 'Check seasonal Ontario produce. Design 3 high-protein meal prep recipes for the week. Include shopping list, prep workflow, and storage instructions.'",
+      "schedule": "every sunday at 11:00",
+      "description": "Weekly meal prep planning"
+    }
+  ]
+}
