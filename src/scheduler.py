@@ -6,6 +6,8 @@ import time
 import subprocess
 import json
 import click
+import sys
+import itertools
 
 
 def run_command(name, command):
@@ -17,7 +19,7 @@ def run_command(name, command):
     result = subprocess.run(command, shell=True, capture_output=True, text=True)
 
     if result.returncode == 0:
-        click.secho(f"  ✅ Completed successfully", fg="green")
+        click.secho(f"  ✨ Done", fg="green")
     else:
         click.secho(f"  ❌ Failed (exit code: {result.returncode})", fg="red")
 
@@ -28,7 +30,7 @@ def run_command(name, command):
 
 @click.command()
 @click.argument(
-    "config_file", default="configs/schedule.json", type=click.Path(exists=True)
+    "config_file", default="src/configs/schedule.json", type=click.Path(exists=True)
 )
 def main(config_file):
     """Run scheduled commands from CONFIG_FILE (JSON format)."""
@@ -93,13 +95,22 @@ def main(config_file):
     )
     click.secho("=" * 50 + "\n", fg="green")
 
-    # Run scheduler loop
+    # Run scheduler loop with spinner
+    spinner = itertools.cycle(['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'])
     try:
         while True:
             schedule.run_pending()
-            time.sleep(1)
+
+            # Show spinner while waiting
+            spinner_char = click.style(next(spinner), fg='cyan', bold=True)
+            message = click.style('Waiting for next task...', fg='white', dim=True)
+            sys.stdout.write(f'\r{spinner_char} {message}')
+            sys.stdout.flush()
+
+            time.sleep(0.1)
     except KeyboardInterrupt:
-        click.secho("\n\n🛑 Scheduler stopped by user.", fg="yellow", bold=True)
+        sys.stdout.write('\r' + ' ' * 50 + '\r')  # Clear spinner line
+        click.secho("\n🛑 Scheduler stopped by user.", fg="yellow", bold=True)
         click.secho("👋 Goodbye!\n", fg="cyan")
 
 
