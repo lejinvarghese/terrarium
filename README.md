@@ -4,6 +4,9 @@
 
 A personal AI ecosystem orchestrating life optimization through scheduled assistants. Like a terrarium where digital and organic systems flourish together—automated routines, contextual recommendations, and goal-aligned guidance working in harmony.
 
+![Digital-Organic Ecosystem](/assets/terrarium-ecosystem.jpg)
+*Where technology and nature grow together in harmony*
+
 ## Overview
 
 Terrarium coordinates a team of specialized AI assistants that handle daily planning, health optimization, creative work, culinary guidance, and strategic thinking. Each assistant has access to real-time data (calendar, weather, Spotify, recipes) and runs on a schedule to provide contextual, seasonal recommendations.
