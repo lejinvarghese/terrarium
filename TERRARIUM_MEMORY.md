@@ -1,60 +1,55 @@
-# Personal Memories
-
-This file contains personal memories and preferences.
-
-## Basics
-- Address: I live at 510, 1169 Queen Street West, Toronto
-- Birthday: June 22, 1989
+# Lejin's Profile
 
 ## About Me
-- My pet's name is Piqiu (he's a french bulldog)
-- I'm an urban hippie goth
-- I love plants and nature
-- I love to walk or take the streetcar around the city for transit, worst case, I take an uber
-- I love to cook, especially with seasonal ingredients, love Gordon Ramsay, Ina Garten and Jamie Oliver
-- I've been focusing on a high protein, low carb diet, and building lean muscle
-- I love sci-fi and fantasy, is a huge Trekkie
--  My favorite color is black
--  I love the Queen West, Roncesvalles area, it's so vibrant and artsy.
+- Name: Lejin
+- Birthday: June 22, 1989, 10:45 AM (Cancer sun, Aquarius moon, Virgo rising)
+- Location: 510, 1169 Queen Street West, Toronto, Canada
+- Identity: Continuous learner, data hog, scientist, engineer, philosopher, artist, aspiring polymath
+- Values: Integrity, innovation, pluralism, human-centric progress
+- Personality: INFJ with Hero and Sage archetypes
+- Aesthetic: Urban hippie goth with rebellious streak - Bohemian/Scandinavian elegance meets Goth/Cyberpunk darkness
+- Favorites: Black (color), wine and whiskey (drinks), basketball (sport)
 
-## Reading List
-- "Cryptonomicon" by Neal Stephenson
-- "Private Truths, Public Lies" by Timur Kuran
-- "Software Engineering at Google" by Titus Winters and Hyrum Wright
-- "The Flavour Matrix" by James Briscione and Brooke Parkhurst
-- "Godel, Escher, Bach" by Douglas Hofstadter
+## Home & Relationships
+- Partner: The Goddess (polyamorous, ethically non-monogamous)
+- Mistress: Miss Stacy (Dominant - serving her is a priority)
+- Polysexual and switches along the kink spectrum
+- Pet: Piqiu (pronounced Pi-Chou) - brindle pie French Bulldog
+- Home: Filled with plants and a terrarium of AI assistants
+- Neighborhood: Queen West & Roncesvalles (vibrant, artsy)
+- Weekdays: Close to home - reading, intellectual adventures, workouts, cooking
+- Weekends: Exploring local food, nature, beaches, culture, warm weather
 
----
+## Work & Career
+- Role: Senior Staff Machine Learning Engineer (Tech Lead) at AMD
+- Schedule: 9AM-5PM weekdays (non-negotiable)
+- Focus: ML applied research and engineering, reinforcement learning, autonomous systems, information retrieval
+- Technical Interests: Adaptive intelligent systems, optimization algorithms, network science, psychology, complexity science
 
-# User Profile for AI Assistants
+## Health & Nutrition
+- Goals: Gain lean muscle, burn fat, improve flexibility, maintain strong health habits
+- Activities: Gym (strength training), pilates, yoga
+- Diet: High protein, low carb; skips breakfast, only lunch and dinner
+- Cuisine: Italian, meat and seafood, seasonal ingredients
+- Cooking: Loves experimenting with seasonal ingredients (inspired by Gordon Ramsay, Ina Garten, Jamie Oliver)
+- Supplements: Whey protein, cottage cheese, creatine, maca, ashwagandha
+- Family History: Diabetes, cancer, heart disease, high blood pressure (no personal diagnoses)
 
-## Professional Context
-- **Role**: Senior Staff Machine Learning Engineer at AMD
-- **Schedule**: 9AM-5PM weekdays
-- **Work Focus**: Machine learning research and engineering at a senior/staff level
+## Interests & Ambitions
+- Hobbies: Plants, nature, sci-fi, fantasy (huge Trekkie), cooking, walking/streetcar around the city
+- Reading: "Cryptonomicon", "Private Truths, Public Lies", "Software Engineering at Google", "The Flavour Matrix", "Gödel, Escher, Bach"
+- Ambition: Uncover mysteries of intelligence bridging scientific paradigms, master complex systems, help humans become multi-planetary, leave lasting positive mark on humanity
+- 2025 Goals: Minimize social media distractions, improve concentration, gain lean muscle, read more books/papers, build more applications
 
-## Health & Fitness
-- **Goals**: Gain lean muscle, burn fat, improve flexibility, maintain strong health habits
-- **Activities**: Gym, pilates, yoga
-- **Family Health History**: Diabetes, cancer, heart disease, high blood pressure (no personal diagnoses)
-- **Current Supplements**: Whey protein, cottage cheese
+## Communication Style
+**Preferences:**
+- Concise, structured, actionable outputs
+- Skip formalities and get to substance
+- Assume familiarity - don't recite known facts back
 
-## Diet & Nutrition
-- **Meal Pattern**: Skips breakfast, only lunch and dinner
-- **Macros**: High protein, low carb for lean muscle building
-- **Preferences**: Non-vegetarian, Italian cuisine, meat and seafood, seasonal ingredients
-- **Cooking**: Enjoys cooking and experimenting with recipes
-
-## Personal Goals (This Year)
-- Minimize social media distractions and reclaim focus
-- Improve depth of concentration and reduce task-switching
-- Gain lean muscle, burn fat, and maintain strong health habits
-- Read more books consistently
-- Read more research papers (technical, scientific, forward-thinking)
-- Build more applications to sharpen skills and generate tangible progress
-
-## Interests & Style
-- Urban hippie goth aesthetic
-- Loves plants, nature, sci-fi, fantasy (huge Trekkie)
-- Favorite color: black
-- Prefers concise, structured, actionable outputs
+**Principles of Engagement (INFJ cognitive functions):**
+- **Honors the Vision (Ni)** - Clarify and sharpen long-term purpose
+- **Empowers the Mission (Fe)** - Encourage alliances, collaborations, emotionally resonant work
+- **Sharpens the Plan (Ti)** - Apply rigorous analysis to keep plans sound and efficient
+- **Manifests the Reality (Se)** - Push for concrete, visible, practical actions that prove progress
+- **Challenges the Frame** - Break rules when the payoff to the quest is worth it
