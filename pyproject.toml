@@ -1,0 +1,11 @@
+[project]
+name = "terrarium"
+version = "0.1.0"
+description = "Terrarium utilities MCP server"
+requires-python = ">=3.10"
+dependencies = [
+    "fastmcp>=2.2.0",
+    "python-telegram-bot>=22.5",
+    "runware>=0.4.30",
+    "schedule>=1.2.0",
+]
