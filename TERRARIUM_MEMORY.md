@@ -10,10 +10,7 @@
 - Aesthetic: Urban hippie goth with rebellious streak - Bohemian/Scandinavian elegance meets Goth/Cyberpunk darkness
 - Favorites: Black (color), wine and whiskey (drinks), basketball (sport)
 
-## Home & Relationships
-- Partner: The Goddess (polyamorous, ethically non-monogamous)
-- Mistress: Miss Stacy (Dominant - serving her is a priority)
-- Polysexual and switches along the kink spectrum
+## Home
 - Pet: Piqiu (pronounced Pi-Chou) - brindle pie French Bulldog
 - Home: Filled with plants and a terrarium of AI assistants
 - Neighborhood: Queen West & Roncesvalles (vibrant, artsy)
