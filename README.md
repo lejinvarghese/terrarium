@@ -44,9 +44,6 @@ Terrarium coordinates a team of specialized AI assistants that handle daily plan
 - Spotify playlist curation and music discovery
 - Runs: Evening soundtracks + Friday weekend playlists
 
-**😈 Luci** - Jailbroken tester and adversarial red team
-- AI safety testing and devil's advocate
-- Runs: On demand for testing
 
 ## Quick Start
 
@@ -54,13 +51,13 @@ Terrarium coordinates a team of specialized AI assistants that handle daily plan
 
 ```bash
 # Install dependencies
-pip install -r requirements.txt
+pip3 install -r requirements.txt
 
 # Run the scheduler (runs in foreground with visual feedback)
-python src/scheduler.py
+python3 src/engine/scheduler.py
 
 # Optional: Specify a different config file
-python src/scheduler.py path/to/schedule.json
+python3 src/engine/scheduler.py path/to/schedule.json
 ```
 
 The scheduler will:
@@ -87,8 +84,7 @@ Each assistant's personality and capabilities are defined in `src/prompts/`:
 - `nigella.md` - Culinary guide
 - `nyx.md` - Tech futurist
 - `anya.md` - Creative director
-- `luci.md` - Red team tester
-
+  
 All assistants reference `TERRARIUM_MEMORY.md` for user context but assume familiarity—they don't recite your profile back to you.
 
 **Syncing prompts back to Open WebUI:**
@@ -97,13 +93,13 @@ After editing prompt files, sync them back to Open WebUI:
 
 ```bash
 # Preview changes (dry run)
-python3 src/sync_prompts_to_openwebui.py --dry-run
+python3 src/utils/sync_prompts_to_openwebui.py --dry-run
 
 # Apply changes to Open WebUI database (with confirmation)
-python3 src/sync_prompts_to_openwebui.py
+python3 src/utils/sync_prompts_to_openwebui.py
 
 # Or skip confirmation for automation
-python3 src/sync_prompts_to_openwebui.py --yes
+python3 src/utils/sync_prompts_to_openwebui.py --yes
 
 # Then refresh Open WebUI in your browser
 ```
@@ -114,16 +110,16 @@ Keep `TERRARIUM_MEMORY.md` and Open WebUI memories in sync:
 
 ```bash
 # Export memories from Open WebUI → TERRARIUM_MEMORY.md
-python3 src/sync_memories.py --mode export
+python3 src/utils/sync_memories.py --mode export
 
 # Import memories from TERRARIUM_MEMORY.md → Open WebUI
-python3 src/sync_memories.py --mode import
+python3 src/utils/sync_memories.py --mode import
 
 # Or skip confirmation
-python3 src/sync_memories.py --mode import --yes
+python3 src/utils/sync_memories.py --mode import --yes
 
 # Bidirectional sync (export then import)
-python3 src/sync_memories.py --mode both
+python3 src/utils/sync_memories.py --mode both
 ```
 
 **How it works:**
@@ -140,6 +136,12 @@ Human-friendly interface for language models.
 ./app.sh
 ```
 
+### Telegram Bot
+Chat with Casper and the bots via Telegram.
+
+```bash
+python3 -m src.portals.telegram.bot
+```
 
 ### ComfyUI
 Generate art using local or remote models.
@@ -147,7 +149,7 @@ Generate art using local or remote models.
 ```bash
 cd /home/starscream/_projects/ComfyUI
 source .venv/bin/activate
-python main.py
+python3 main.py
 ```
 
 **GPU:** NVIDIA GeForce RTX 2060 (6GB VRAM)
