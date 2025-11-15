@@ -77,7 +77,7 @@ Edit `src/configs/schedule.json` to adjust task timing or commands. Each task in
 
 ### Modifying Assistants
 
-Each assistant's personality and capabilities are defined in `src/prompts/`:
+Each assistant's personality and capabilities are defined in `src/bots/`:
 - `cassia.md` - Daily planner
 - `sage.md` - Strategic advisor
 - `freya.md` - Health coach
