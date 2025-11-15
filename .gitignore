@@ -207,7 +207,6 @@ marimo/_lsp/
 __marimo__/
 /configs/
 .gemini/
-.claude/
 .crush/
 .vscode/
 *_key
