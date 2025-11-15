@@ -55,6 +55,46 @@ class ClaudeEngine:
         bot_file = self.bot_prompts_dir / f"{bot.lower()}.md"
         return bot_file if bot_file.exists() else None
 
+    def get_bot_description(self, bot: str) -> Optional[str]:
+        """
+        Extract bot description from agent file (line 2 of frontmatter).
+
+        Args:
+            bot: Name of bot
+
+        Returns:
+            Bot description string, or None if not found
+        """
+        bot_file = self.get_bot_file(bot)
+        if not bot_file:
+            return None
+
+        try:
+            lines = bot_file.read_text().splitlines()
+            # Line 0: ---
+            # Line 1: name: ...
+            # Line 2: description: ...
+            if len(lines) > 2 and lines[2].startswith("description:"):
+                return lines[2].replace("description:", "").strip()
+            return None
+        except Exception as e:
+            click.secho(f"⚠️  Failed to read description for {bot}: {e}", fg="yellow")
+            return None
+
+    def get_all_bots_info(self) -> Dict[str, str]:
+        """
+        Get descriptions for all available bots.
+
+        Returns:
+            Dictionary mapping bot names to their descriptions
+        """
+        bots_info = {}
+        for bot in self.list_bots():
+            description = self.get_bot_description(bot)
+            if description:
+                bots_info[bot] = description
+        return bots_info
+
     async def chat(
         self,
         message: str,
@@ -77,7 +117,8 @@ class ClaudeEngine:
             cmd = [
                 "claude",
                 "-p",  # Print mode (non-interactive)
-                "--output-format", "json",  # Get structured output with session ID
+                "--output-format",
+                "json",  # Get structured output with session ID
             ]
 
             # Add working directory access for file operations
@@ -173,7 +214,9 @@ class ClaudeEngine:
                 else:
                     session_display = "unknown"
 
-                click.secho(f"✅ Response received (length: {len(response_text)}, session: {session_display})", fg="green")
+                click.secho(
+                    f"✅ Response received (length: {len(response_text)}, session: {session_display})", fg="green"
+                )
                 return response_text, new_session_id or "unknown", metadata
 
             except json.JSONDecodeError as e:
@@ -225,9 +268,6 @@ class ClaudeEngine:
         Returns:
             True if it's a bot command
         """
-        bot_commands = [
-            "/clear", "/new", "/bot", "/bots",
-            "/status", "/help", "/start", "/cancel"
-        ]
+        bot_commands = ["/clear", "/new", "/bot", "/bots", "/status", "/help", "/start", "/cancel"]
         message_lower = message.lower().strip()
         return any(message_lower.startswith(cmd) for cmd in bot_commands)

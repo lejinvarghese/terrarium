@@ -116,25 +116,30 @@ async def bots_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         await update.message.reply_text("The terrarium is empty.")
         return
 
-    bot_info = {
-        "anya": "🎨 **Anya** - Creative director (art, music, design, image generation)",
-        "cassia": "📅 **Cassia** - Daily ops coordinator (planning, scheduling)",
-        "freya": "💪 **Freya** - Health & fitness expert (workouts, nutrition)",
-        "nigella": "🍳 **Nigella** - Culinary guide (recipes, cooking)",
-        "nyx": "🚀 **Nyx** - Accelerationist futurist (emerging tech, AI)",
-        "sage": "📚 **Sage** - Strategic visionary (knowledge, wisdom)",
+    # Emoji mapping for each bot
+    bot_emojis = {
+        "anya": "🎨",
+        "cassia": "📅",
+        "freya": "💪",
+        "nigella": "🍳",
+        "nyx": "🚀",
+        "sage": "📚",
     }
+
+    # Get descriptions dynamically from agent files
+    bots_info = claude_engine.get_all_bots_info()
 
     msg = "🌿 **Bots in the Terrarium:**\n\n"
     for b in bots:
-        desc = bot_info.get(b, "No description")
-        msg += f"{desc}\n"
+        emoji = bot_emojis.get(b, "🤖")
+        description = bots_info.get(b, "No description available")
+        msg += f"{emoji} **{b.title()}** - {description}\n\n"
 
     current = context.user_data.get("bot")
     if current:
-        msg += f"\n**Currently connected:** {current.title()}"
+        msg += f"**Currently connected:** {current.title()}\n"
 
-    msg += "\n\n**Connect:** /bot <name>"
+    msg += "\n**Connect:** /bot <name>"
 
     await update.message.reply_text(msg, parse_mode=ParseMode.MARKDOWN)
 

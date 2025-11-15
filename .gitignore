@@ -210,5 +210,5 @@ __marimo__/
 .crush/
 .vscode/
 *_key
-src/prompts/luci.md
+src/bots/luci.md
 data/
