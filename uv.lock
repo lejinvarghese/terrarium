@@ -851,7 +851,9 @@ name = "terrarium"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
+    { name = "click" },
     { name = "fastmcp" },
+    { name = "python-dotenv" },
     { name = "python-telegram-bot" },
     { name = "runware" },
     { name = "schedule" },
@@ -859,7 +861,9 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
+    { name = "click", specifier = ">=8.0.0" },
     { name = "fastmcp", specifier = ">=2.2.0" },
+    { name = "python-dotenv", specifier = ">=1.0.0" },
     { name = "python-telegram-bot", specifier = ">=22.5" },
     { name = "runware", specifier = ">=0.4.30" },
     { name = "schedule", specifier = ">=1.2.0" },
