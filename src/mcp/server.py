@@ -7,6 +7,7 @@ from runware import Runware, IImageInference, IPromptEnhance
 from runware.types import ILora
 from dotenv import load_dotenv
 from telegram import Bot
+from recipe_scrapers import scrape_me, SCRAPERS
 
 load_dotenv()
 
@@ -126,6 +127,127 @@ async def send_telegram_message(
         return f"Message sent successfully to chat {target_chat_id}"
     except Exception as e:
         return f"Error sending message: {str(e)}"
+
+
+@mcp.tool()
+async def send_telegram_document(
+    file_path: str,
+    caption: str = None,
+    persona: str = None,
+    chat_id: str = None,
+) -> str:
+    """Send a document/file to Telegram via the Casper bot
+
+    Args:
+        file_path: Path to the file to send (e.g., markdown, PDF, text files)
+        caption: Optional caption/description for the document
+        persona: Optional persona name (anya, cassia, freya, nigella, nyx, sage, system)
+        chat_id: Optional chat ID to send to. Defaults to your personal chat
+    """
+    if not TELEGRAM_TOKEN:
+        return "Error: TELEGRAM_TOKEN not found in environment"
+
+    bot = Bot(token=TELEGRAM_TOKEN)
+
+    # Use provided chat_id or fall back to default
+    target_chat_id = chat_id or TELEGRAM_CHAT_ID
+
+    if not target_chat_id:
+        return "Error: No chat_id provided and TELEGRAM_CHAT_ID not set in environment"
+
+    # Expand home directory if needed
+    from pathlib import Path
+    file_path = str(Path(file_path).expanduser())
+
+    # Check if file exists
+    if not Path(file_path).exists():
+        return f"Error: File not found at {file_path}"
+
+    # Format caption with persona emoji if provided
+    if persona and caption:
+        emoji = PERSONA_EMOJIS.get(persona.lower(), PERSONA_EMOJIS["default"])
+        formatted_caption = f"{emoji} *{persona.title()}*\n{caption}"
+        parse_mode = "Markdown"
+    elif caption:
+        formatted_caption = caption
+        parse_mode = "Markdown"
+    else:
+        formatted_caption = None
+        parse_mode = None
+
+    try:
+        with open(file_path, 'rb') as doc:
+            await bot.send_document(
+                chat_id=target_chat_id,
+                document=doc,
+                caption=formatted_caption,
+                parse_mode=parse_mode
+            )
+        return f"Document sent successfully to chat {target_chat_id}"
+    except Exception as e:
+        return f"Error sending document: {str(e)}"
+
+
+@mcp.tool()
+async def scrape_recipe(url: str) -> dict:
+    """Extract recipe data from a recipe URL
+
+    Args:
+        url: The URL of the recipe page (e.g., from NY Times, Food Network, AllRecipes, etc.)
+
+    Returns:
+        Dictionary containing recipe details: title, ingredients, instructions, time, servings, etc.
+    """
+    try:
+        scraper = scrape_me(url, wild_mode=True)
+
+        recipe_data = {
+            "title": scraper.title(),
+            "total_time": scraper.total_time(),
+            "yields": scraper.yields(),
+            "ingredients": scraper.ingredients(),
+            "instructions": scraper.instructions(),
+            "image": scraper.image(),
+            "host": scraper.host(),
+        }
+
+        # Add optional fields if available
+        try:
+            recipe_data["nutrients"] = scraper.nutrients()
+        except:
+            pass
+
+        try:
+            recipe_data["canonical_url"] = scraper.canonical_url()
+        except:
+            pass
+
+        return recipe_data
+    except Exception as e:
+        return {"error": f"Failed to scrape recipe: {str(e)}"}
+
+
+@mcp.tool()
+async def list_supported_recipe_sites() -> dict:
+    """List all 100+ recipe websites supported by the scraper
+
+    Returns:
+        Dictionary with count and list of supported domains
+    """
+    supported_sites = sorted(list(SCRAPERS.keys()))
+    return {
+        "count": len(supported_sites),
+        "sites": supported_sites,
+        "examples": [
+            "allrecipes.com",
+            "foodnetwork.com",
+            "nytimes.com",
+            "bonappetit.com",
+            "seriouseats.com",
+            "epicurious.com",
+            "bbcgoodfood.com",
+        ]
+    }
 
 
 if __name__ == "__main__":

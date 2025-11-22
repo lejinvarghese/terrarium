@@ -119,7 +119,7 @@ class ClaudeEngine:
                 "-p",  # Print mode (non-interactive)
                 "--output-format",
                 "json",  # Get structured output with session ID
-                "--auto-approve",  # Auto-approve all tool executions (no permission prompts)
+                "--dangerously-skip-permissions"
             ]
 
             # Add working directory access for file operations
