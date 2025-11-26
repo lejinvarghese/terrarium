@@ -1,362 +1,62 @@
 #!/bin/bash
 # Terrarium development environment manager
+# Thin router that delegates to modular command scripts
 
-SESSION_PREFIX="terrarium"
-SESSION_DOME="${SESSION_PREFIX}-dome"
-SESSION_ENGINE="${SESSION_PREFIX}-engine"
-SESSION_PORTAL="${SESSION_PREFIX}-portal"
-SESSION_BRIDGE="${SESSION_PREFIX}-bridge"
-SESSION_TUNNEL="${SESSION_PREFIX}-tunnel"
-SESSION_TUNNEL_NOTEBOOK="${SESSION_PREFIX}-tunnel-notebook"
-SESSION_TUNNEL_NOTEBOOK_API="${SESSION_PREFIX}-tunnel-notebook-api"
-SESSION_NOTEBOOK="${SESSION_PREFIX}-notebook"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+COMMANDS_DIR="$SCRIPT_DIR/scripts/commands"
 
-# Function to create a cloudflare tunnel
-# Args: session_name, port, service_display_name, [send_notification], [emoji], [return_url_var_name]
-create_tunnel() {
-    local session_name="$1"
-    local port="$2"
-    local service_name="$3"
-    local send_notification="${4:-false}"
-    local emoji="${5:-🌐}"
-    local return_var="${6:-}"
+# Load common utilities for help text
+source "$SCRIPT_DIR/scripts/lib/common.sh"
+source "$SCRIPT_DIR/scripts/lib/services.conf"
 
-    if tmux has-session -t "$session_name" 2>/dev/null; then
-        echo "⚠️  Session '$session_name' already exists"
-        return 0
-    fi
-
-    tmux new-session -d -s "$session_name"
-    tmux send-keys -t "$session_name" "~/.local/bin/cloudflared tunnel --url http://localhost:$port" C-m
-    sleep 4
-
-    # Extract tunnel URL
-    local tunnel_url=$(tmux capture-pane -t "$session_name" -p -S -200 -J | grep -oE 'https://[a-z0-9-]+\.trycloudflare\.com' | head -1)
-
-    if [ -n "$tunnel_url" ]; then
-        echo "✅ Started Tunnel ($service_name) in session '$session_name'"
-        echo "   $emoji Public URL: $tunnel_url"
-
-        # Send Telegram notification if requested
-        if [ "$send_notification" = "true" ]; then
-            python3 scripts/notify_tunnel.py "$tunnel_url" "$service_name" 2>/dev/null &
-        fi
-
-        # Return URL via variable name if requested
-        if [ -n "$return_var" ]; then
-            eval "$return_var='$tunnel_url'"
-        fi
-    else
-        echo "✅ Started Tunnel ($service_name) in session '$session_name' (URL pending...)"
-    fi
+show_help() {
+    echo "Terrarium Development Manager"
+    echo ""
+    echo "Usage: $0 {up|down|attach <service>|status}"
+    echo ""
+    echo "Commands:"
+    echo "  up                       - Start all services in separate tmux sessions"
+    echo "  down                     - Stop all services and kill tmux sessions"
+    echo "  attach <service>         - Attach to a specific service session"
+    echo "  status                   - Check which services are running"
+    echo ""
+    echo "Available services:"
+    for service in "${SERVICES[@]}"; do
+        IFS='|' read -r name session display_name command working_dir <<< "$service"
+        echo "  - $name"
+    done
+    echo ""
+    echo "Available tunnels:"
+    for tunnel in "${TUNNELS[@]}"; do
+        IFS='|' read -r name session display_name port emoji notify <<< "$tunnel"
+        echo "  - $name"
+    done
+    echo ""
+    echo "Examples:"
+    echo "  dev up                      # Start all services"
+    echo "  dev attach dome             # Attach to dome session"
+    echo "  dev attach tunnel           # Attach to WebUI tunnel (see public URL)"
+    echo "  dev status                  # Check what's running"
+    echo ""
+    echo "Tmux shortcuts:"
+    echo "  Ctrl+B then D               - Detach from session"
 }
 
 case "$1" in
     up)
-        # Check if tmux is installed
-        if ! command -v tmux &> /dev/null; then
-            echo "Error: tmux is not installed. Install it with: sudo apt install tmux"
-            exit 1
-        fi
-
-        echo "🌿 Starting Terrarium services"
-
-        # Create Dome (Open WebUI) session
-        if tmux has-session -t "$SESSION_DOME" 2>/dev/null; then
-            echo "⚠️  Session '$SESSION_DOME' already exists"
-        else
-            tmux new-session -d -s "$SESSION_DOME"
-            tmux send-keys -t "$SESSION_DOME" "./app.sh" C-m
-            echo "✅ Started Dome in session '$SESSION_DOME'"
-        fi
-
-        # Create Engine (Scheduler) session
-        if tmux has-session -t "$SESSION_ENGINE" 2>/dev/null; then
-            echo "⚠️  Session '$SESSION_ENGINE' already exists"
-        else
-            tmux new-session -d -s "$SESSION_ENGINE"
-            tmux send-keys -t "$SESSION_ENGINE" "python3 src/engine/scheduler.py" C-m
-            echo "✅ Started Engine in session '$SESSION_ENGINE'"
-        fi
-
-        # Create Portal (Telegram Bot) session
-        if tmux has-session -t "$SESSION_PORTAL" 2>/dev/null; then
-            echo "⚠️  Session '$SESSION_PORTAL' already exists"
-        else
-            tmux new-session -d -s "$SESSION_PORTAL" -c "$(pwd)"
-            tmux send-keys -t "$SESSION_PORTAL" "src/portals/telegram/.venv/bin/python -m src.portals.telegram.bot" C-m
-            echo "✅ Started Portal in session '$SESSION_PORTAL'"
-        fi
-
-        # Create Bridge (mcpo MCP proxy) session
-        if tmux has-session -t "$SESSION_BRIDGE" 2>/dev/null; then
-            echo "⚠️  Session '$SESSION_BRIDGE' already exists"
-        else
-            tmux new-session -d -s "$SESSION_BRIDGE"
-            tmux send-keys -t "$SESSION_BRIDGE" "uvx mcpo --port 8765 --api-key \"terrarium-mcp-bridge\" --config src/configs/mcpo.json --hot-reload" C-m
-            echo "✅ Started Bridge in session '$SESSION_BRIDGE'"
-        fi
-
-        # Create tunnels for public access
-        create_tunnel "$SESSION_TUNNEL" 8080 "Open WebUI" true "🌐"
-        create_tunnel "$SESSION_TUNNEL_NOTEBOOK_API" 5055 "Notebook API" false "🔌" "TUNNEL_NOTEBOOK_API_URL"
-
-        # Wait extra time to ensure API tunnel URL is captured
-        if [ -z "$TUNNEL_NOTEBOOK_API_URL" ]; then
-            echo "⏳ Waiting for API tunnel URL..."
-            sleep 3
-            TUNNEL_NOTEBOOK_API_URL=$(tmux capture-pane -t "$SESSION_TUNNEL_NOTEBOOK_API" -p -S -200 -J | grep -oE 'https://[a-z0-9-]+\.trycloudflare\.com' | head -1)
-        fi
-
-        create_tunnel "$SESSION_TUNNEL_NOTEBOOK" 8502 "Open Notebook" true "📓"
-
-        # Create Notebook (Open Notebook) session
-        if tmux has-session -t "$SESSION_NOTEBOOK" 2>/dev/null; then
-            echo "⚠️  Session '$SESSION_NOTEBOOK' already exists"
-        else
-            # Load environment variables
-            if [ -f .env ]; then
-                export $(grep -v '^#' .env | xargs)
-            fi
-
-            # Use API tunnel URL if available, fallback to localhost
-            API_URL="${TUNNEL_NOTEBOOK_API_URL:-http://localhost:5055}"
-
-            tmux new-session -d -s "$SESSION_NOTEBOOK"
-            tmux send-keys -t "$SESSION_NOTEBOOK" "docker run --rm --name open-notebook -p 8502:8502 -p 5055:5055 -v ./notebook_data:/app/data -e OPENAI_API_KEY=\"$OPENAI_API_KEY\" -e ANTHROPIC_API_KEY=\"$ANTHROPIC_API_KEY\" -e TAVILY_API_KEY=\"$TAVILY_API_KEY\" -e SURREAL_USER=root -e SURREAL_PASS=root -e SURREAL_NAMESPACE=terrarium -e SURREAL_DATABASE=notebook -e API_URL=\"$API_URL\" lfnovo/open_notebook:v1-latest-single" C-m
-            echo "✅ Started Notebook in session '$SESSION_NOTEBOOK'"
-            echo "   📓 Web UI: http://localhost:8502"
-            echo "   🔌 API: $API_URL"
-        fi
-
-        echo ""
-        echo "✅ All services started in separate tmux sessions"
-        echo "   Use 'dev attach <service>' to view a specific service"
-        echo "   Use 'dev status' to see all running services"
-        echo "   Use 'dev down' to stop all services"
+        "$COMMANDS_DIR/up.sh"
         ;;
-
     down)
-        echo "🛑 Stopping Terrarium services..."
-        STOPPED=0
-
-        if tmux has-session -t "$SESSION_DOME" 2>/dev/null; then
-            tmux kill-session -t "$SESSION_DOME"
-            echo "✅ Stopped Dome"
-            STOPPED=1
-        fi
-
-        if tmux has-session -t "$SESSION_ENGINE" 2>/dev/null; then
-            tmux kill-session -t "$SESSION_ENGINE"
-            echo "✅ Stopped Engine"
-            STOPPED=1
-        fi
-
-        if tmux has-session -t "$SESSION_PORTAL" 2>/dev/null; then
-            tmux kill-session -t "$SESSION_PORTAL"
-            echo "✅ Stopped Portal"
-            STOPPED=1
-        fi
-
-        if tmux has-session -t "$SESSION_BRIDGE" 2>/dev/null; then
-            tmux kill-session -t "$SESSION_BRIDGE"
-            echo "✅ Stopped Bridge"
-            STOPPED=1
-        fi
-
-        if tmux has-session -t "$SESSION_TUNNEL" 2>/dev/null; then
-            tmux kill-session -t "$SESSION_TUNNEL"
-            echo "✅ Stopped Tunnel (WebUI)"
-            STOPPED=1
-        fi
-
-        if tmux has-session -t "$SESSION_TUNNEL_NOTEBOOK_API" 2>/dev/null; then
-            tmux kill-session -t "$SESSION_TUNNEL_NOTEBOOK_API"
-            echo "✅ Stopped Tunnel (Notebook API)"
-            STOPPED=1
-        fi
-
-        if tmux has-session -t "$SESSION_TUNNEL_NOTEBOOK" 2>/dev/null; then
-            tmux kill-session -t "$SESSION_TUNNEL_NOTEBOOK"
-            echo "✅ Stopped Tunnel (Notebook)"
-            STOPPED=1
-        fi
-
-        if tmux has-session -t "$SESSION_NOTEBOOK" 2>/dev/null; then
-            tmux kill-session -t "$SESSION_NOTEBOOK"
-            # Also stop the docker container if it's still running
-            docker stop open-notebook 2>/dev/null
-            echo "✅ Stopped Notebook"
-            STOPPED=1
-        fi
-
-        if [ $STOPPED -eq 0 ]; then
-            echo "No Terrarium sessions found"
-        fi
+        "$COMMANDS_DIR/down.sh"
         ;;
-
-    attach)
-        SERVICE="$2"
-
-        if [ -z "$SERVICE" ]; then
-            echo "Error: Please specify a service to attach to"
-            echo "Usage: dev attach <dome|engine|portal|bridge|tunnel|tunnel-notebook-api|tunnel-notebook|notebook>"
-            exit 1
-        fi
-
-        case "$SERVICE" in
-            dome)
-                SESSION="$SESSION_DOME"
-                ;;
-            engine)
-                SESSION="$SESSION_ENGINE"
-                ;;
-            portal)
-                SESSION="$SESSION_PORTAL"
-                ;;
-            bridge)
-                SESSION="$SESSION_BRIDGE"
-                ;;
-            tunnel)
-                SESSION="$SESSION_TUNNEL"
-                ;;
-            tunnel-notebook-api)
-                SESSION="$SESSION_TUNNEL_NOTEBOOK_API"
-                ;;
-            tunnel-notebook)
-                SESSION="$SESSION_TUNNEL_NOTEBOOK"
-                ;;
-            notebook)
-                SESSION="$SESSION_NOTEBOOK"
-                ;;
-            *)
-                echo "Error: Invalid service '$SERVICE'"
-                echo "Valid services: dome, engine, portal, bridge, tunnel, tunnel-notebook-api, tunnel-notebook, notebook"
-                exit 1
-                ;;
-        esac
-
-        if tmux has-session -t "$SESSION" 2>/dev/null; then
-            tmux attach-session -t "$SESSION"
-        else
-            echo "Error: Session '$SESSION' does not exist. Run 'dev up' first."
-            exit 1
-        fi
-        ;;
-
     status)
-        echo "Terrarium Services Status:"
-        echo ""
-
-        ANY_RUNNING=0
-
-        if tmux has-session -t "$SESSION_DOME" 2>/dev/null; then
-            echo "✅ Dome (Open WebUI)    - running (session: $SESSION_DOME)"
-            ANY_RUNNING=1
-        else
-            echo "❌ Dome (Open WebUI)    - not running"
-        fi
-
-        if tmux has-session -t "$SESSION_ENGINE" 2>/dev/null; then
-            echo "✅ Engine (Scheduler)   - running (session: $SESSION_ENGINE)"
-            ANY_RUNNING=1
-        else
-            echo "❌ Engine (Scheduler)   - not running"
-        fi
-
-        if tmux has-session -t "$SESSION_PORTAL" 2>/dev/null; then
-            echo "✅ Portal (Telegram)    - running (session: $SESSION_PORTAL)"
-            ANY_RUNNING=1
-        else
-            echo "❌ Portal (Telegram)    - not running"
-        fi
-
-        if tmux has-session -t "$SESSION_BRIDGE" 2>/dev/null; then
-            echo "✅ Bridge (mcpo)        - running (session: $SESSION_BRIDGE)"
-            ANY_RUNNING=1
-        else
-            echo "❌ Bridge (mcpo)        - not running"
-        fi
-
-        if tmux has-session -t "$SESSION_TUNNEL" 2>/dev/null; then
-            echo "✅ Tunnel WebUI         - running (session: $SESSION_TUNNEL)"
-            # Extract tunnel URL from session output (handle wrapped lines)
-            TUNNEL_URL=$(tmux capture-pane -t "$SESSION_TUNNEL" -p -S -200 -J | grep -oE 'https://[a-z0-9-]+\.trycloudflare\.com' | head -1)
-            if [ -n "$TUNNEL_URL" ]; then
-                echo "   🌐 Public URL: $TUNNEL_URL"
-            fi
-            ANY_RUNNING=1
-        else
-            echo "❌ Tunnel WebUI         - not running"
-        fi
-
-        if tmux has-session -t "$SESSION_TUNNEL_NOTEBOOK_API" 2>/dev/null; then
-            echo "✅ Tunnel Notebook API  - running (session: $SESSION_TUNNEL_NOTEBOOK_API)"
-            # Extract tunnel URL from session output (handle wrapped lines)
-            TUNNEL_NOTEBOOK_API_URL=$(tmux capture-pane -t "$SESSION_TUNNEL_NOTEBOOK_API" -p -S -200 -J | grep -oE 'https://[a-z0-9-]+\.trycloudflare\.com' | head -1)
-            if [ -n "$TUNNEL_NOTEBOOK_API_URL" ]; then
-                echo "   🔌 API URL: $TUNNEL_NOTEBOOK_API_URL"
-            fi
-            ANY_RUNNING=1
-        else
-            echo "❌ Tunnel Notebook API  - not running"
-        fi
-
-        if tmux has-session -t "$SESSION_TUNNEL_NOTEBOOK" 2>/dev/null; then
-            echo "✅ Tunnel Notebook      - running (session: $SESSION_TUNNEL_NOTEBOOK)"
-            # Extract tunnel URL from session output (handle wrapped lines)
-            TUNNEL_NOTEBOOK_URL=$(tmux capture-pane -t "$SESSION_TUNNEL_NOTEBOOK" -p -S -200 -J | grep -oE 'https://[a-z0-9-]+\.trycloudflare\.com' | head -1)
-            if [ -n "$TUNNEL_NOTEBOOK_URL" ]; then
-                echo "   🌐 Public URL: $TUNNEL_NOTEBOOK_URL"
-            fi
-            ANY_RUNNING=1
-        else
-            echo "❌ Tunnel Notebook      - not running"
-        fi
-
-        if tmux has-session -t "$SESSION_NOTEBOOK" 2>/dev/null; then
-            echo "✅ Notebook (Open NB)   - running (session: $SESSION_NOTEBOOK)"
-            echo "   📓 Web UI: http://localhost:8502"
-            echo "   🔌 API: http://localhost:5055"
-            ANY_RUNNING=1
-        else
-            echo "❌ Notebook (Open NB)   - not running"
-        fi
-
-        if [ $ANY_RUNNING -eq 0 ]; then
-            echo ""
-            echo "No services are running. Use 'dev up' to start."
-        fi
+        "$COMMANDS_DIR/status.sh"
         ;;
-
+    attach)
+        "$COMMANDS_DIR/attach.sh" "$2"
+        ;;
     *)
-        echo "Terrarium Development Manager"
-        echo ""
-        echo "Usage: $0 {up|down|attach <service>|status}"
-        echo ""
-        echo "Commands:"
-        echo "  up                       - Start all services in separate tmux sessions"
-        echo "  down                     - Stop all services and kill tmux sessions"
-        echo "  attach <service>         - Attach to a specific service session"
-        echo "                             Services: dome, engine, portal, bridge,"
-        echo "                                      tunnel, tunnel-notebook-api,"
-        echo "                                      tunnel-notebook, notebook"
-        echo "  status                   - Check which services are running"
-        echo ""
-        echo "Examples:"
-        echo "  dev up                      # Start all services"
-        echo "  dev attach dome             # Attach to dome session"
-        echo "  dev attach engine           # Attach to engine session"
-        echo "  dev attach portal           # Attach to portal session"
-        echo "  dev attach bridge           # Attach to bridge session"
-        echo "  dev attach tunnel           # Attach to WebUI tunnel (see public URL)"
-        echo "  dev attach tunnel-notebook-api  # Attach to Notebook API tunnel"
-        echo "  dev attach tunnel-notebook  # Attach to Notebook tunnel (see public URL)"
-        echo "  dev attach notebook         # Attach to notebook session"
-        echo "  dev status                  # Check what's running"
-        echo ""
-        echo "Tmux shortcuts:"
-        echo "  Ctrl+B then D               - Detach from session"
+        show_help
         exit 1
         ;;
 esac
