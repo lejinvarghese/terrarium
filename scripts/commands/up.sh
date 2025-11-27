@@ -39,7 +39,7 @@ NOTIFY_NAMES=()
 NOTIFY_URLS=()
 
 # Create tunnels in order: dome first, then archive-api (capture URL), then archive service, then archive tunnel
-echo "🌐 Opening public portals..."
+echo "🌐 Opening public portals."
 for tunnel in "${TUNNELS[@]}"; do
     IFS='|' read -r name session display_name port emoji notify <<< "$tunnel"
 
@@ -73,7 +73,7 @@ for tunnel in "${TUNNELS[@]}"; do
 
         # Now start the archive service with the API tunnel URL
         echo ""
-        echo "📚 Initializing Archive..."
+        echo "📚 Initializing Archive."
         for service in "${SERVICES[@]}"; do
             IFS='|' read -r name session display_name command working_dir <<< "$service"
             if [ "$name" = "archive" ]; then
@@ -110,7 +110,7 @@ if [ ${#NOTIFY_URLS[@]} -gt 0 ]; then
     done
 
     if [ "$ALL_URLS_VALID" = true ]; then
-        # Build arguments: name1 url1 name2 url2 ...
+        # Build arguments: name1 url1 name2 url2 .
         NOTIFY_ARGS=()
         for i in "${!NOTIFY_NAMES[@]}"; do
             NOTIFY_ARGS+=("${NOTIFY_NAMES[$i]}" "${NOTIFY_URLS[$i]}")

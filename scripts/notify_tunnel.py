@@ -12,11 +12,23 @@ load_dotenv(env_path)
 
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
+GIRLFRIEND_TELEGRAM_CHAT_ID = os.getenv("GIRLFRIEND_TELEGRAM_CHAT_ID")
 
 def send_notification(url: str, service_name: str = "Open WebUI"):
-    """Send tunnel URL to Telegram."""
-    if not TELEGRAM_TOKEN or not TELEGRAM_CHAT_ID:
-        print("⚠️  Missing TELEGRAM_TOKEN or TELEGRAM_CHAT_ID in .env", file=sys.stderr)
+    """Send tunnel URL to Telegram (both you and girlfriend)."""
+    if not TELEGRAM_TOKEN:
+        print("⚠️  Missing TELEGRAM_TOKEN in .env", file=sys.stderr)
+        return
+
+    # Collect all chat IDs to send to
+    chat_ids = []
+    if TELEGRAM_CHAT_ID:
+        chat_ids.append(TELEGRAM_CHAT_ID)
+    if GIRLFRIEND_TELEGRAM_CHAT_ID:
+        chat_ids.append(GIRLFRIEND_TELEGRAM_CHAT_ID)
+
+    if not chat_ids:
+        print("⚠️  No chat IDs configured in .env", file=sys.stderr)
         return
 
     try:
@@ -34,19 +46,21 @@ def send_notification(url: str, service_name: str = "Open WebUI"):
 
         message = f"{emoji} *{service_name}* is live\n\n🔗 {url}\n\n{description}"
 
-        response = httpx.post(
-            api_url,
-            json={
-                "chat_id": TELEGRAM_CHAT_ID,
-                "text": message,
-                "parse_mode": "Markdown",
-                "disable_web_page_preview": False,
-            },
-            timeout=10.0,
-        )
+        # Send to all configured chat IDs
+        for chat_id in chat_ids:
+            response = httpx.post(
+                api_url,
+                json={
+                    "chat_id": chat_id,
+                    "text": message,
+                    "parse_mode": "Markdown",
+                    "disable_web_page_preview": False,
+                },
+                timeout=10.0,
+            )
 
-        if response.status_code != 200:
-            print(f"⚠️  Telegram notification failed: {response.status_code}", file=sys.stderr)
+            if response.status_code != 200:
+                print(f"⚠️  Telegram notification failed for {chat_id}: {response.status_code}", file=sys.stderr)
 
     except ImportError:
         print("⚠️  httpx not installed in main environment", file=sys.stderr)
@@ -54,12 +68,22 @@ def send_notification(url: str, service_name: str = "Open WebUI"):
         print(f"⚠️  Error sending notification: {e}", file=sys.stderr)
 
 def send_combined_notification(portals: list[tuple[str, str]]):
-    """Send combined tunnel URLs to Telegram.
+    """Send combined tunnel URLs to Telegram (both you and girlfriend).
 
     Args:
         portals: List of (service_name, url) tuples
     """
-    if not TELEGRAM_TOKEN or not TELEGRAM_CHAT_ID:
+    if not TELEGRAM_TOKEN:
+        return
+
+    # Collect all chat IDs to send to
+    chat_ids = []
+    if TELEGRAM_CHAT_ID:
+        chat_ids.append(TELEGRAM_CHAT_ID)
+    if GIRLFRIEND_TELEGRAM_CHAT_ID:
+        chat_ids.append(GIRLFRIEND_TELEGRAM_CHAT_ID)
+
+    if not chat_ids:
         return
 
     try:
@@ -78,19 +102,21 @@ def send_combined_notification(portals: list[tuple[str, str]]):
 
         message = "\n".join(lines)
 
-        response = httpx.post(
-            api_url,
-            json={
-                "chat_id": TELEGRAM_CHAT_ID,
-                "text": message,
-                "parse_mode": "Markdown",
-                "disable_web_page_preview": False,
-            },
-            timeout=10.0,
-        )
+        # Send to all configured chat IDs
+        for chat_id in chat_ids:
+            response = httpx.post(
+                api_url,
+                json={
+                    "chat_id": chat_id,
+                    "text": message,
+                    "parse_mode": "Markdown",
+                    "disable_web_page_preview": False,
+                },
+                timeout=10.0,
+            )
 
-        if response.status_code != 200:
-            print(f"⚠️  Telegram notification failed: {response.status_code}", file=sys.stderr)
+            if response.status_code != 200:
+                print(f"⚠️  Telegram notification failed for {chat_id}: {response.status_code}", file=sys.stderr)
 
     except ImportError:
         pass  # Silently fail if httpx not installed

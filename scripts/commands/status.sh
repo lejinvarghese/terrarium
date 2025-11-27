@@ -41,7 +41,7 @@ for tunnel in "${TUNNELS[@]}"; do
             echo "  $emoji $display_name"
             echo "     $tunnel_url"
         else
-            echo "  ⏳ $display_name (waiting...)"
+            echo "  ⏳ $display_name (waiting.)"
         fi
         ANY_RUNNING=1
     else
