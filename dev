@@ -1,197 +1,62 @@
 #!/bin/bash
 # Terrarium development environment manager
+# Thin router that delegates to modular command scripts
 
-SESSION_PREFIX="terrarium"
-SESSION_DOME="${SESSION_PREFIX}-dome"
-SESSION_ENGINE="${SESSION_PREFIX}-engine"
-SESSION_PORTAL="${SESSION_PREFIX}-portal"
-SESSION_BRIDGE="${SESSION_PREFIX}-bridge"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+COMMANDS_DIR="$SCRIPT_DIR/scripts/commands"
+
+# Load common utilities for help text
+source "$SCRIPT_DIR/scripts/lib/common.sh"
+source "$SCRIPT_DIR/scripts/lib/services.conf"
+
+show_help() {
+    echo "Terrarium Development Manager"
+    echo ""
+    echo "Usage: $0 {up|down|attach <service>|status}"
+    echo ""
+    echo "Commands:"
+    echo "  up                       - Start all services in separate tmux sessions"
+    echo "  down                     - Stop all services and kill tmux sessions"
+    echo "  attach <service>         - Attach to a specific service session"
+    echo "  status                   - Check which services are running"
+    echo ""
+    echo "Available services:"
+    for service in "${SERVICES[@]}"; do
+        IFS='|' read -r name session display_name command working_dir <<< "$service"
+        echo "  - $name"
+    done
+    echo ""
+    echo "Available tunnels:"
+    for tunnel in "${TUNNELS[@]}"; do
+        IFS='|' read -r name session display_name port emoji notify <<< "$tunnel"
+        echo "  - $name"
+    done
+    echo ""
+    echo "Examples:"
+    echo "  dev up                      # Start all services"
+    echo "  dev attach dome             # Attach to dome service"
+    echo "  dev attach tunnel           # Attach to dome tunnel (see public URL)"
+    echo "  dev status                  # Check what's running"
+    echo ""
+    echo "Tmux shortcuts:"
+    echo "  Ctrl+B then D               - Detach from session"
+}
 
 case "$1" in
     up)
-        # Check if tmux is installed
-        if ! command -v tmux &> /dev/null; then
-            echo "Error: tmux is not installed. Install it with: sudo apt install tmux"
-            exit 1
-        fi
-
-        echo "🌿 Starting Terrarium services"
-
-        # Create Dome (Open WebUI) session
-        if tmux has-session -t "$SESSION_DOME" 2>/dev/null; then
-            echo "⚠️  Session '$SESSION_DOME' already exists"
-        else
-            tmux new-session -d -s "$SESSION_DOME"
-            tmux send-keys -t "$SESSION_DOME" "./app.sh" C-m
-            echo "✅ Started Dome in session '$SESSION_DOME'"
-        fi
-
-        # Create Engine (Scheduler) session
-        if tmux has-session -t "$SESSION_ENGINE" 2>/dev/null; then
-            echo "⚠️  Session '$SESSION_ENGINE' already exists"
-        else
-            tmux new-session -d -s "$SESSION_ENGINE"
-            tmux send-keys -t "$SESSION_ENGINE" "python3 src/engine/scheduler.py" C-m
-            echo "✅ Started Engine in session '$SESSION_ENGINE'"
-        fi
-
-        # Create Portal (Telegram Bot) session
-        if tmux has-session -t "$SESSION_PORTAL" 2>/dev/null; then
-            echo "⚠️  Session '$SESSION_PORTAL' already exists"
-        else
-            tmux new-session -d -s "$SESSION_PORTAL"
-            tmux send-keys -t "$SESSION_PORTAL" "python3 -m src.portals.telegram.bot" C-m
-            echo "✅ Started Portal in session '$SESSION_PORTAL'"
-        fi
-
-        # Create Bridge (mcpo MCP proxy) session
-        if tmux has-session -t "$SESSION_BRIDGE" 2>/dev/null; then
-            echo "⚠️  Session '$SESSION_BRIDGE' already exists"
-        else
-            tmux new-session -d -s "$SESSION_BRIDGE"
-            tmux send-keys -t "$SESSION_BRIDGE" "uvx mcpo --port 8765 --api-key \"terrarium-mcp-bridge\" --config src/configs/mcpo.json --hot-reload" C-m
-            echo "✅ Started Bridge in session '$SESSION_BRIDGE'"
-        fi
-
-        echo ""
-        echo "✅ All services started in separate tmux sessions"
-        echo "   Use 'dev attach <service>' to view a specific service"
-        echo "   Use 'dev status' to see all running services"
-        echo "   Use 'dev down' to stop all services"
+        "$COMMANDS_DIR/up.sh"
         ;;
-
     down)
-        echo "🛑 Stopping Terrarium services..."
-        STOPPED=0
-
-        if tmux has-session -t "$SESSION_DOME" 2>/dev/null; then
-            tmux kill-session -t "$SESSION_DOME"
-            echo "✅ Stopped Dome"
-            STOPPED=1
-        fi
-
-        if tmux has-session -t "$SESSION_ENGINE" 2>/dev/null; then
-            tmux kill-session -t "$SESSION_ENGINE"
-            echo "✅ Stopped Engine"
-            STOPPED=1
-        fi
-
-        if tmux has-session -t "$SESSION_PORTAL" 2>/dev/null; then
-            tmux kill-session -t "$SESSION_PORTAL"
-            echo "✅ Stopped Portal"
-            STOPPED=1
-        fi
-
-        if tmux has-session -t "$SESSION_BRIDGE" 2>/dev/null; then
-            tmux kill-session -t "$SESSION_BRIDGE"
-            echo "✅ Stopped Bridge"
-            STOPPED=1
-        fi
-
-        if [ $STOPPED -eq 0 ]; then
-            echo "No Terrarium sessions found"
-        fi
+        "$COMMANDS_DIR/down.sh"
         ;;
-
-    attach)
-        SERVICE="$2"
-
-        if [ -z "$SERVICE" ]; then
-            echo "Error: Please specify a service to attach to"
-            echo "Usage: dev attach <dome|engine|portal|bridge>"
-            exit 1
-        fi
-
-        case "$SERVICE" in
-            dome)
-                SESSION="$SESSION_DOME"
-                ;;
-            engine)
-                SESSION="$SESSION_ENGINE"
-                ;;
-            portal)
-                SESSION="$SESSION_PORTAL"
-                ;;
-            bridge)
-                SESSION="$SESSION_BRIDGE"
-                ;;
-            *)
-                echo "Error: Invalid service '$SERVICE'"
-                echo "Valid services: dome, engine, portal, bridge"
-                exit 1
-                ;;
-        esac
-
-        if tmux has-session -t "$SESSION" 2>/dev/null; then
-            tmux attach-session -t "$SESSION"
-        else
-            echo "Error: Session '$SESSION' does not exist. Run 'dev up' first."
-            exit 1
-        fi
-        ;;
-
     status)
-        echo "Terrarium Services Status:"
-        echo ""
-
-        ANY_RUNNING=0
-
-        if tmux has-session -t "$SESSION_DOME" 2>/dev/null; then
-            echo "✅ Dome (Open WebUI)    - running (session: $SESSION_DOME)"
-            ANY_RUNNING=1
-        else
-            echo "❌ Dome (Open WebUI)    - not running"
-        fi
-
-        if tmux has-session -t "$SESSION_ENGINE" 2>/dev/null; then
-            echo "✅ Engine (Scheduler)   - running (session: $SESSION_ENGINE)"
-            ANY_RUNNING=1
-        else
-            echo "❌ Engine (Scheduler)   - not running"
-        fi
-
-        if tmux has-session -t "$SESSION_PORTAL" 2>/dev/null; then
-            echo "✅ Portal (Telegram)    - running (session: $SESSION_PORTAL)"
-            ANY_RUNNING=1
-        else
-            echo "❌ Portal (Telegram)    - not running"
-        fi
-
-        if tmux has-session -t "$SESSION_BRIDGE" 2>/dev/null; then
-            echo "✅ Bridge (mcpo)        - running (session: $SESSION_BRIDGE)"
-            ANY_RUNNING=1
-        else
-            echo "❌ Bridge (mcpo)        - not running"
-        fi
-
-        if [ $ANY_RUNNING -eq 0 ]; then
-            echo ""
-            echo "No services are running. Use 'dev up' to start."
-        fi
+        "$COMMANDS_DIR/status.sh"
         ;;
-
+    attach)
+        "$COMMANDS_DIR/attach.sh" "$2"
+        ;;
     *)
-        echo "Terrarium Development Manager"
-        echo ""
-        echo "Usage: $0 {up|down|attach <service>|status}"
-        echo ""
-        echo "Commands:"
-        echo "  up                    - Start all services in separate tmux sessions"
-        echo "  down                  - Stop all services and kill tmux sessions"
-        echo "  attach <service>      - Attach to a specific service session"
-        echo "                          Services: dome, engine, portal, bridge"
-        echo "  status                - Check which services are running"
-        echo ""
-        echo "Examples:"
-        echo "  dev up                # Start all services"
-        echo "  dev attach dome       # Attach to dome session"
-        echo "  dev attach engine     # Attach to engine session"
-        echo "  dev attach portal     # Attach to portal session"
-        echo "  dev attach bridge     # Attach to bridge session"
-        echo "  dev status            # Check what's running"
-        echo ""
-        echo "Tmux shortcuts:"
-        echo "  Ctrl+B then D         - Detach from session"
+        show_help
         exit 1
         ;;
 esac

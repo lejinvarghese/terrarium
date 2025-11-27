@@ -103,7 +103,7 @@ def main(config_file):
 
             # Show spinner while waiting
             spinner_char = click.style(next(spinner), fg='cyan', bold=True)
-            message = click.style('Waiting for next task...', fg='white', dim=True)
+            message = click.style('Waiting for next task.', fg='white', dim=True)
             sys.stdout.write(f'\r{spinner_char} {message}')
             sys.stdout.flush()
 
