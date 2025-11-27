@@ -10,22 +10,23 @@ source "$SCRIPT_DIR/../lib/common.sh"
 source "$SCRIPT_DIR/../lib/services.conf"
 source "$SCRIPT_DIR/../lib/service_manager.sh"
 
-echo "🛑 Stopping Terrarium services..."
+echo "🛑 Stopping Terrarium services."
 STOPPED=0
+
+# First, ensure docker container is stopped (regardless of tmux session state)
+if docker ps -q -f name=open-notebook | grep -q .; then
+    docker stop open-notebook >/dev/null 2>&1
+    docker rm open-notebook >/dev/null 2>&1
+    echo "🛑 Stopped Archive container"
+    STOPPED=1
+fi
 
 # Stop all core services
 for service in "${SERVICES[@]}"; do
     IFS='|' read -r name session display_name command working_dir <<< "$service"
 
-    # Special cleanup for notebook (stop docker container)
-    if [ "$name" = "notebook" ]; then
-        if stop_service "$session" "$display_name" "docker stop open-notebook"; then
-            STOPPED=1
-        fi
-    else
-        if stop_service "$session" "$display_name"; then
-            STOPPED=1
-        fi
+    if stop_service "$session" "$display_name"; then
+        STOPPED=1
     fi
 done
 

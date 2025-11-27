@@ -12,32 +12,47 @@ create_tunnel() {
     local return_var="${6:-}"
 
     if session_exists "$session_name"; then
-        echo_warning "Session '$session_name' already exists"
-        return 0
+        # Check if existing session has a valid tunnel URL
+        local existing_url=$(get_tunnel_url "$session_name")
+        if [ -n "$existing_url" ]; then
+            echo "  ✓ $service_name already active"
+            # Return existing URL if requested
+            if [ -n "$return_var" ]; then
+                eval "$return_var='$existing_url'"
+            fi
+            return 0
+        else
+            # Session exists but no valid tunnel, kill and recreate
+            tmux kill-session -t "$session_name" 2>/dev/null
+            sleep 1
+        fi
     fi
 
     tmux new-session -d -s "$session_name"
     tmux send-keys -t "$session_name" "~/.local/bin/cloudflared tunnel --url http://localhost:$port" C-m
-    sleep 4
 
-    # Extract tunnel URL
-    local tunnel_url=$(get_tunnel_url "$session_name")
+    # Wait and retry to get tunnel URL
+    local tunnel_url=""
+    local retry=0
+    while [ -z "$tunnel_url" ] && [ $retry -lt 8 ]; do
+        sleep 1
+        tunnel_url=$(get_tunnel_url "$session_name")
+        retry=$((retry + 1))
+    done
 
     if [ -n "$tunnel_url" ]; then
-        echo_success "Started Tunnel ($service_name) in session '$session_name'"
-        echo_info "$emoji Public URL: $tunnel_url"
-
-        # Send Telegram notification if requested
-        if [ "$send_notification" = "true" ]; then
-            python3 scripts/notify_tunnel.py "$tunnel_url" "$service_name" 2>/dev/null &
-        fi
+        echo "  $emoji $service_name: $tunnel_url"
 
         # Return URL via variable name if requested
         if [ -n "$return_var" ]; then
             eval "$return_var='$tunnel_url'"
         fi
     else
-        echo_success "Started Tunnel ($service_name) in session '$session_name' (URL pending...)"
+        echo "  ⏳ $service_name (waiting for URL...)"
+        # Return empty if requested
+        if [ -n "$return_var" ]; then
+            eval "$return_var=''"
+        fi
     fi
 }
 
@@ -51,7 +66,7 @@ tunnel_status_info() {
         # Determine emoji based on session name
         local emoji="🌐"
         [[ "$session" == *"api"* ]] && emoji="🔌"
-        [[ "$session" == *"notebook"* ]] && emoji="📓"
+        [[ "$session" == *"archive"* ]] && emoji="📓"
 
         echo_info "$emoji Public URL: $tunnel_url"
     fi

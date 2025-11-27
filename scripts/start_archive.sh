@@ -11,14 +11,14 @@ if [ -f .env ]; then
 fi
 
 # Use API tunnel URL if available, fallback to localhost
-API_URL="${TUNNEL_NOTEBOOK_API_URL:-http://localhost:5055}"
+API_URL="${TUNNEL_ARCHIVE_API_URL:-http://localhost:5055}"
 
 echo "Starting Open Notebook with API URL: $API_URL"
 
 docker run --rm --name open-notebook \
     -p 8502:8502 \
     -p 5055:5055 \
-    -v ./notebook_data:/app/data \
+    -v ./archive_data:/app/data \
     -e OPENAI_API_KEY="$OPENAI_API_KEY" \
     -e ANTHROPIC_API_KEY="$ANTHROPIC_API_KEY" \
     -e TAVILY_API_KEY="$TAVILY_API_KEY" \

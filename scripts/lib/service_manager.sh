@@ -11,13 +11,22 @@ start_service() {
     local working_dir="${5:-$(pwd)}"
 
     if session_exists "$session"; then
-        echo_warning "Session '$session' already exists"
+        echo_warning "Session '$session' already exists, skipping"
         return 0
+    fi
+
+    # Special handling for archive - ensure docker container doesn't exist
+    if [ "$name" = "archive" ]; then
+        if docker ps -q -f name=open-notebook | grep -q .; then
+            docker stop open-notebook >/dev/null 2>&1
+            docker rm open-notebook >/dev/null 2>&1
+            sleep 1
+        fi
     fi
 
     tmux new-session -d -s "$session" -c "$working_dir"
     tmux send-keys -t "$session" "$command" C-m
-    echo_success "Started $display_name in session '$session'"
+    echo "  ✓ $display_name"
 }
 
 # Stop a service and kill its tmux session
@@ -34,7 +43,7 @@ stop_service() {
         fi
 
         tmux kill-session -t "$session"
-        echo_success "Stopped $display_name"
+        echo "🛑 Stopped $display_name"
         return 0
     fi
     return 1

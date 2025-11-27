@@ -9,9 +9,9 @@ load_env() {
     fi
 }
 
-# Check if tmux session exists
+# Check if tmux session exists (exact match, not prefix)
 session_exists() {
-    tmux has-session -t "$1" 2>/dev/null
+    tmux has-session -t "=$1" 2>/dev/null
 }
 
 # Output helpers

@@ -72,8 +72,8 @@ class ClaudeEngine:
         try:
             lines = bot_file.read_text().splitlines()
             # Line 0: ---
-            # Line 1: name: ...
-            # Line 2: description: ...
+            # Line 1: name: .
+            # Line 2: description: .
             if len(lines) > 2 and lines[2].startswith("description:"):
                 return lines[2].replace("description:", "").strip()
             return None
@@ -129,7 +129,7 @@ class ClaudeEngine:
             # Resume existing session or start new
             if session_id:
                 cmd.extend(["--resume", session_id])
-                click.secho(f"🔄 Resuming session: {session_id[:8]}...", fg="yellow")
+                click.secho(f"🔄 Resuming session: {session_id[:8]}.", fg="yellow")
             else:
                 click.secho("✨ Starting new session", fg="bright_cyan")
                 # Add bot system prompt for new sessions (or casper if no bot selected)
@@ -145,7 +145,7 @@ class ClaudeEngine:
             # Add the message
             cmd.append(message)
 
-            click.secho(f"🚀 Executing Claude CLI...", fg="bright_blue")
+            click.secho(f"🚀 Executing Claude CLI.", fg="bright_blue")
 
             # Execute claude CLI
             process = await asyncio.create_subprocess_exec(
@@ -211,7 +211,7 @@ class ClaudeEngine:
                         }
 
                 if new_session_id:
-                    session_display = new_session_id[:8] + "..."
+                    session_display = new_session_id[:8] + "."
                 else:
                     session_display = "unknown"
 

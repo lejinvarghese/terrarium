@@ -16,7 +16,7 @@ async def get_chat_id():
 
     bot = Bot(token=token)
 
-    print("Fetching recent updates...")
+    print("Fetching recent updates.")
     updates = await bot.get_updates()
 
     if not updates:

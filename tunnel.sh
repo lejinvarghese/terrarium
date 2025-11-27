@@ -30,7 +30,7 @@ case "$COMMAND" in
         ;;
 
     internet|public|tunnel)
-        echo "🌐 Starting internet tunnel for port $PORT..."
+        echo "🌐 Starting internet tunnel for port $PORT."
         echo ""
         echo "Your service will be accessible from anywhere via a public URL"
         echo "Press Ctrl+C to stop the tunnel"

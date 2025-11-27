@@ -103,7 +103,7 @@ def import_to_openwebui(db_path, input_file, skip_confirm=False):
     click.secho(f"\n📝 Found {len(sections)} memory sections to sync:", fg="cyan", bold=True)
     for i, section in enumerate(sections, 1):
         preview = section[:80].replace('\n', ' ')
-        click.echo(f"  {i}. {preview}...")
+        click.echo(f"  {i}. {preview}.")
 
     if not skip_confirm:
         click.echo()
@@ -162,11 +162,11 @@ def main(mode, memory_file, db_path, yes):
     click.secho("=" * 50, fg="green")
 
     if mode in ['export', 'both']:
-        click.secho("\n📤 Exporting from Open WebUI...", fg="blue")
+        click.secho("\n📤 Exporting from Open WebUI.", fg="blue")
         export_from_openwebui(db_path, memory_file)
 
     if mode in ['import', 'both']:
-        click.secho("\n📥 Importing to Open WebUI...", fg="blue")
+        click.secho("\n📥 Importing to Open WebUI.", fg="blue")
         import_to_openwebui(db_path, memory_file, yes)
 
     click.echo()
