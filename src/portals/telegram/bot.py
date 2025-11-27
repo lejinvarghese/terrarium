@@ -63,7 +63,7 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
 
 /start - 👋 Enter the terrarium
 /help -  📖 Show this help message
-/bot <name> -  🌿 Connect with a bot (anya, cassia, freya, nigella, nyx, sage)
+/bot <name> -  🌿 Connect with a bot
 /bots - 🌱 List all bots in the terrarium
 /clear - 🧹 Start a fresh conversation
 /status - 📊 View your current state
@@ -86,11 +86,12 @@ async def bot_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
         return
 
     bot_name = parts[1].lower().strip()
+    user_id = update.effective_user.id
     claude_engine = context.bot_data["claude_engine"]
 
-    # Validate bot
-    if bot_name not in claude_engine.list_bots():
-        available = ", ".join(claude_engine.list_bots())
+    # Validate bot (with user filtering)
+    if bot_name not in claude_engine.list_bots(user_id=user_id):
+        available = ", ".join(claude_engine.list_bots(user_id=user_id))
         await update.message.reply_text(f"❌ Bot '{bot_name}' not found.\n\n" f"Available: {available}")
         return
 
@@ -98,7 +99,6 @@ async def bot_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
     old_bot = context.user_data.get("bot")
     context.user_data["bot"] = bot_name
 
-    user_id = update.effective_user.id
     session_manager = context.bot_data["session_manager"]
     session_manager.clear_session(user_id, bot_name)
 
@@ -109,8 +109,9 @@ async def bot_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
 
 async def bots_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Handle /bots command."""
+    user_id = update.effective_user.id
     claude_engine = context.bot_data["claude_engine"]
-    bots = claude_engine.list_bots()
+    bots = claude_engine.list_bots(user_id=user_id)
 
     if not bots:
         await update.message.reply_text("The terrarium is empty.")
@@ -124,10 +125,11 @@ async def bots_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         "nigella": "🍳",
         "nyx": "🚀",
         "sage": "📚",
+        "pepper": "🌶️",
     }
 
-    # Get descriptions dynamically from agent files
-    bots_info = claude_engine.get_all_bots_info()
+    # Get descriptions dynamically from agent files (with user filtering)
+    bots_info = claude_engine.get_all_bots_info(user_id=user_id)
 
     msg = "🌿 **Bots in the Terrarium:**\n\n"
     for b in bots:

@@ -4,6 +4,7 @@
 import asyncio
 import json
 import click
+import os
 from pathlib import Path
 from typing import Optional, Dict, Any, Tuple
 
@@ -29,18 +30,30 @@ class ClaudeEngine:
         self.working_dir = working_dir or str(Path.cwd())
         self.timeout = timeout
         self.bot_prompts_dir = Path(__file__).parent.parent.parent.parent / ".claude" / "agents"
+        # Get girlfriend's user ID from env (chat_id is same as user_id for DMs)
+        self.girlfriend_user_id = os.getenv("GIRLFRIEND_TELEGRAM_CHAT_ID")
         click.secho(f"⚙️  ClaudeEngine initialized: {self.working_dir}", fg="blue")
 
-    def list_bots(self) -> list[str]:
+    def list_bots(self, user_id: Optional[int] = None) -> list[str]:
         """
         Get list of available bots.
+
+        Args:
+            user_id: Telegram user ID for filtering bots
 
         Returns:
             List of bot names
         """
         if not self.bot_prompts_dir.exists():
             return []
-        return sorted([f.stem for f in self.bot_prompts_dir.glob("*.md")])
+
+        all_bots = sorted([f.stem for f in self.bot_prompts_dir.glob("*.md")])
+
+        # Filter out pepper unless user is girlfriend
+        if user_id is None or str(user_id) != self.girlfriend_user_id:
+            all_bots = [bot for bot in all_bots if bot != "pepper"]
+
+        return all_bots
 
     def get_bot_file(self, bot: str) -> Optional[Path]:
         """
@@ -81,15 +94,18 @@ class ClaudeEngine:
             click.secho(f"⚠️  Failed to read description for {bot}: {e}", fg="yellow")
             return None
 
-    def get_all_bots_info(self) -> Dict[str, str]:
+    def get_all_bots_info(self, user_id: Optional[int] = None) -> Dict[str, str]:
         """
         Get descriptions for all available bots.
+
+        Args:
+            user_id: Telegram user ID for filtering bots
 
         Returns:
             Dictionary mapping bot names to their descriptions
         """
         bots_info = {}
-        for bot in self.list_bots():
+        for bot in self.list_bots(user_id=user_id):
             description = self.get_bot_description(bot)
             if description:
                 bots_info[bot] = description
