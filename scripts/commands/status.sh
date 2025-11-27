@@ -11,38 +11,45 @@ source "$SCRIPT_DIR/../lib/services.conf"
 source "$SCRIPT_DIR/../lib/service_manager.sh"
 source "$SCRIPT_DIR/../lib/tunnel_manager.sh"
 
-echo "Terrarium Services Status:"
+echo "🌿 Terrarium Status"
 echo ""
 
 ANY_RUNNING=0
 
 # Check core services
+echo "Services:"
 for service in "${SERVICES[@]}"; do
     IFS='|' read -r name session display_name command working_dir <<< "$service"
 
-    # Special info for notebook
-    if [ "$name" = "notebook" ]; then
-        if service_status "$session" "$display_name"; then
-            echo_info "📓 Web UI: http://localhost:8502"
-            echo_info "🔌 API: http://localhost:5055"
-            ANY_RUNNING=1
-        fi
+    if session_exists "$session"; then
+        echo "  ✓ $display_name"
+        ANY_RUNNING=1
     else
-        if service_status "$session" "$display_name"; then
-            ANY_RUNNING=1
-        fi
+        echo "  ✗ $display_name"
     fi
 done
 
 # Check tunnels
+echo ""
+echo "Public Portals:"
 for tunnel in "${TUNNELS[@]}"; do
     IFS='|' read -r name session display_name port emoji notify <<< "$tunnel"
-    if service_status "$session" "Tunnel $display_name" "tunnel_status_info"; then
+
+    if session_exists "$session"; then
+        tunnel_url=$(get_tunnel_url "$session")
+        if [ -n "$tunnel_url" ]; then
+            echo "  $emoji $display_name"
+            echo "     $tunnel_url"
+        else
+            echo "  ⏳ $display_name (waiting...)"
+        fi
         ANY_RUNNING=1
+    else
+        echo "  ✗ $display_name"
     fi
 done
 
 if [ $ANY_RUNNING -eq 0 ]; then
     echo ""
-    echo "No services are running. Use 'dev up' to start."
+    echo "Nothing running. Use 'dev up' to start."
 fi
