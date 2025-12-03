@@ -214,3 +214,15 @@ src/bots/luci.md
 data/
 src/configs/mcpo.json
 archive_data/
+
+# Temporary directories and files
+tmp*/
+
+# Database files and directories
+mydata_surrealdb/
+*.db
+*.sqlite
+*.sqlite3
+
+# Temporary test scripts
+send_*_message*.py
