@@ -95,6 +95,10 @@ for tunnel in "${TUNNELS[@]}"; do
             NOTIFY_NAMES+=("Archive")
             NOTIFY_URLS+=("$ARCHIVE_TUNNEL_URL")
         fi
+
+    # Create SSH tunnel for remote access
+    elif [ "$name" = "ssh" ]; then
+        create_tunnel "$session" "$port" "$display_name" "false" "$emoji" "SSH_TUNNEL_URL"
     fi
 done
 
