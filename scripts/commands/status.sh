@@ -40,6 +40,11 @@ for tunnel in "${TUNNELS[@]}"; do
         if [ -n "$tunnel_url" ]; then
             echo "  $emoji $display_name"
             echo "     $tunnel_url"
+
+            # Special handling for SSH tunnel - show connection command
+            if [ "$name" = "ssh" ]; then
+                echo "     ssh -o ProxyCommand='cloudflared access tcp --hostname %h' starscream@$tunnel_url"
+            fi
         else
             echo "  ⏳ $display_name (waiting.)"
         fi
