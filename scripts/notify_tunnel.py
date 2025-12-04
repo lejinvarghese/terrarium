@@ -39,7 +39,8 @@ def send_notification(url: str, service_name: str = "Open WebUI"):
         # Service-specific emojis and descriptions
         service_info = {
             "Dome": ("🌐✨", "Your Dome is glowing - accessible from anywhere in the world"),
-            "Archive": ("📚🔍", "Your Archive awaits - knowledge flows through any connection")
+            "Archive": ("📚🔍", "Your Archive awaits - knowledge flows through any connection"),
+            "SSH": ("🔐🚀", "Direct access to Cybertron - terminal awaits your command")
         }
 
         emoji, description = service_info.get(service_name, ("🌐", "Portal active - reach from anywhere"))

@@ -22,6 +22,11 @@ if session_exists "$SESSION_NAME"; then
         echo ""
         echo "📝 To connect:"
         echo "   ssh -o ProxyCommand='cloudflared access tcp --hostname %h' starscream@$existing_url"
+
+        # Send notification to Telegram
+        echo ""
+        echo "📱 Sending Telegram notification..."
+        python3 "$SCRIPT_DIR/notify_tunnel.py" "$existing_url" "SSH" || echo "⚠️  Telegram notification failed"
         exit 0
     else
         # Kill stale session
@@ -53,6 +58,11 @@ if [ -n "$tunnel_url" ]; then
     echo ""
     echo "💡 Or use the tunnel directly (requires cloudflared on your laptop):"
     echo "   ssh starscream@localhost -p \$(cloudflared access tcp --hostname $tunnel_url --url localhost:2222 &>/dev/null & echo 2222)"
+
+    # Send notification to Telegram
+    echo ""
+    echo "📱 Sending Telegram notification..."
+    python3 "$SCRIPT_DIR/notify_tunnel.py" "$tunnel_url" "SSH" || echo "⚠️  Telegram notification failed"
 else
     echo "⚠️  Failed to create tunnel"
     exit 1
