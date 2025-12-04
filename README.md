@@ -11,6 +11,16 @@ A personal AI ecosystem orchestrating life optimization through scheduled assist
 
 Terrarium coordinates a team of specialized AI assistants that handle daily planning, health optimization, creative work, culinary guidance, and strategic thinking. Each assistant has access to real-time data (calendar, weather, Spotify, recipes) and runs on a schedule to provide contextual, seasonal recommendations.
 
+### 🎨 [3D Visualization](./VISUALIZATION.md)
+
+Experience your AI ecosystem in an interactive 3D environment! The Terrarium Visualization displays all your bots and services in a stunning cyberpunk-organic glass dome with real-time status updates.
+
+```bash
+cd terrarium-viz && ./start.sh
+```
+
+See [VISUALIZATION.md](./VISUALIZATION.md) for details.
+
 ## The Home Team
 
 **🌅 Cassia** - Your morning briefing specialist
