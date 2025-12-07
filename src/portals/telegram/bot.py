@@ -16,6 +16,8 @@ from telegram.ext import (
 )
 from warnings import filterwarnings
 from mem0 import Memory
+from mem0.configs.base import MemoryConfig, EmbedderConfig
+from mem0.vector_stores.configs import VectorStoreConfig
 from src.portals.telegram.claude_engine import ClaudeEngine
 from src.portals.telegram.session_manager import SessionManager
 
@@ -26,6 +28,7 @@ load_dotenv(Path(__file__).parent.parent.parent.parent / ".env")
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 DB_PATH = os.getenv("SESSION_DB_PATH", "data/sessions.db")
 WORKING_DIR = os.getenv("CLAUDE_WORKING_DIR", os.getcwd())
+MEMORY_VECTOR_PATH = os.getenv("MEMORY_VECTOR_PATH", "data/memory_vectors")
 
 filterwarnings("ignore")
 
@@ -99,9 +102,7 @@ async def bot_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
         return
 
     # Switch bot and clear old session
-    old_bot = context.user_data.get("bot")
     context.user_data["bot"] = bot_name
-
     session_manager = context.bot_data["session_manager"]
     session_manager.clear_session(user_id, bot_name)
 
@@ -208,10 +209,13 @@ async def memories_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -
 
     try:
         # Get all memories for this user and agent (pass as direct parameters)
+        click.secho(f"🔍 Fetching memories: user_id={str(user_id)}, agent_id={agent_id}", fg="cyan")
         all_memories = memory.get_all(
             user_id=str(user_id),
             agent_id=agent_id
         )
+        click.secho(f"📦 Raw memory response type: {type(all_memories)}", fg="cyan")
+        click.secho(f"📦 Raw memory response: {all_memories}", fg="cyan")
 
         # Handle response - might be dict with 'results' or direct list
         if isinstance(all_memories, dict):
@@ -297,9 +301,18 @@ async def compact_command(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
 
 
 async def send_message_in_chunks(update: Update, message: str, chunk_size: int = 4096) -> None:
-    """Send large message in chunks."""
+    """Send large message in chunks, with fallback for markdown parsing errors."""
     for i in range(0, len(message), chunk_size):
-        await update.message.reply_text(message[i : i + chunk_size], parse_mode=ParseMode.MARKDOWN)
+        chunk = message[i : i + chunk_size]
+        try:
+            await update.message.reply_text(chunk, parse_mode=ParseMode.MARKDOWN)
+        except Exception as e:
+            # If markdown parsing fails, send as plain text
+            if "can't parse entities" in str(e).lower():
+                click.secho(f"⚠️  Markdown parse error, sending as plain text", fg="yellow")
+                await update.message.reply_text(chunk)
+            else:
+                raise
 
 
 async def chat_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -326,19 +339,31 @@ async def chat_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         # Retrieve most relevant memories
         memory = context.bot_data["memory"]
         agent_id = bot or "casper"
-        memories = memory.search(
-            query=user_message,
-            user_id=str(user.id),
-            agent_id=agent_id,
-            limit=3  # Only get top 3 most relevant memories
-        )
+        memory_list = []
+
+        try:
+            memories_response = memory.search(
+                query=user_message,
+                user_id=str(user.id),
+                agent_id=agent_id,
+                limit=3  # Only get top 3 most relevant memories
+            )
+
+            # Handle response format
+            if isinstance(memories_response, dict):
+                memory_list = memories_response.get('results', memories_response.get('memories', []))
+            else:
+                memory_list = memories_response if isinstance(memories_response, list) else []
+        except Exception as mem_error:
+            click.secho(f"⚠️  Memory retrieval failed: {mem_error}", fg="yellow")
+            memory_list = []
 
         # Enhance message with memory context if relevant memories found
         enhanced_message = user_message
-        if memories:
-            context_parts = [m['memory'] for m in memories]
+        if memory_list:
+            context_parts = [m.get('memory', m.get('text', str(m))) for m in memory_list]
             enhanced_message = f"{user_message}\n\n[Context: {'; '.join(context_parts)}]"
-            click.secho(f"🧠 Added {len(memories)} relevant memories", fg="magenta")
+            click.secho(f"🧠 Added {len(memory_list)} relevant memories", fg="magenta")
 
         # Chat with Claude
         response, new_session_id, metadata = await claude_engine.chat(
@@ -364,7 +389,7 @@ async def chat_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
                     user_id=str(user.id),
                     agent_id=agent_id
                 )
-                click.secho(f"💾 Stored memory", fg="green")
+                click.secho(f"💾 Stored memory: user_id={str(user.id)}, agent_id={agent_id}", fg="green")
             except Exception as mem_error:
                 click.secho(f"⚠️  Memory storage failed: {mem_error}", fg="yellow")
 
@@ -393,10 +418,25 @@ def main() -> None:
     """Run the bot."""
     click.secho("🤖 Starting telegram bot.", fg="bright_magenta", bold=True)
 
+    # Configure Mem0 with persistent storage
+    mem0_config = MemoryConfig(
+        vector_store=VectorStoreConfig(
+            provider="qdrant",
+            config={
+                "path": MEMORY_VECTOR_PATH,
+                "on_disk": True,
+            }
+        ),
+        embedder=EmbedderConfig(
+            provider="openai",
+            config={"model": "text-embedding-3-small"}
+        )
+    )
+
     # Initialize components
     claude_engine = ClaudeEngine(working_dir=WORKING_DIR)
     session_manager = SessionManager(db_path=DB_PATH)
-    memory = Memory()
+    memory = Memory(config=mem0_config)
 
     # Build application
     application = Application.builder().token(TELEGRAM_TOKEN).build()
