@@ -11,4 +11,5 @@ dependencies = [
     "click>=8.0.0",
     "recipe-scrapers>=15.0.0",
     "python-telegram-bot>=21.0.0",
+    "mem0ai>=1.0.1",
 ]
