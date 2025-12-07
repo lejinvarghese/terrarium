@@ -29,7 +29,9 @@ create_tunnel() {
     fi
 
     tmux new-session -d -s "$session_name"
-    tmux send-keys -t "$session_name" "~/.local/bin/cloudflared tunnel --url http://localhost:$port" C-m
+    sleep 0.5  # Wait for shell to be ready
+    tmux send-keys -t "$session_name" "" C-m  # Send blank line to ensure shell is ready
+    tmux send-keys -t "$session_name" "cloudflared tunnel --url http://localhost:$port" C-m
 
     # Wait and retry to get tunnel URL
     local tunnel_url=""

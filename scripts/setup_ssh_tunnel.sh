@@ -38,7 +38,9 @@ fi
 # Create new tunnel
 echo "🔐 Creating SSH tunnel..."
 tmux new-session -d -s "$SESSION_NAME"
-tmux send-keys -t "$SESSION_NAME" "~/.local/bin/cloudflared tunnel --url tcp://localhost:$PORT" C-m
+sleep 0.5  # Wait for shell to be ready
+tmux send-keys -t "$SESSION_NAME" "" C-m  # Send blank line to ensure shell is ready
+tmux send-keys -t "$SESSION_NAME" "cloudflared tunnel --url tcp://localhost:$PORT" C-m
 
 # Wait for tunnel URL
 tunnel_url=""

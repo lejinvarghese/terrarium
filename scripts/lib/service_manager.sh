@@ -25,6 +25,8 @@ start_service() {
     fi
 
     tmux new-session -d -s "$session" -c "$working_dir"
+    sleep 0.5  # Wait for shell to be ready
+    tmux send-keys -t "$session" "" C-m  # Send blank line to ensure shell is ready
     tmux send-keys -t "$session" "$command" C-m
     echo "  ✓ $display_name"
 }

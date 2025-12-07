@@ -79,6 +79,8 @@ for tunnel in "${TUNNELS[@]}"; do
             if [ "$name" = "archive" ]; then
                 # Create tmux session and set environment variable before running command
                 tmux new-session -d -s "$session" -c "${working_dir:-$(pwd)}"
+                sleep 0.5  # Wait for shell to be ready
+                tmux send-keys -t "$session" "" C-m  # Send blank line to ensure shell is ready
                 tmux send-keys -t "$session" "export TUNNEL_ARCHIVE_API_URL='$TUNNEL_ARCHIVE_API_URL'" C-m
                 tmux send-keys -t "$session" "$command" C-m
                 echo "  ✓ $display_name"
