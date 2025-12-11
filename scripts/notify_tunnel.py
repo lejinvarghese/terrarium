@@ -12,10 +12,10 @@ load_dotenv(env_path)
 
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
-GIRLFRIEND_TELEGRAM_CHAT_ID = os.getenv("GIRLFRIEND_TELEGRAM_CHAT_ID")
+DANIELLE_TELEGRAM_CHAT_ID = os.getenv("DANIELLE_TELEGRAM_CHAT_ID")
 
 def send_notification(url: str, service_name: str = "Open WebUI"):
-    """Send tunnel URL to Telegram (both you and girlfriend)."""
+    """Send tunnel URL to Telegram (both you and Danielle)."""
     if not TELEGRAM_TOKEN:
         print("⚠️  Missing TELEGRAM_TOKEN in .env", file=sys.stderr)
         return
@@ -24,8 +24,8 @@ def send_notification(url: str, service_name: str = "Open WebUI"):
     chat_ids = []
     if TELEGRAM_CHAT_ID:
         chat_ids.append(TELEGRAM_CHAT_ID)
-    if GIRLFRIEND_TELEGRAM_CHAT_ID:
-        chat_ids.append(GIRLFRIEND_TELEGRAM_CHAT_ID)
+    if DANIELLE_TELEGRAM_CHAT_ID:
+        chat_ids.append(DANIELLE_TELEGRAM_CHAT_ID)
 
     if not chat_ids:
         print("⚠️  No chat IDs configured in .env", file=sys.stderr)
@@ -69,7 +69,7 @@ def send_notification(url: str, service_name: str = "Open WebUI"):
         print(f"⚠️  Error sending notification: {e}", file=sys.stderr)
 
 def send_combined_notification(portals: list[tuple[str, str]]):
-    """Send combined tunnel URLs to Telegram (both you and girlfriend).
+    """Send combined tunnel URLs to Telegram (both you and Danielle).
 
     Args:
         portals: List of (service_name, url) tuples
@@ -81,8 +81,8 @@ def send_combined_notification(portals: list[tuple[str, str]]):
     chat_ids = []
     if TELEGRAM_CHAT_ID:
         chat_ids.append(TELEGRAM_CHAT_ID)
-    if GIRLFRIEND_TELEGRAM_CHAT_ID:
-        chat_ids.append(GIRLFRIEND_TELEGRAM_CHAT_ID)
+    if DANIELLE_TELEGRAM_CHAT_ID:
+        chat_ids.append(DANIELLE_TELEGRAM_CHAT_ID)
 
     if not chat_ids:
         return

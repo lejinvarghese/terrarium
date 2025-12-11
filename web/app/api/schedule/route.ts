@@ -1,9 +1,15 @@
 import { NextResponse } from 'next/server';
-import scheduleData from '@/data/schedule.json';
+import { readFile } from 'fs/promises';
+import { join } from 'path';
 import { parseSchedule, getServiceFromTaskName, calculateLastRun } from '@/utils/scheduleParser';
 
 export async function GET() {
   try {
+    // Read from single source of truth in src/configs
+    const schedulePath = join(process.cwd(), '..', 'src', 'configs', 'schedule.json');
+    const scheduleContent = await readFile(schedulePath, 'utf-8');
+    const scheduleData = JSON.parse(scheduleContent);
+
     const tasks = scheduleData.tasks.map((task, index) => {
       const scheduleInfo = parseSchedule(task.schedule);
 

@@ -18,11 +18,11 @@ export default function Home() {
         <div className="container">
           <h1 className={styles.title}>terrarium</h1>
           <p className={styles.tagline}>
-            Embark on a visionary journey where AI agents and innovation converge,
-            crafting a future where technology transcends boundaries.
+            A digital home where cybernetic minds swarm, grow, and tend to your ecosystem.
+            Step through the glass—where technology and life merge as one.
           </p>
           <Link href="/ecosystem" className={`${styles.cta} cursor-hover`}>
-            Explore the Ecosystem
+            Explore
           </Link>
         </div>
       </section>
@@ -30,7 +30,9 @@ export default function Home() {
       {/* Services Grid Section */}
       <section className={styles.services}>
         <div className="container">
-          <h2 className={styles.sectionTitle}>//the ai ecosystem</h2>
+          <h2 className={styles.sectionTitle}>
+            <span className={styles.titlePrefix}>//</span>substations
+          </h2>
           <div className={styles.grid}>
             {services.map((service, index) => (
               <a
@@ -72,12 +74,9 @@ export default function Home() {
       {/* About Section */}
       <section className={styles.about}>
         <div className="container">
-          <h2 className={styles.sectionTitle}>Inspired by open innovation</h2>
+          <h2 className={styles.sectionTitle}>the swarm</h2>
           <p className={styles.aboutText}>
-            Terrarium is a comprehensive meta-project that orchestrates multiple
-            AI services into a cohesive ecosystem. Powered by the latest in AI technology,
-            our platform offers a unique exploration of machine learning, natural language,
-            and tomorrow's possibilities—entirely self-hosted.
+            The terrarium is a living ecosystem, home to a mosaic of cybernetic and physical minds, each a distinct node in the swarm, together shaping unique landscapes of thought, culture, and experience within this sprawling cyberpunk-organic domain. Subcultures and intelligences flourish in its interconnected strata, co-evolving as a distributed swarm.
           </p>
         </div>
       </section>

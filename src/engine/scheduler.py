@@ -9,7 +9,7 @@ import click
 import sys
 import itertools
 import re
-from memory_config import get_memory, USER_ID, GIRLFRIEND_USER_ID
+from memory_config import get_memory, USER_ID, DANIELLE_USER_ID
 
 
 def run_command(name, command, description=""):
@@ -32,8 +32,8 @@ def run_command(name, command, description=""):
             memory = get_memory()
 
             # Determine which user_id to use based on bot
-            # Pepper only interacts with girlfriend, all others with main user
-            target_user_id = GIRLFRIEND_USER_ID if bot_name == "pepper" else USER_ID
+            # Pepper only interacts with Danielle, all others with main user
+            target_user_id = DANIELLE_USER_ID if bot_name == "pepper" else USER_ID
 
             # Search for relevant memories using task description as query
             query = description or command
@@ -77,7 +77,7 @@ def run_command(name, command, description=""):
         if bot_name and memory and result.stdout:
             try:
                 # Use same user_id mapping as search
-                target_user_id = GIRLFRIEND_USER_ID if bot_name == "pepper" else USER_ID
+                target_user_id = DANIELLE_USER_ID if bot_name == "pepper" else USER_ID
                 output = result.stdout.strip()
                 if output:  # Only store non-empty outputs
                     memory.add(

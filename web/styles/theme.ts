@@ -3,7 +3,7 @@ import { createAppTheme } from '@arwes/react';
 export const terrariumTheme = createAppTheme({
   settings: {
     hue: 180, // Cyan-based
-    fontFamily: '"Inter", system-ui, sans-serif',
+    fontFamily: '"JetBrains Mono", monospace',
     fontFamilyCode: '"JetBrains Mono", monospace',
   },
   colors: {
@@ -43,8 +43,8 @@ export const colors = {
 };
 
 export const fonts = {
-  heading: '"Inter", system-ui, sans-serif',
-  body: '"Inter", system-ui, sans-serif',
+  heading: '"JetBrains Mono", monospace',
+  body: '"JetBrains Mono", monospace',
   mono: '"JetBrains Mono", monospace',
 };
 

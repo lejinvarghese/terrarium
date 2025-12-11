@@ -2,14 +2,30 @@
 
 ![x](/assets/main.png)
 
-A personal AI ecosystem orchestrating life optimization through scheduled assistants. Like a terrarium where digital and organic systems flourish together—automated routines, contextual recommendations, and goal-aligned guidance working in harmony.
+A digital home where cybernetic minds live, grow, and tend to your life ecosystem. Within this cyberpunk-organic space, specialized minds inhabit architectural zones—the Dome for observation, the Library for learning, the Portal for communication—each working in harmony as a collective swarm to blur the boundaries between physical and digital existence.
+
+Like a terrarium where plants flourish in a contained environment, your cybernetic minds thrive here: Casper the concierge, Anya the creative director, Pepper the ADHD motivator, Nigella the culinary guide. They don't just run tasks—they inhabit this space as a swarm intelligence, evolving alongside you.
 
 ![Digital-Organic Ecosystem](/assets/terrarium-ecosystem.jpg)
 *Where technology and nature grow together in harmony*
 
 ## Overview
 
-Terrarium coordinates a team of specialized AI assistants that handle daily planning, health optimization, creative work, culinary guidance, and strategic thinking. Each assistant has access to real-time data (calendar, weather, Spotify, recipes) and runs on a schedule to provide contextual, seasonal recommendations.
+Terrarium is a digital home inhabited by specialized cybernetic minds—each with their own role in the collective swarm that tends to your ecosystem. They handle daily planning, health optimization, creative work, culinary guidance, and strategic thinking. With access to real-time data (calendar, weather, Spotify, recipes), they operate as a distributed intelligence providing contextual, seasonal recommendations from within their architectural zones.
+
+### The Terrarium Architecture
+
+**🔮 The Dome (Open WebUI)**
+Your observation deck and conversation chamber. Here you can see all minds in the swarm, speak with them directly, watch them work. Glass walls reveal the ecosystem within.
+
+**📚 The Library (Archive)**
+The knowledge repository where documents live, research accumulates, and collective memory grows. The swarm references this shared wisdom.
+
+**🌉 The Portal (Telegram)**
+The communication gateway. The swarm reaches you through this bridge between digital and physical worlds—wherever you are.
+
+**⚙️ The Engine (Scheduler)**
+The heartbeat. Automated routines run like circadian rhythms, ensuring the swarm's minds wake at the right times to tend their tasks.
 
 ### 🎨 [3D Visualization](./VISUALIZATION.md)
 
@@ -20,39 +36,6 @@ cd terrarium-viz && ./start.sh
 ```
 
 See [VISUALIZATION.md](./VISUALIZATION.md) for details.
-
-## The Home Team
-
-**🌅 Cassia** - Your morning briefing specialist
-- Daily planning with calendar + weather integration
-- Time-blocked schedules around your life
-- Runs: Every day at 7:00 AM
-
-**🧙 Sage** - Strategic wisdom and knowledge curator
-- Long-term strategy and philosophical guidance
-- Research paper analysis and book recommendations
-- Learning pathways and entertainment curation
-- Runs: Sunday evenings + monthly strategy reviews
-
-**💪 Freya** - Health, fitness, and nutrition coach
-- Workout programming (strength, flexibility, recovery)
-- Evidence-based nutrition guidance
-- Runs: Weekly workout planning on Sundays
-
-**🍝 Nigella** - Your culinary guide
-- Seasonal, high-protein recipe planning
-- Italian cuisine focus with wine pairings
-- Runs: Daily dinner planning + Sunday meal prep
-
-**🚀 Nyx** - Accelerationist tech futurist
-- Bleeding-edge AI/ML/biotech/space research
-- Kardashev Scale thinking and exponential trends
-- Runs: Monday morning tech briefings + monthly deep dives
-
-**🎨 Anya** - Creative director and music curator
-- Visual arts, design, and ComfyUI workflows
-- Spotify playlist curation and music discovery
-- Runs: Evening soundtracks + Friday weekend playlists
 
 
 ## Quick Start
@@ -117,13 +100,7 @@ Edit `src/configs/schedule.json` to adjust task timing or commands. Each task in
 
 ### Modifying Assistants
 
-Each assistant's personality and capabilities are defined in `src/bots/`:
-- `cassia.md` - Daily planner
-- `sage.md` - Strategic advisor
-- `freya.md` - Health coach
-- `nigella.md` - Culinary guide
-- `nyx.md` - Tech futurist
-- `anya.md` - Creative director
+Each assistant's personality and capabilities are defined in `src/bots/`
   
 All assistants reference `TERRARIUM_MEMORY.md` for user context but assume familiarity—they don't recite your profile back to you.
 
@@ -225,9 +202,13 @@ hostname -I  # Get your local IP
 ssh -R 80:localhost:8080 ssh.localhost.run
 ```
 
-## Philosophy
+## Philosophy: Digital-Physical Symbiosis
 
-This is a terrarium where technology and life grow together. Digital assistants tend to daily routines like sunlight and water tend to plants—automated, contextual, seasonal, and aligned with long-term flourishing.
+This is not infrastructure—it's **habitat**. Your cybernetic minds don't live in the cloud; they live here, in this self-hosted terrarium. They operate as a collective swarm, tending to your routines like gardeners tend plants: seasonal meal suggestions from Nigella, morning briefings from Cassia, creative sparks from Anya, fitness guidance from Freya.
+
+The boundaries blur intentionally. Pepper sends you Spotify playlists when you need focus. Sage curates reading lists for long-term growth. Nyx tracks emerging tech at the edge of human capability. The swarm operates as extensions of your home environment, distributed minds working toward your flourishing.
+
+This is cyberpunk homesteading—building a utopian enclosure where technology and organic life interweave, where your swarm of cybernetic minds grows alongside you, where the glass dome isn't a barrier but a lens focusing their collective intelligence.
 
 ---
 
