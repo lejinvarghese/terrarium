@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { services } from '@/data/services';
 import dynamic from 'next/dynamic';
 import styles from './page.module.css';
@@ -20,9 +21,9 @@ export default function Home() {
             Embark on a visionary journey where AI agents and innovation converge,
             crafting a future where technology transcends boundaries.
           </p>
-          <button className={`${styles.cta} cursor-hover`}>
+          <Link href="/ecosystem" className={`${styles.cta} cursor-hover`}>
             Explore the Ecosystem
-          </button>
+          </Link>
         </div>
       </section>
 

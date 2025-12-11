@@ -1,6 +1,53 @@
 #!/bin/bash
 # Cloudflare tunnel management functions
 
+# Check if named tunnel is configured
+is_named_tunnel_configured() {
+    [ "$USE_NAMED_TUNNEL" = "true" ] && [ -n "$TUNNEL_NAME" ] && [ -f ~/.cloudflared/config.yml ]
+}
+
+# Start named tunnel (replaces all individual tunnels)
+start_named_tunnel() {
+    local session_name="terrarium-tunnel"
+
+    if session_exists "$session_name"; then
+        echo "  ✅ Tunnel already active"
+        return 0
+    fi
+
+    echo "  🌐 Starting named tunnel..."
+    tmux new-session -d -s "$session_name"
+    sleep 0.5
+    tmux send-keys -t "$session_name" "" C-m
+    tmux send-keys -t "$session_name" "cloudflared tunnel run $TUNNEL_NAME" C-m
+
+    sleep 2  # Wait for tunnel to initialize
+
+    if session_exists "$session_name"; then
+        echo "  ✅ Tunnel active"
+        echo ""
+        echo "  Your services are available at:"
+        echo "    🌐 https://${TUNNEL_DOMAIN}"
+        echo "    🤖 https://dome.${TUNNEL_DOMAIN}"
+        echo "    📚 https://archive.${TUNNEL_DOMAIN}"
+        echo "    🔌 https://api.${TUNNEL_DOMAIN}"
+        return 0
+    else
+        echo_warning "Tunnel failed to start, falling back to quick tunnels"
+        return 1
+    fi
+}
+
+# Stop named tunnel
+stop_named_tunnel() {
+    local session_name="terrarium-tunnel"
+
+    if session_exists "$session_name"; then
+        tmux kill-session -t "$session_name" 2>/dev/null
+        echo "  ✓ Tunnel stopped"
+    fi
+}
+
 # Create a cloudflare tunnel
 # Args: session_name, port, service_display_name, [send_notification], [emoji], [return_url_var_name]
 create_tunnel() {

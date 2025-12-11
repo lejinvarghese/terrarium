@@ -8,7 +8,7 @@
         },
         {
             "name": "🌶️ Pepper - Morning Motivation",
-            "command": "cat src/bots/pepper.md | claude -p --dangerously-skip-permissions 'Check her calendar (filter for J:: events only), check Toronto weather, and send her a cheerful, motivating morning message to start the day. Keep it energetic, fun, and bite-sized. Include 1-3 micro-tasks to kick off the morning + maybe a music recommendation. Use GIRLFRIEND_TELEGRAM_CHAT_ID for the message.'",
+            "command": "cat src/bots/pepper.md | claude -p --dangerously-skip-permissions 'Check her calendar (filter for J:: events only), check Toronto weather, and send her a cheerful, motivating morning message to start the day. Keep it energetic, fun, and bite-sized. Include 1-3 micro-tasks to kick off the morning + maybe a music recommendation. When recommending music, include a link to a Spotify playlist or song. Use GIRLFRIEND_TELEGRAM_CHAT_ID for the message.'",
             "schedule": "every day at 07:00",
             "description": "Daily ADHD-friendly morning motivation for girlfriend"
         },
