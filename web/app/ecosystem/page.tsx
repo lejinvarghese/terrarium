@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import dynamic from 'next/dynamic';
@@ -49,6 +49,40 @@ export default function EcosystemPage() {
           personality
         </p>
       </header>
+
+      {/* Horizontal Profile Cards */}
+      <section className={styles.profilesHeader}>
+        <div className={styles.profilesScroll}>
+          {bots.map((bot) => (
+            <div
+              key={`profile-${bot.id}`}
+              className={`${styles.profileCard} cursor-hover`}
+              onClick={() => openBotModal(bot.id)}
+              style={
+                {
+                  '--bot-color': bot.color,
+                } as React.CSSProperties
+              }
+            >
+              <div className={styles.profileCardInner}>
+                <Image
+                  src={bot.image}
+                  alt={`${bot.name} profile`}
+                  width={200}
+                  height={250}
+                  className={styles.profileCardImage}
+                />
+                <div className={styles.profileOverlay}>
+                  <div className={styles.overlayText}>
+                    <span className={styles.overlayName}>{bot.name}</span>
+                    <span className={styles.overlayRole}>{bot.role}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
 
       {/* Bots Grid */}
       <section className={styles.botsGrid}>

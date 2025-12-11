@@ -181,11 +181,43 @@
   flex: 1;
 }
 
+.botProfile {
+  flex-shrink: 0;
+}
+
+.botAvatar {
+  width: 40px;
+  height: 50px;
+  object-fit: cover;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+}
+
+.taskCard:hover .botAvatar {
+  border-color: rgba(255, 184, 0, 0.5);
+  box-shadow: 0 0 10px rgba(255, 184, 0, 0.2);
+}
+
+.taskInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1;
+}
+
 .taskName {
   font-size: 1.5rem;
   font-weight: 400;
   color: #FFFFFF;
   letter-spacing: -0.01em;
+}
+
+.botName {
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  opacity: 0.8;
 }
 
 .taskService {

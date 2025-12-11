@@ -12,13 +12,14 @@ source "$SCRIPT_DIR/scripts/lib/services.conf"
 show_help() {
     echo "Terrarium Development Manager"
     echo ""
-    echo "Usage: $0 {up|down|attach <service>|status}"
+    echo "Usage: $0 {up|down|attach <service>|status|setup}"
     echo ""
     echo "Commands:"
     echo "  up                       - Start all services in separate tmux sessions"
     echo "  down                     - Stop all services and kill tmux sessions"
     echo "  attach <service>         - Attach to a specific service session"
     echo "  status                   - Check which services are running"
+    echo "  setup                    - Configure Cloudflare named tunnel with custom domain"
     echo ""
     echo "Available services:"
     for service in "${SERVICES[@]}"; do
@@ -54,6 +55,9 @@ case "$1" in
         ;;
     attach)
         "$COMMANDS_DIR/attach.sh" "$2"
+        ;;
+    setup)
+        "$COMMANDS_DIR/setup.sh"
         ;;
     *)
         show_help

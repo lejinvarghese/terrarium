@@ -55,19 +55,21 @@ export default function AudioPlayer({
   };
 
   return (
-    <div className={styles.audioPlayer}>
+    <div className={styles.audioPlayer} data-playing={isPlaying}>
       <audio ref={audioRef} src={audioSrc} />
 
       <button
         onClick={togglePlay}
-        className={`${styles.button} cursor-hover`}
+        className={`${styles.button} ${isPlaying ? styles.playing : ''} cursor-hover`}
         aria-label={isPlaying ? 'Pause audio' : 'Play audio'}
       >
         {isPlaying ? (
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <rect x="4" y="3" width="2" height="10" fill="currentColor" />
-            <rect x="10" y="3" width="2" height="10" fill="currentColor" />
-          </svg>
+          <div className={styles.soundWaves}>
+            <span className={styles.wave}></span>
+            <span className={styles.wave}></span>
+            <span className={styles.wave}></span>
+            <span className={styles.wave}></span>
+          </div>
         ) : (
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
             <path d="M5 3L13 8L5 13V3Z" fill="currentColor" />
@@ -90,10 +92,6 @@ export default function AudioPlayer({
           </svg>
         )}
       </button>
-
-      <div className={styles.label}>
-        {isPlaying ? 'Sound On' : 'Sound Off'}
-      </div>
     </div>
   );
 }

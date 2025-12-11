@@ -20,13 +20,14 @@ echo ""
 # Load environment variables
 load_env
 
-# Start core services (except archive which needs API tunnel URL first)
+# Start core services (except archive and web)
 echo "⚙️  Starting core services."
 for service in "${SERVICES[@]}"; do
     IFS='|' read -r name session display_name command working_dir <<< "$service"
 
     # Skip archive - we'll start it after API tunnel is ready
-    if [ "$name" = "archive" ]; then
+    # Skip web - we'll start it last after other services stabilize
+    if [ "$name" = "archive" ] || [ "$name" = "web" ]; then
         continue
     fi
 
@@ -46,6 +47,65 @@ for service in "${SERVICES[@]}"; do
     fi
 done
 echo ""
+
+# Start Archive service (only with named tunnel; legacy mode starts it later)
+if is_named_tunnel_configured; then
+    echo "📚 Initializing Archive."
+    # With named tunnel, use fixed API subdomain
+    export TUNNEL_ARCHIVE_API_URL="https://api.${TUNNEL_DOMAIN}"
+
+    for service in "${SERVICES[@]}"; do
+        IFS='|' read -r name session display_name command working_dir <<< "$service"
+        if [ "$name" = "archive" ]; then
+            # Create tmux session and set environment variable before running command
+            tmux new-session -d -s "$session" -c "${working_dir:-$(pwd)}"
+            sleep 0.5  # Wait for shell to be ready
+            tmux send-keys -t "$session" "" C-m  # Send blank line to ensure shell is ready
+            tmux send-keys -t "$session" "export TUNNEL_ARCHIVE_API_URL='$TUNNEL_ARCHIVE_API_URL'" C-m
+            tmux send-keys -t "$session" "$command" C-m
+            echo "  ✓ $display_name (API: https://api.${TUNNEL_DOMAIN}, UI: https://archive.${TUNNEL_DOMAIN})"
+            sleep 5  # Give archive time to start both API (5055) and UI (8502)
+            break
+        fi
+    done
+    echo ""
+fi
+
+# Start web service last (after other services stabilize)
+echo "🖥️  Initializing Web."
+echo "  ⏳ Waiting for services to stabilize..."
+sleep 5  # 5 second delay to let other services start
+
+for service in "${SERVICES[@]}"; do
+    IFS='|' read -r name session display_name command working_dir <<< "$service"
+    if [ "$name" = "web" ]; then
+        start_service "$name" "$session" "$display_name" "$command" "$working_dir"
+        sleep 3  # Give web time to start
+        break
+    fi
+done
+echo ""
+
+# Check if named tunnel is configured
+if is_named_tunnel_configured; then
+    # Use named tunnel (single tunnel for all services)
+    echo "🌐 Opening public portals."
+    echo ""
+    start_named_tunnel
+
+    # Send notification with domain URLs (TEMPORARILY DISABLED)
+    # if [ -n "$TUNNEL_DOMAIN" ]; then
+    #     python3 scripts/notify_tunnel.py \
+    #         --combined \
+    #         "Web" "https://${TUNNEL_DOMAIN}" \
+    #         "Dome" "https://dome.${TUNNEL_DOMAIN}" \
+    #         "Archive" "https://archive.${TUNNEL_DOMAIN}" \
+    #         2>/dev/null &
+    # fi
+else
+    # Legacy: Use separate quick tunnels for each service
+    echo "🌐 Opening quick tunnels (run './dev setup' to configure permanent URLs)"
+    echo ""
 
 # Arrays to collect tunnel URLs for combined notification
 NOTIFY_NAMES=()
@@ -111,32 +171,41 @@ for tunnel in "${TUNNELS[@]}"; do
             NOTIFY_URLS+=("$ARCHIVE_TUNNEL_URL")
         fi
 
+    # Create web tunnel (service already started)
+    elif [ "$name" = "web" ]; then
+        create_tunnel "$session" "$port" "$display_name" "false" "$emoji" "WEB_TUNNEL_URL"
+        if [ -n "$WEB_TUNNEL_URL" ] && [ "$notify" = "true" ]; then
+            NOTIFY_NAMES+=("Web")
+            NOTIFY_URLS+=("$WEB_TUNNEL_URL")
+        fi
+
     # Create SSH tunnel for remote access
     elif [ "$name" = "ssh" ]; then
         create_tunnel "$session" "$port" "$display_name" "false" "$emoji" "SSH_TUNNEL_URL"
     fi
 done
 
-# Send combined notification for all public portals (only if we have URLs)
-if [ ${#NOTIFY_URLS[@]} -gt 0 ]; then
-    # Verify all URLs are non-empty
-    ALL_URLS_VALID=true
-    for url in "${NOTIFY_URLS[@]}"; do
-        if [ -z "$url" ]; then
-            ALL_URLS_VALID=false
-            break
-        fi
-    done
-
-    if [ "$ALL_URLS_VALID" = true ]; then
-        # Build arguments: name1 url1 name2 url2 .
-        NOTIFY_ARGS=()
-        for i in "${!NOTIFY_NAMES[@]}"; do
-            NOTIFY_ARGS+=("${NOTIFY_NAMES[$i]}" "${NOTIFY_URLS[$i]}")
-        done
-        python3 scripts/notify_tunnel.py --combined "${NOTIFY_ARGS[@]}" 2>/dev/null &
-    fi
-fi
+# Send combined notification for all public portals (TEMPORARILY DISABLED)
+# if [ ${#NOTIFY_URLS[@]} -gt 0 ]; then
+#     # Verify all URLs are non-empty
+#     ALL_URLS_VALID=true
+#     for url in "${NOTIFY_URLS[@]}"; do
+#         if [ -z "$url" ]; then
+#             ALL_URLS_VALID=false
+#             break
+#         fi
+#     done
+#
+#     if [ "$ALL_URLS_VALID" = true ]; then
+#         # Build arguments: name1 url1 name2 url2 .
+#         NOTIFY_ARGS=()
+#         for i in "${!NOTIFY_NAMES[@]}"; do
+#             NOTIFY_ARGS+=("${NOTIFY_NAMES[$i]}" "${NOTIFY_URLS[$i]}")
+#         done
+#         python3 scripts/notify_tunnel.py --combined "${NOTIFY_ARGS[@]}" 2>/dev/null &
+#     fi
+# fi
+fi  # End of named tunnel check
 
 echo ""
 echo "✨ Terrarium is alive"

@@ -34,7 +34,7 @@ export default function RootLayout({
       <body className={`${inter.variable} ${jetbrainsMono.variable}`}>
         <Preloader />
         <CustomCursor />
-        <AudioPlayer />
+        <AudioPlayer autoPlay={true} />
         {children}
       </body>
     </html>
