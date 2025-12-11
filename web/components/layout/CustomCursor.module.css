@@ -1,0 +1,119 @@
+.cursor {
+  position: fixed;
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate(-50%, -50%);
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cursor {
+    display: none;
+  }
+}
+
+.dot {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: #00FFF2;
+  border-radius: 50%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 10px rgba(0, 255, 242, 0.8);
+}
+
+.lineTop,
+.lineBottom,
+.lineLeft,
+.lineRight {
+  position: absolute;
+  background: #00FFF2;
+  box-shadow: 0 0 8px rgba(0, 255, 242, 0.6);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.lineTop,
+.lineBottom {
+  width: 1px;
+  height: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.lineTop {
+  top: -12px;
+}
+
+.lineBottom {
+  bottom: -12px;
+}
+
+.lineLeft,
+.lineRight {
+  height: 1px;
+  width: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.lineLeft {
+  left: -12px;
+}
+
+.lineRight {
+  right: -12px;
+}
+
+/* Hovering state - expand lines */
+.cursor.hovering .lineTop {
+  height: 16px;
+  top: -20px;
+}
+
+.cursor.hovering .lineBottom {
+  height: 16px;
+  bottom: -20px;
+}
+
+.cursor.hovering .lineLeft {
+  width: 16px;
+  left: -20px;
+}
+
+.cursor.hovering .lineRight {
+  width: 16px;
+  right: -20px;
+}
+
+.cursor.hovering .dot {
+  transform: translate(-50%, -50%) scale(1.5);
+  box-shadow: 0 0 15px rgba(0, 255, 242, 1);
+}
+
+/* Clicking state - contract lines */
+.cursor.clicking .lineTop {
+  height: 4px;
+  top: -6px;
+}
+
+.cursor.clicking .lineBottom {
+  height: 4px;
+  bottom: -6px;
+}
+
+.cursor.clicking .lineLeft {
+  width: 4px;
+  left: -6px;
+}
+
+.cursor.clicking .lineRight {
+  width: 4px;
+  right: -6px;
+}
+
+.cursor.clicking .dot {
+  transform: translate(-50%, -50%) scale(0.8);
+}

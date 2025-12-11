@@ -1,0 +1,61 @@
+.audioPlayer {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem;
+  background: rgba(0, 0, 0, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+}
+
+.audioPlayer:hover {
+  border-color: rgba(235, 250, 29, 0.5);
+  box-shadow: 0 0 20px rgba(235, 250, 29, 0.1);
+}
+
+.button {
+  background: none;
+  border: none;
+  color: #FFFFFF;
+  cursor: none;
+  padding: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  opacity: 0.6;
+}
+
+.button:hover {
+  opacity: 1;
+  color: #EBFA1D;
+}
+
+.button:active {
+  transform: scale(0.95);
+}
+
+.label {
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.7);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+@media (max-width: 768px) {
+  .audioPlayer {
+    bottom: 1rem;
+    right: 1rem;
+    padding: 0.75rem 1rem;
+  }
+
+  .label {
+    display: none;
+  }
+}
