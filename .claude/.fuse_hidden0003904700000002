@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__google-calendar__list-events",
+      "Bash(cat:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

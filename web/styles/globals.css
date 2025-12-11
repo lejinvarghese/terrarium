@@ -1,0 +1,209 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+  font-family: 'Inter', system-ui, sans-serif;
+  background: #000000;
+  color: #FFFFFF;
+  cursor: none; /* Hide default cursor for custom one */
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  
+  html {
+    scroll-behavior: auto !important;
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+::selection {
+  background: rgba(235, 250, 29, 0.3);
+  color: #000000;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #000000;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+/* Typography System - Matching Target Site */
+:root {
+  /* Font Size Scale (fs1-fs8) */
+  --fs1: clamp(4rem, 12vw, 8rem);
+  --fs2: clamp(3rem, 8vw, 6rem);
+  --fs3: clamp(2.5rem, 6vw, 4.5rem);
+  --fs4: clamp(2rem, 5vw, 3.5rem);
+  --fs5: clamp(1.5rem, 4vw, 2.5rem);
+  --fs6: clamp(1.25rem, 3vw, 1.875rem);
+  --fs7: clamp(1.125rem, 2.5vw, 1.5rem);
+  --fs8: clamp(1rem, 2vw, 1.25rem);
+
+  /* Paragraph Sizes */
+  --paragraph-large: clamp(1.125rem, 3vw, 1.75rem);
+  --paragraph-small: clamp(0.875rem, 2vw, 1rem);
+
+  /* Line Heights */
+  --lh-tight: 1.1;
+  --lh-normal: 1.5;
+  --lh-relaxed: 1.8;
+
+  /* Letter Spacing */
+  --ls-tight: -0.02em;
+  --ls-normal: 0;
+  --ls-wide: 0.05em;
+
+  /* Grid System */
+  --grid-columns: 24;
+  --grid-gap: 1.5rem;
+  --container-max: 1600px;
+  --container-padding: 4rem;
+}
+
+@media (max-width: 1024px) {
+  :root {
+    --grid-columns: 12;
+    --container-padding: 2rem;
+  }
+}
+
+@media (max-width: 768px) {
+  :root {
+    --container-padding: 1rem;
+  }
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 300;
+  color: #FFFFFF;
+  letter-spacing: var(--ls-tight);
+  line-height: var(--lh-tight);
+}
+
+h1 {
+  font-size: var(--fs1);
+  font-weight: 100;
+}
+
+h2 {
+  font-size: var(--fs2);
+  font-weight: 200;
+}
+
+h3 {
+  font-size: var(--fs3);
+  font-weight: 300;
+}
+
+h4 {
+  font-size: var(--fs4);
+  font-weight: 300;
+}
+
+h5 {
+  font-size: var(--fs5);
+  font-weight: 400;
+}
+
+h6 {
+  font-size: var(--fs6);
+  font-weight: 400;
+}
+
+p {
+  font-size: var(--paragraph-large);
+  line-height: var(--lh-normal);
+  letter-spacing: var(--ls-normal);
+}
+
+p.small {
+  font-size: var(--paragraph-small);
+}
+
+code, pre {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Utility Classes */
+.container {
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: 0 var(--container-padding);
+}
+
+/* Grid System */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(var(--grid-columns), 1fr);
+  gap: var(--grid-gap);
+}
+
+.grid-24 {
+  grid-template-columns: repeat(24, 1fr);
+}
+
+.grid-12 {
+  grid-template-columns: repeat(12, 1fr);
+}
+
+@media (max-width: 768px) {
+  .grid-24, .grid-12 {
+    grid-template-columns: repeat(6, 1fr);
+  }
+}
+
+.text-gradient {
+  background: linear-gradient(135deg, #FFFFFF 0%, rgba(255, 255, 255, 0.8) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.glow-text {
+  text-shadow: 
+    0 0 30px rgba(235, 250, 29, 0.4),
+    0 0 60px rgba(235, 250, 29, 0.2);
+}
+
+.glow-box {
+  box-shadow: 
+    0 0 40px rgba(235, 250, 29, 0.3),
+    inset 0 0 30px rgba(235, 250, 29, 0.05);
+}

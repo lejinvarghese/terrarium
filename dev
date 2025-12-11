@@ -1,0 +1,62 @@
+#!/bin/bash
+# Terrarium development environment manager
+# Thin router that delegates to modular command scripts
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+COMMANDS_DIR="$SCRIPT_DIR/scripts/commands"
+
+# Load common utilities for help text
+source "$SCRIPT_DIR/scripts/lib/common.sh"
+source "$SCRIPT_DIR/scripts/lib/services.conf"
+
+show_help() {
+    echo "Terrarium Development Manager"
+    echo ""
+    echo "Usage: $0 {up|down|attach <service>|status}"
+    echo ""
+    echo "Commands:"
+    echo "  up                       - Start all services in separate tmux sessions"
+    echo "  down                     - Stop all services and kill tmux sessions"
+    echo "  attach <service>         - Attach to a specific service session"
+    echo "  status                   - Check which services are running"
+    echo ""
+    echo "Available services:"
+    for service in "${SERVICES[@]}"; do
+        IFS='|' read -r name session display_name command working_dir <<< "$service"
+        echo "  - $name"
+    done
+    echo ""
+    echo "Available tunnels:"
+    for tunnel in "${TUNNELS[@]}"; do
+        IFS='|' read -r name session display_name port emoji notify <<< "$tunnel"
+        echo "  - $name"
+    done
+    echo ""
+    echo "Examples:"
+    echo "  dev up                      # Start all services"
+    echo "  dev attach dome             # Attach to dome service"
+    echo "  dev attach tunnel           # Attach to dome tunnel (see public URL)"
+    echo "  dev status                  # Check what's running"
+    echo ""
+    echo "Tmux shortcuts:"
+    echo "  Ctrl+B then D               - Detach from session"
+}
+
+case "$1" in
+    up)
+        "$COMMANDS_DIR/up.sh"
+        ;;
+    down)
+        "$COMMANDS_DIR/down.sh"
+        ;;
+    status)
+        "$COMMANDS_DIR/status.sh"
+        ;;
+    attach)
+        "$COMMANDS_DIR/attach.sh" "$2"
+        ;;
+    *)
+        show_help
+        exit 1
+        ;;
+esac
