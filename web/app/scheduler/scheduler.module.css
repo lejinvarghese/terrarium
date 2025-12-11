@@ -296,14 +296,9 @@
 .terminalSection {
   max-width: 1600px;
   margin: 4rem auto 0;
-}
-
-.terminalSectionHeader {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.5rem;
-  gap: 2rem;
+  flex-direction: column;
+  gap: 1.5rem;
 }
 
 /* Terminal Display */
