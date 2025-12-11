@@ -12,6 +12,11 @@ body {
   overflow-x: hidden;
   font-family: 'Inter', system-ui, sans-serif;
   background: #000000;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 50px 50px;
+  background-attachment: fixed;
   color: #FFFFFF;
   cursor: none; /* Hide default cursor for custom one */
 }
