@@ -1,25 +1,24 @@
 import type { Metadata } from 'next';
-import { Inter, JetBrains_Mono } from 'next/font/google';
+import { JetBrains_Mono } from 'next/font/google';
 import '../styles/globals.css';
 import '../styles/animations.css';
 import CustomCursor from '@/components/layout/CustomCursor';
 import Preloader from '@/components/layout/Preloader';
 import AudioPlayer from '@/components/ui/AudioPlayer';
 
-const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 const jetbrainsMono = JetBrains_Mono({
   subsets: ['latin'],
   variable: '--font-jetbrains-mono'
 });
 
 export const metadata: Metadata = {
-  title: 'Terrarium | AI Ecosystem',
-  description: 'Where AI ecosystems thrive and innovation blooms. Your self-hosted AI infrastructure.',
-  keywords: ['AI', 'Machine Learning', 'Open WebUI', 'ComfyUI', 'Ollama', 'Self-hosted'],
-  authors: [{ name: 'Terrarium Team' }],
+  title: 'Terrarium | Cybernetic Swarm Intelligence',
+  description: 'A self-hosted habitat where cybernetic minds swarm, grow, and tend to your ecosystem. Step through the glass—where technology and life merge as one.',
+  keywords: ['Cybernetic Minds', 'Swarm Intelligence', 'Self-hosted', 'Digital Home', 'Distributed AI', 'Cyberpunk'],
+  authors: [{ name: 'starscream' }],
   openGraph: {
-    title: 'Terrarium | AI Ecosystem',
-    description: 'Where AI ecosystems thrive and innovation blooms',
+    title: 'Terrarium | Cybernetic Swarm Intelligence',
+    description: 'A digital home where cybernetic minds operate as a collective swarm.',
     type: 'website',
   },
 };
@@ -31,7 +30,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${inter.variable} ${jetbrainsMono.variable}`}>
+      <body className={jetbrainsMono.variable}>
         <Preloader />
         <CustomCursor />
         <AudioPlayer autoPlay={true} />

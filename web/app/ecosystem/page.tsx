@@ -39,14 +39,13 @@ export default function EcosystemPage() {
           <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
             <path d="M12 4L6 10L12 16" stroke="currentColor" strokeWidth="2" />
           </svg>
-          Back to Home
+          Back
         </Link>
         <h1 className={styles.title}>
-          <span className={styles.titlePrefix}>//</span>the ecosystem
+          <span className={styles.titlePrefix}>//</span>the swarm
         </h1>
         <p className={styles.tagline}>
-          Eight specialized AI agents, each with unique expertise and
-          personality
+          These cybernetic minds form a distributed intelligence, each tending to our terrarium with a purpose and emergent behavior.
         </p>
       </header>
 

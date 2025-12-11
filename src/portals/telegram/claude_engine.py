@@ -30,8 +30,8 @@ class ClaudeEngine:
         self.working_dir = working_dir or str(Path.cwd())
         self.timeout = timeout
         self.bot_prompts_dir = Path(__file__).parent.parent.parent.parent / ".claude" / "agents"
-        # Get girlfriend's user ID from env (chat_id is same as user_id for DMs)
-        self.girlfriend_user_id = os.getenv("GIRLFRIEND_TELEGRAM_CHAT_ID")
+        # Get Danielle's user ID from env (chat_id is same as user_id for DMs)
+        self.danielle_user_id = os.getenv("DANIELLE_TELEGRAM_CHAT_ID")
         click.secho(f"⚙️  ClaudeEngine initialized: {self.working_dir}", fg="blue")
 
     def list_bots(self, user_id: Optional[int] = None) -> list[str]:
@@ -49,8 +49,8 @@ class ClaudeEngine:
 
         all_bots = sorted([f.stem for f in self.bot_prompts_dir.glob("*.md")])
 
-        # Filter out pepper unless user is girlfriend
-        if user_id is None or str(user_id) != self.girlfriend_user_id:
+        # Filter out pepper unless user is Danielle
+        if user_id is None or str(user_id) != self.danielle_user_id:
             all_bots = [bot for bot in all_bots if bot != "pepper"]
 
         return all_bots

@@ -115,24 +115,91 @@
   letter-spacing: 0.1em;
 }
 
+/* Calendar Section */
+.calendarSection {
+  max-width: 1600px;
+  margin: 0 auto 6rem;
+  padding: 3rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
 /* Tasks Section */
 .tasks {
   max-width: 1600px;
   margin: 0 auto;
 }
 
+.tasksHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
 .sectionTitle {
   font-size: clamp(1.5rem, 4vw, 2rem);
   font-weight: 300;
   color: #FFFFFF;
-  margin-bottom: 2rem;
+  margin-bottom: 0;
   text-transform: lowercase;
   letter-spacing: -0.01em;
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.filterIndicator {
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 0.875rem;
+  color: #EBFA1D;
+  font-weight: 400;
+  letter-spacing: 0.05em;
+}
+
+.clearFilterBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  background: rgba(235, 250, 29, 0.1);
+  border: 1px solid rgba(235, 250, 29, 0.3);
+  color: #EBFA1D;
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: none;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.clearFilterBtn:hover {
+  background: rgba(235, 250, 29, 0.2);
+  border-color: rgba(235, 250, 29, 0.5);
+  transform: translateX(-2px);
 }
 
 .taskList {
   display: grid;
   gap: 1.5rem;
+}
+
+.noTasks {
+  padding: 4rem 2rem;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.noTasks p {
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.6);
+  letter-spacing: 0.05em;
+  margin: 0;
 }
 
 .taskCard {
@@ -449,6 +516,16 @@
 
   .stats {
     grid-template-columns: repeat(2, 1fr);
+  }
+
+  .tasksHeader {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .clearFilterBtn {
+    width: 100%;
+    justify-content: center;
   }
 
   .taskSchedule {

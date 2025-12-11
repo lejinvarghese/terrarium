@@ -10,30 +10,60 @@ interface AudioPlayerProps {
 }
 
 export default function AudioPlayer({
-  audioSrc = '/assets/sounds/ambient.mp3',
+  audioSrc = '/assets/sounds/ambient.mp3?v=2',
   autoPlay = false,
   volume = 0.3,
 }: AudioPlayerProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
+  const attemptedAutoPlay = useRef(false);
 
   useEffect(() => {
     if (audioRef.current) {
       audioRef.current.volume = volume;
       audioRef.current.loop = true;
 
-      if (autoPlay) {
-        // Try to autoplay with user interaction
+      if (autoPlay && !attemptedAutoPlay.current) {
+        attemptedAutoPlay.current = true;
+        // Try to autoplay
         const playPromise = audioRef.current.play();
         if (playPromise !== undefined) {
           playPromise
             .then(() => setIsPlaying(true))
-            .catch(() => setIsPlaying(false));
+            .catch(() => {
+              // Autoplay blocked - will need user interaction
+              setIsPlaying(false);
+            });
         }
       }
     }
   }, [autoPlay, volume]);
+
+  // Listen for user interaction to enable autoplay if it was blocked
+  useEffect(() => {
+    if (!autoPlay || !audioRef.current) return;
+
+    const tryPlayAfterInteraction = () => {
+      if (audioRef.current && !isPlaying && autoPlay) {
+        const playPromise = audioRef.current.play();
+        if (playPromise !== undefined) {
+          playPromise
+            .then(() => setIsPlaying(true))
+            .catch(() => {}); // Silently fail if still blocked
+        }
+      }
+    };
+
+    // Try to play after any user interaction
+    document.addEventListener('click', tryPlayAfterInteraction, { once: true });
+    document.addEventListener('keydown', tryPlayAfterInteraction, { once: true });
+
+    return () => {
+      document.removeEventListener('click', tryPlayAfterInteraction);
+      document.removeEventListener('keydown', tryPlayAfterInteraction);
+    };
+  }, [autoPlay, isPlaying]);
 
   const togglePlay = () => {
     if (audioRef.current) {

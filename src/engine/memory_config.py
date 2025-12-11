@@ -13,7 +13,7 @@ load_dotenv(Path(__file__).parent.parent.parent / ".env")
 MEMORY_VECTOR_PATH = os.getenv("MEMORY_VECTOR_PATH", "data/memory_vectors")
 SCHEDULER_USER_ID = os.getenv("SCHEDULER_USER_ID", "terrarium_system")  # Legacy, not used
 USER_ID = os.getenv("TELEGRAM_CHAT_ID", "902949428")
-GIRLFRIEND_USER_ID = os.getenv("GIRLFRIEND_TELEGRAM_CHAT_ID", "6134286153")
+DANIELLE_USER_ID = os.getenv("DANIELLE_TELEGRAM_CHAT_ID", "6134286153")
 
 # Custom prompts optimized for selective memory storage
 CUSTOM_FACT_EXTRACTION_PROMPT = """
