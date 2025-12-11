@@ -1,0 +1,35 @@
+{
+  "name": "terrarium-web",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@arwes/react": "^1.0.0-alpha.23",
+    "@emotion/react": "^11.11.1",
+    "@emotion/styled": "^11.11.0",
+    "date-fns": "^4.1.0",
+    "framer-motion": "^10.16.16",
+    "hover-effect": "^1.2.1",
+    "lottie-react": "^2.4.0",
+    "next": "^14.0.4",
+    "p5": "^2.1.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-intersection-observer": "^9.5.3"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.5",
+    "@types/p5": "^1.7.7",
+    "@types/react": "^18.2.45",
+    "@types/react-dom": "^18.2.18",
+    "eslint": "^8.56.0",
+    "eslint-config-next": "^14.0.4",
+    "typescript": "^5.3.3"
+  }
+}
