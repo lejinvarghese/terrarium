@@ -23,7 +23,7 @@ load_env
 # Start core services (except archive and web)
 echo "⚙️  Starting core services."
 for service in "${SERVICES[@]}"; do
-    IFS='|' read -r name session display_name command working_dir <<< "$service"
+    IFS='|' read -r name session display_name command working_dir width height <<< "$service"
 
     # Skip archive - we'll start it after API tunnel is ready
     # Skip web - we'll start it last after other services stabilize
@@ -31,7 +31,7 @@ for service in "${SERVICES[@]}"; do
         continue
     fi
 
-    start_service "$name" "$session" "$display_name" "$command" "$working_dir"
+    start_service "$name" "$session" "$display_name" "$command" "$working_dir" "$width" "$height"
 
     # Wait for Qdrant to initialize before starting dependent services
     if [ "$name" = "qdrant" ]; then
@@ -55,10 +55,14 @@ if is_named_tunnel_configured; then
     export TUNNEL_ARCHIVE_API_URL="https://api.${TUNNEL_DOMAIN}"
 
     for service in "${SERVICES[@]}"; do
-        IFS='|' read -r name session display_name command working_dir <<< "$service"
+        IFS='|' read -r name session display_name command working_dir width height <<< "$service"
         if [ "$name" = "archive" ]; then
             # Create tmux session and set environment variable before running command
-            tmux new-session -d -s "$session" -c "${working_dir:-$(pwd)}"
+            local tmux_cmd="tmux new-session -d -s \"$session\" -c \"${working_dir:-$(pwd)}\""
+            if [ -n "$width" ] && [ -n "$height" ]; then
+                tmux_cmd="$tmux_cmd -x $width -y $height"
+            fi
+            eval "$tmux_cmd"
             sleep 0.5  # Wait for shell to be ready
             tmux send-keys -t "$session" "" C-m  # Send blank line to ensure shell is ready
             tmux send-keys -t "$session" "export TUNNEL_ARCHIVE_API_URL='$TUNNEL_ARCHIVE_API_URL'" C-m
@@ -77,9 +81,9 @@ echo "  ⏳ Waiting for services to stabilize..."
 sleep 5  # 5 second delay to let other services start
 
 for service in "${SERVICES[@]}"; do
-    IFS='|' read -r name session display_name command working_dir <<< "$service"
+    IFS='|' read -r name session display_name command working_dir width height <<< "$service"
     if [ "$name" = "web" ]; then
-        start_service "$name" "$session" "$display_name" "$command" "$working_dir"
+        start_service "$name" "$session" "$display_name" "$command" "$working_dir" "$width" "$height"
         sleep 3  # Give web time to start
         break
     fi
@@ -148,10 +152,14 @@ for tunnel in "${TUNNELS[@]}"; do
         echo ""
         echo "📚 Initializing Archive."
         for service in "${SERVICES[@]}"; do
-            IFS='|' read -r name session display_name command working_dir <<< "$service"
+            IFS='|' read -r name session display_name command working_dir width height <<< "$service"
             if [ "$name" = "archive" ]; then
                 # Create tmux session and set environment variable before running command
-                tmux new-session -d -s "$session" -c "${working_dir:-$(pwd)}"
+                local tmux_cmd="tmux new-session -d -s \"$session\" -c \"${working_dir:-$(pwd)}\""
+                if [ -n "$width" ] && [ -n "$height" ]; then
+                    tmux_cmd="$tmux_cmd -x $width -y $height"
+                fi
+                eval "$tmux_cmd"
                 sleep 0.5  # Wait for shell to be ready
                 tmux send-keys -t "$session" "" C-m  # Send blank line to ensure shell is ready
                 tmux send-keys -t "$session" "export TUNNEL_ARCHIVE_API_URL='$TUNNEL_ARCHIVE_API_URL'" C-m

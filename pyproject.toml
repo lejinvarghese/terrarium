@@ -12,4 +12,24 @@ dependencies = [
     "recipe-scrapers>=15.0.0",
     "python-telegram-bot>=21.0.0",
     "mem0ai>=1.0.1",
+    "sqlalchemy>=2.0.0",
+    "pillow>=10.0.0",
+]
+
+[project.optional-dependencies]
+incubator = [
+    "torch>=2.5.0",
+    "transformers>=4.46.0",
+    "accelerate>=1.0.0",
+    "smolagents>=1.0.0",
+    "peft>=0.13.0",
+    "trl>=0.11.0",
+    "playwright>=1.40.0",
+    "bitsandbytes>=0.44.0",
+]
+
+dev = [
+    "pytest>=7.0.0",
+    "black>=23.0.0",
+    "ruff>=0.1.0",
 ]

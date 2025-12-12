@@ -1,0 +1,277 @@
+/* Cyberpunk Terminal Container */
+.terminalContainer {
+  background: #0a0a0a;
+  border: 1px solid rgba(235, 250, 29, 0.3);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow:
+    0 0 20px rgba(235, 250, 29, 0.1),
+    inset 0 0 20px rgba(0, 0, 0, 0.5);
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.terminalContainer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(235, 250, 29, 0.02) 0%,
+    transparent 50%,
+    rgba(235, 250, 29, 0.02) 100%
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+.terminalContainer:hover {
+  border-color: rgba(235, 250, 29, 0.6);
+  box-shadow:
+    0 0 30px rgba(235, 250, 29, 0.2),
+    inset 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+/* Header Styling */
+.terminalHeader {
+  background: linear-gradient(180deg, #1a1a1a 0%, #0d0d0d 100%);
+  border-bottom: 1px solid rgba(235, 250, 29, 0.2);
+  padding: 0.75rem 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: 'JetBrains Mono', monospace;
+  position: relative;
+  z-index: 2;
+}
+
+.headerLeft {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.windowButtons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  box-shadow:
+    0 0 8px currentColor,
+    inset 0 0 4px rgba(0, 0, 0, 0.5);
+  transition: all 0.3s ease;
+}
+
+.dot:hover {
+  transform: scale(1.1);
+  filter: brightness(1.2);
+}
+
+.terminalTitle {
+  color: #EBFA1D;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  text-shadow: 0 0 10px rgba(235, 250, 29, 0.5);
+}
+
+.headerRight {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 0.75rem;
+}
+
+.statusIndicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: rgba(255, 255, 255, 0.7);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
+.statusDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.statusDot.connected {
+  background: #50fa7b;
+  box-shadow:
+    0 0 10px #50fa7b,
+    0 0 20px rgba(80, 250, 123, 0.5);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.statusDot.disconnected {
+  background: #ff5555;
+  box-shadow:
+    0 0 10px #ff5555,
+    0 0 20px rgba(255, 85, 85, 0.5);
+  animation: pulseSlow 3s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(1.1);
+  }
+}
+
+@keyframes pulseSlow {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+
+.timestamp {
+  color: rgba(235, 250, 29, 0.6);
+  font-family: 'JetBrains Mono', monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Terminal Content Area */
+.terminal {
+  background: #000000;
+  padding: 0.5rem;
+  position: relative;
+  z-index: 2;
+}
+
+/* Custom scrollbar for terminal viewport */
+.terminal :global(.xterm-viewport) {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(235, 250, 29, 0.5) rgba(0, 0, 0, 0.3);
+}
+
+.terminal :global(.xterm-viewport::-webkit-scrollbar) {
+  width: 8px;
+}
+
+.terminal :global(.xterm-viewport::-webkit-scrollbar-track) {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 4px;
+}
+
+.terminal :global(.xterm-viewport::-webkit-scrollbar-thumb) {
+  background: rgba(235, 250, 29, 0.5);
+  border-radius: 4px;
+  transition: background 0.3s ease;
+}
+
+.terminal :global(.xterm-viewport::-webkit-scrollbar-thumb:hover) {
+  background: rgba(235, 250, 29, 0.8);
+}
+
+/* Terminal text selection */
+.terminal :global(.xterm-selection div) {
+  background-color: rgba(235, 250, 29, 0.3) !important;
+}
+
+/* Footer Styling */
+.terminalFooter {
+  background: linear-gradient(0deg, #0a0a0a 0%, #0d0d0d 100%);
+  border-top: 1px solid rgba(235, 250, 29, 0.1);
+  padding: 0.5rem 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  z-index: 2;
+}
+
+.footerText {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.7rem;
+  font-family: 'JetBrains Mono', monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.footerInfo {
+  color: rgba(235, 250, 29, 0.6);
+  font-size: 0.7rem;
+  font-family: 'JetBrains Mono', monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Scan line effect (subtle) */
+@keyframes scanline {
+  0% {
+    transform: translateY(-100%);
+  }
+  100% {
+    transform: translateY(100%);
+  }
+}
+
+.terminal::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(235, 250, 29, 0.1) 50%,
+    transparent 100%
+  );
+  animation: scanline 8s linear infinite;
+  pointer-events: none;
+  z-index: 3;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .terminalHeader {
+    padding: 0.5rem 0.75rem;
+  }
+
+  .headerRight {
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.25rem;
+  }
+
+  .terminalTitle {
+    font-size: 0.75rem;
+  }
+
+  .statusIndicator,
+  .timestamp,
+  .footerText,
+  .footerInfo {
+    font-size: 0.65rem;
+  }
+
+  .windowButtons {
+    gap: 0.35rem;
+  }
+
+  .dot {
+    width: 10px;
+    height: 10px;
+  }
+}
