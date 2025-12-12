@@ -18,7 +18,7 @@ export const metadata: Metadata = {
   authors: [{ name: 'starscream' }],
   openGraph: {
     title: 'Terrarium | Cybernetic Swarm Intelligence',
-    description: 'A digital home where cybernetic minds operate as a collective swarm.',
+    description: 'A digital home where cybernetic minds live as a collective swarm.',
     type: 'website',
   },
 };
