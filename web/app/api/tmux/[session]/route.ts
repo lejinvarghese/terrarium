@@ -11,9 +11,10 @@ export async function GET(
 
     // Capture last N lines from tmux session
     // -p: print to stdout
+    // -e: include ANSI escape sequences (colors)
     // -S: start line (negative = from end)
     // -t: target session
-    const command = `tmux capture-pane -t ${session} -p -S -${lines}`;
+    const command = `tmux capture-pane -t ${session} -p -e -S -${lines}`;
     const output = execSync(command, { encoding: 'utf-8' });
 
     return new Response(output, {

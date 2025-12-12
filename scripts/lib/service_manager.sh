@@ -2,13 +2,15 @@
 # Service lifecycle management functions
 
 # Start a service in a tmux session
-# Args: name, session, display_name, command, [working_dir]
+# Args: name, session, display_name, command, [working_dir], [width], [height]
 start_service() {
     local name="$1"
     local session="$2"
     local display_name="$3"
     local command="$4"
     local working_dir="${5:-$(pwd)}"
+    local width="${6:-}"
+    local height="${7:-}"
 
     if session_exists "$session"; then
         echo_warning "Session '$session' already exists, skipping"
@@ -24,7 +26,13 @@ start_service() {
         fi
     fi
 
-    tmux new-session -d -s "$session" -c "$working_dir"
+    # Create tmux session with optional dimensions
+    local tmux_cmd="tmux new-session -d -s \"$session\" -c \"$working_dir\""
+    if [ -n "$width" ] && [ -n "$height" ]; then
+        tmux_cmd="$tmux_cmd -x $width -y $height"
+    fi
+    eval "$tmux_cmd"
+
     sleep 0.5  # Wait for shell to be ready
     tmux send-keys -t "$session" "" C-m  # Send blank line to ensure shell is ready
     tmux send-keys -t "$session" "$command" C-m

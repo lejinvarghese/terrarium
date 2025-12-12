@@ -10,7 +10,7 @@ export async function GET() {
     const scheduleContent = await readFile(schedulePath, 'utf-8');
     const scheduleData = JSON.parse(scheduleContent);
 
-    const tasks = scheduleData.tasks.map((task, index) => {
+    const tasks = scheduleData.tasks.map((task: any, index: number) => {
       const scheduleInfo = parseSchedule(task.schedule);
 
       return {

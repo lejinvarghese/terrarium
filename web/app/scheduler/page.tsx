@@ -3,9 +3,16 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import dynamic from 'next/dynamic';
 import { bots } from '@/data/bots';
 import SchedulerCalendar from '@/components/scheduler/SchedulerCalendar';
 import styles from './scheduler.module.css';
+
+// Import LiveTerminal dynamically to avoid SSR issues with xterm.js
+const LiveTerminal = dynamic(() => import('@/components/LiveTerminal').then(mod => ({ default: mod.LiveTerminal })), {
+  ssr: false,
+  loading: () => <div style={{ padding: '1rem', color: '#EBFA1D' }}>Loading terminal...</div>
+});
 
 interface ScheduledTask {
   id: string;
@@ -26,7 +33,7 @@ export default function SchedulerPage() {
   const [tasks, setTasks] = useState<ScheduledTask[]>([]);
   const [loading, setLoading] = useState(true);
   const [showTerminal, setShowTerminal] = useState(false);
-  const [terminalOutput, setTerminalOutput] = useState<string>('');
+  const [showMonitoring, setShowMonitoring] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
   useEffect(() => {
@@ -175,32 +182,6 @@ export default function SchedulerPage() {
   const clearDateFilter = () => {
     setSelectedDate(null);
   };
-
-  // Poll tmux output from terrarium-engine session when terminal is visible
-  useEffect(() => {
-    if (!showTerminal) return;
-
-    const fetchTerminalOutput = async () => {
-      try {
-        const response = await fetch('/api/tmux/terrarium-engine?lines=50');
-        if (response.ok) {
-          const output = await response.text();
-          setTerminalOutput(output);
-        }
-      } catch (error) {
-        console.error('Failed to fetch tmux output:', error);
-        setTerminalOutput('Error: Unable to connect to scheduler session');
-      }
-    };
-
-    // Fetch immediately
-    fetchTerminalOutput();
-
-    // Poll every 2 seconds
-    const interval = setInterval(fetchTerminalOutput, 2000);
-
-    return () => clearInterval(interval);
-  }, [showTerminal]);
 
   if (loading) {
     return (
@@ -377,18 +358,49 @@ export default function SchedulerPage() {
         </button>
 
         {showTerminal && (
-          <div className={styles.terminal}>
-            <div className={styles.terminalHeader}>
-              <span className={styles.terminalTitle}>
-                The Engine · Live Activity
-              </span>
-              <span className={styles.terminalUpdate}>
-                updating every 2s • last 50 lines
-              </span>
-            </div>
-            <pre className={styles.terminalOutput}>
-              {terminalOutput || 'Loading terminal output...'}
-            </pre>
+          <LiveTerminal
+            sessionName="terrarium-engine"
+            title="The Engine · Live Activity"
+            height="500px"
+            updateInterval={1000}
+            maxLines={100}
+          />
+        )}
+      </section>
+
+      {/* System Monitoring Section */}
+      <section className={styles.terminalSection}>
+        <button
+          className={`${styles.terminalToggle} cursor-hover`}
+          onClick={() => setShowMonitoring(!showMonitoring)}
+        >
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path
+              d="M2 2H14M2 8H14M2 14H14"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+            />
+          </svg>
+          {showMonitoring ? 'Hide' : 'Show'} System Monitoring
+        </button>
+
+        {showMonitoring && (
+          <div className={styles.monitoringGrid}>
+            <LiveTerminal
+              sessionName="btop"
+              title="btop · System Monitor"
+              height="500px"
+              updateInterval={1000}
+              maxLines={50}
+            />
+            <LiveTerminal
+              sessionName="nvtop"
+              title="nvtop · GPU Monitor"
+              height="500px"
+              updateInterval={1000}
+              maxLines={50}
+            />
           </div>
         )}
       </section>

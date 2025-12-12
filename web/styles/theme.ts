@@ -1,29 +1,31 @@
-import { createAppTheme } from '@arwes/react';
+// Note: createAppTheme is not available in the current version of @arwes/react
+// Keeping theme configuration for future use
+// import { createAppTheme } from '@arwes/react';
 
-export const terrariumTheme = createAppTheme({
-  settings: {
-    hue: 180, // Cyan-based
-    fontFamily: '"JetBrains Mono", monospace',
-    fontFamilyCode: '"JetBrains Mono", monospace',
-  },
-  colors: {
-    primary: {
-      main: [180, 100, 50], // Cyan #00FFF2
-      dark: [180, 100, 35],
-      light: [180, 100, 65],
-    },
-    secondary: {
-      main: [300, 100, 50], // Magenta #FF00FF
-      dark: [300, 100, 35],
-      light: [300, 100, 65],
-    },
-    accent: {
-      main: [62, 98, 56], // Neon Yellow #EBFA1D
-      dark: [62, 98, 40],
-      light: [62, 98, 70],
-    },
-  },
-});
+// export const terrariumTheme = createAppTheme({
+//   settings: {
+//     hue: 180, // Cyan-based
+//     fontFamily: '"JetBrains Mono", monospace',
+//     fontFamilyCode: '"JetBrains Mono", monospace',
+//   },
+//   colors: {
+//     primary: {
+//       main: [180, 100, 50], // Cyan #00FFF2
+//       dark: [180, 100, 35],
+//       light: [180, 100, 65],
+//     },
+//     secondary: {
+//       main: [300, 100, 50], // Magenta #FF00FF
+//       dark: [300, 100, 35],
+//       light: [300, 100, 65],
+//     },
+//     accent: {
+//       main: [62, 98, 56], // Neon Yellow #EBFA1D
+//       dark: [62, 98, 40],
+//       light: [62, 98, 70],
+//     },
+//   },
+// });
 
 export const colors = {
   primary: '#00FFF2',

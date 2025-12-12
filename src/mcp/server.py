@@ -251,4 +251,4 @@ async def list_supported_recipe_sites() -> dict:
 
 
 if __name__ == "__main__":
-    asyncio.run(mcp.run())
+    mcp.run()

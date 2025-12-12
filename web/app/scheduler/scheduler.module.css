@@ -488,6 +488,14 @@
   background: rgba(235, 250, 29, 0.5);
 }
 
+/* Monitoring Grid Layout */
+.monitoringGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
 /* Responsive */
 @media (max-width: 1024px) {
   .headerInfo {
@@ -502,6 +510,13 @@
 
   .time {
     font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 1200px) {
+  .monitoringGrid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
   }
 }
 
