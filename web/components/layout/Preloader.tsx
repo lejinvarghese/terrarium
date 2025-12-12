@@ -62,7 +62,7 @@ export default function Preloader() {
         </div>
 
         <h1 className={styles.title}>TERRARIUM</h1>
-        <p className={styles.subtitle}>AI Ecosystem Orchestration</p>
+        <p className={styles.subtitle}>LOADING...</p>
 
         <div className={styles.progressBar}>
           <div

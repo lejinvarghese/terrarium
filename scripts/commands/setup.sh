@@ -138,13 +138,12 @@ ingress:
   - hostname: archive.${DOMAIN}
     service: http://localhost:8502
 
-  # Archive API
+  # Archive API - Protected by Cloudflare Access (manual setup required)
+  # See docs/CLOUDFLARE_ACCESS.md for setup instructions
   - hostname: api.${DOMAIN}
     service: http://localhost:5055
 
-  # SSH access
-  - hostname: ssh.${DOMAIN}
-    service: ssh://localhost:22
+  # SSH access - REMOVED (security): Use Tailscale/Cloudflare Access instead (see docs/SSH_ACCESS.md)
 
   # Catch-all
   - service: http_status:404

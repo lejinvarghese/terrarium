@@ -51,7 +51,7 @@ echo ""
 # Start Archive service (only with named tunnel; legacy mode starts it later)
 if is_named_tunnel_configured; then
     echo "📚 Initializing Archive."
-    # With named tunnel, use fixed API subdomain
+    # With named tunnel, use fixed API subdomain (protected by Cloudflare Access)
     export TUNNEL_ARCHIVE_API_URL="https://api.${TUNNEL_DOMAIN}"
 
     for service in "${SERVICES[@]}"; do
