@@ -1,0 +1,353 @@
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.92);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.modal {
+  position: relative;
+  background: linear-gradient(135deg, #0a1929 0%, #000814 100%);
+  border: 1px solid rgba(0, 255, 242, 0.3);
+  max-width: 450px;
+  width: 90%;
+  padding: 2rem;
+  animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow:
+    0 0 60px rgba(0, 255, 242, 0.15),
+    inset 0 0 40px rgba(0, 255, 242, 0.03);
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Corner Brackets */
+.cornerTL,
+.cornerTR,
+.cornerBL,
+.cornerBR {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #EBFA1D;
+}
+
+.cornerTL {
+  top: -1px;
+  left: -1px;
+  border-right: none;
+  border-bottom: none;
+}
+
+.cornerTR {
+  top: -1px;
+  right: -1px;
+  border-left: none;
+  border-bottom: none;
+}
+
+.cornerBL {
+  bottom: -1px;
+  left: -1px;
+  border-right: none;
+  border-top: none;
+}
+
+.cornerBR {
+  bottom: -1px;
+  right: -1px;
+  border-left: none;
+  border-top: none;
+}
+
+/* Close Button */
+.closeBtn {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 2rem;
+  line-height: 1;
+  cursor: none;
+  padding: 0.5rem;
+  transition: all 0.3s ease;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.closeBtn:hover {
+  color: #EBFA1D;
+  transform: rotate(90deg);
+}
+
+/* Content */
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.title {
+  font-size: clamp(1rem, 3vw, 1.25rem);
+  font-weight: 300;
+  letter-spacing: 0.25em;
+  color: #00FFF2;
+  text-align: center;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.glitchLine {
+  width: 60%;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    #00FFF2 20%,
+    #EBFA1D 50%,
+    #00FFF2 80%,
+    transparent 100%
+  );
+  opacity: 0.6;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+/* Form */
+.form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.inputWrapper {
+  position: relative;
+  width: 100%;
+}
+
+.input {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(0, 255, 242, 0.3);
+  color: #FFFFFF;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.875rem;
+  letter-spacing: 0.2em;
+  padding: 0.875rem 1.25rem;
+  text-align: center;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+.input:focus {
+  border-color: #00FFF2;
+  box-shadow:
+    0 0 20px rgba(0, 255, 242, 0.3),
+    inset 0 0 20px rgba(0, 255, 242, 0.1);
+}
+
+.input::placeholder {
+  color: rgba(255, 255, 255, 0.3);
+  letter-spacing: 0.15em;
+}
+
+.input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.inputBorder {
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  right: -4px;
+  bottom: -4px;
+  border: 1px solid transparent;
+  pointer-events: none;
+  transition: border-color 0.3s ease;
+}
+
+.input:focus + .inputBorder {
+  border-color: rgba(235, 250, 29, 0.5);
+}
+
+/* Error Message */
+.error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  color: #FF3366;
+  font-size: 0.875rem;
+  letter-spacing: 0.1em;
+  animation: shake 0.4s ease;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-10px); }
+  75% { transform: translateX(10px); }
+}
+
+.errorIcon {
+  font-size: 1.25rem;
+  animation: blink 1s ease infinite;
+}
+
+@keyframes blink {
+  0%, 50%, 100% { opacity: 1; }
+  25%, 75% { opacity: 0.3; }
+}
+
+/* Submit Button */
+.submitBtn {
+  position: relative;
+  background: linear-gradient(135deg, rgba(75, 80, 45, 0.8) 0%, rgba(50, 60, 30, 0.9) 100%);
+  border: 1px solid rgba(235, 250, 29, 0.4);
+  color: #EBFA1D;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8125rem;
+  font-weight: 400;
+  letter-spacing: 0.15em;
+  padding: 0.875rem 1.5rem;
+  cursor: none;
+  transition: all 0.3s ease;
+  overflow: hidden;
+  text-transform: uppercase;
+}
+
+.submitBtn:hover:not(:disabled) {
+  background: linear-gradient(135deg, rgba(75, 80, 45, 1) 0%, rgba(50, 60, 30, 1) 100%);
+  border-color: #EBFA1D;
+  box-shadow:
+    0 0 30px rgba(235, 250, 29, 0.3),
+    inset 0 0 20px rgba(235, 250, 29, 0.1);
+  transform: translateY(-2px);
+}
+
+.submitBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.submitText {
+  position: relative;
+  z-index: 1;
+}
+
+/* Button Corners */
+.btnCornerTL,
+.btnCornerTR,
+.btnCornerBL,
+.btnCornerBR {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border: 1px solid #EBFA1D;
+  opacity: 0.6;
+  transition: all 0.3s ease;
+}
+
+.btnCornerTL {
+  top: -1px;
+  left: -1px;
+  border-right: none;
+  border-bottom: none;
+}
+
+.btnCornerTR {
+  top: -1px;
+  right: -1px;
+  border-left: none;
+  border-bottom: none;
+}
+
+.btnCornerBL {
+  bottom: -1px;
+  left: -1px;
+  border-right: none;
+  border-top: none;
+}
+
+.btnCornerBR {
+  bottom: -1px;
+  right: -1px;
+  border-left: none;
+  border-top: none;
+}
+
+.submitBtn:hover:not(:disabled) .btnCornerTL,
+.submitBtn:hover:not(:disabled) .btnCornerTR,
+.submitBtn:hover:not(:disabled) .btnCornerBL,
+.submitBtn:hover:not(:disabled) .btnCornerBR {
+  opacity: 1;
+  width: 16px;
+  height: 16px;
+}
+
+/* Hint Text */
+.hint {
+  font-size: 0.625rem;
+  letter-spacing: 0.1em;
+  color: rgba(255, 255, 255, 0.3);
+  text-align: center;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .modal {
+    padding: 1.5rem;
+  }
+
+  .title {
+    font-size: 1rem;
+  }
+
+  .input {
+    font-size: 0.8125rem;
+    padding: 0.75rem 1rem;
+  }
+
+  .submitBtn {
+    padding: 0.75rem 1.25rem;
+    font-size: 0.75rem;
+  }
+}

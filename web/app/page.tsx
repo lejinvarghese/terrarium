@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { services } from '@/data/services';
 import dynamic from 'next/dynamic';
+import ServiceCard from '@/components/sections/ServiceCard';
 import styles from './page.module.css';
 
 const GridTrail = dynamic(() => import('@/components/effects/GridTrail'), {
@@ -35,37 +36,11 @@ export default function Home() {
           </h2>
           <div className={styles.grid}>
             {services.map((service, index) => (
-              <a
+              <ServiceCard
                 key={service.id}
-                href={service.url}
-                className={`${styles.card} cursor-hover`}
-                style={{
-                  animationDelay: `${index * 0.15}s`,
-                  color: service.color,
-                }}
-              >
-                <div className={styles.cardHeader}>
-                  <span className={styles.prefix} style={{ color: service.color }}>
-                    {service.prefix}
-                  </span>
-                  <span
-                    className={styles.status}
-                    data-status={service.status}
-                  >
-                    {service.status.toUpperCase()}
-                  </span>
-                </div>
-                <h3 className={styles.cardTitle}>{service.name}</h3>
-                <p className={styles.cardTagline}>{service.tagline}</p>
-                <p className={styles.cardDescription}>{service.description}</p>
-                <div className={styles.features}>
-                  {service.features.slice(0, 3).map((feature, i) => (
-                    <span key={i} className={styles.feature}>
-                      {feature}
-                    </span>
-                  ))}
-                </div>
-              </a>
+                service={service}
+                index={index}
+              />
             ))}
           </div>
         </div>

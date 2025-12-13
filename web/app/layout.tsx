@@ -33,7 +33,7 @@ export default function RootLayout({
       <body className={jetbrainsMono.variable}>
         <Preloader />
         <CustomCursor />
-        <AudioPlayer autoPlay={true} />
+        <AudioPlayer autoPlay={true} volume={0.7} />
         {children}
       </body>
     </html>
