@@ -1,146 +1,99 @@
 #!/usr/bin/env python3
-"""Exploration agent for Incubator using Agno"""
+"""Exploration runner using RL-style environment"""
 
-import time
 import click
-from concurrent.futures import ThreadPoolExecutor, TimeoutError as FuturesTimeoutError
-from agno.agent import Agent
-from agno.models.ollama import Ollama
-from agno.db.sqlite import SqliteDb
-
-from src.incubator.config import MODEL_NAME, DEFAULT_EPISODE_STEPS, MEMORY_DB
-from src.incubator.agents import get_agent_config, AGENTS
-from src.incubator.models import add_observation
-from src.incubator.tools import get_mcp_tools
+import random
+from src.incubator.config import DEFAULT_EPISODE_STEPS, DEFAULT_EPSILON
+from src.incubator.agents import AGENTS
+from src.incubator.environment import ExplorationEnvironment
 
 
-def calculate_reward(outcome: str) -> float:
-    outcome_lower = outcome.lower()
-    if any(x in outcome_lower for x in ["failed", "exception", "timeout", "connection error"]):
-        return -0.3
-    if any(x in outcome_lower for x in ["found", "discovered", "learned"]):
-        return 0.7
-    if len(outcome) > 300:
-        return 0.7
-    return 0.5
+# Structured exploration prompts (exploitation)
+STEP_PROMPTS = [
+    "Now explore a different aspect or related topic. What else is interesting?",
+    "Go deeper on something you mentioned. Ask 'why' or 'how' questions.",
+    "Compare and contrast what you've learned. What patterns do you see?",
+    "Find something surprising or unexpected. Look for contradictions.",
+    "Synthesize what you've learned. What's the bigger picture?",
+]
+
+# Random exploration prompts (exploration)
+RANDOM_PROMPTS = [
+    "Follow a tangent. Pick something unrelated and see where it leads.",
+    "Ask a completely different question. What would a child be curious about?",
+    "What's the weirdest thing you could explore right now?",
+    "Pick a random word from what you've learned and dive deep into just that.",
+    "What question would surprise you the most to answer?",
+    "Explore the opposite of what you've been learning about.",
+    "Find a connection between this topic and something completely unrelated.",
+    "What would happen if the main assumption you've been using was wrong?",
+    "Explore the most obscure detail you've encountered so far.",
+    "What does this topic remind you of? Follow that association.",
+]
 
 
-def run_agno_exploration(agent_id: str, objective: str, steps: int = DEFAULT_EPISODE_STEPS, timeout: int = 180):
-    agent_config = get_agent_config(agent_id)
+def run_episode(agent_id: str, objective: str, steps: int = DEFAULT_EPISODE_STEPS, timeout: int = 180, epsilon: float = DEFAULT_EPSILON):
+    """Run a complete exploration episode
 
-    click.secho(f"\n[Explore] Model: {MODEL_NAME}", fg="cyan")
+    Args:
+        agent_id: Agent identifier
+        objective: Exploration objective
+        steps: Number of steps to run
+        timeout: Timeout per step in seconds
+        epsilon: Probability of random exploration (0.0 = always structured, 1.0 = always random)
+    """
+    # Initialize environment
+    env = ExplorationEnvironment(agent_id=agent_id, timeout=timeout)
 
-    model = Ollama(
-        id=MODEL_NAME,
-        options={
-            "temperature": 0.7,
-            "top_p": 0.8,
-            "top_k": 20,
-            "repeat_penalty": 1.0,
-            "num_ctx": 4096,
-        }
-    )
+    # Reset for new episode
+    env.reset(objective)
 
-    mcp_tools = get_mcp_tools()
-    memory_db = SqliteDb(db_file=str(MEMORY_DB))
+    click.secho(f"[Episode] Exploration strategy: ε={epsilon:.2f} (random exploration probability)", fg="cyan")
 
-    agent = Agent(
-        name=agent_config['name'],
-        model=model,
-        tools=mcp_tools,
-        instructions=agent_config['system_prompt'],
-        db=memory_db,
-        enable_user_memories=True,
-        add_memories_to_context=True,
-        add_history_to_context=False,
-        markdown=True,
-        stream_events=True,
-        tool_call_limit=5,
-        debug_mode=False,
-    )
-
-    episode_id = f"{agent_id}_{int(time.time())}"
-    click.secho(f"[Explore] Episode: {episode_id}", fg="cyan")
-    click.secho(f"[Explore] Objective: {objective}\n", fg="yellow")
-
-    all_results = []
-    prompts = [
-        "Now explore a different aspect or related topic. What else is interesting?",
-        "Go deeper on something you mentioned. Ask 'why' or 'how' questions.",
-        "Compare and contrast what you've learned. What patterns do you see?",
-        "Find something surprising or unexpected. Look for contradictions.",
-        "Synthesize what you've learned. What's the bigger picture?",
-    ]
-
-    for iteration in range(1, steps + 1):
-        click.secho(f"\n{'='*60}", fg="cyan")
-        click.secho(f"Iteration {iteration}/{steps}", fg="cyan", bold=True)
-        click.secho(f"{'='*60}", fg="cyan")
-
-        if all_results:
-            context = "Previous discoveries:\n" + "\n".join([f"- Step {i+1}: {r[:200]}..." for i, r in enumerate(all_results)])
-            iteration_prompt = prompts[min(iteration - 1, len(prompts) - 1)]
-            current_task = f"{objective}\n\n{context}\n\n{iteration_prompt}"
+    # Run episode steps
+    for step_num in range(1, steps + 1):
+        # Get prompt for this step
+        if step_num == 1:
+            prompt = None
         else:
-            current_task = objective
+            # Epsilon-greedy: random exploration vs structured prompts
+            if random.random() < epsilon:
+                # Explore: use random tangential prompt
+                prompt = random.choice(RANDOM_PROMPTS)
+                click.secho(f"[ε-explore] Using random prompt", fg="magenta", dim=True)
+            else:
+                # Exploit: use structured prompt sequence
+                prompt_idx = min(step_num - 2, len(STEP_PROMPTS) - 1)
+                prompt = STEP_PROMPTS[prompt_idx]
 
-        try:
-            with ThreadPoolExecutor(max_workers=1) as executor:
-                future = executor.submit(agent.run, current_task, user_id=episode_id)
-                response = future.result(timeout=timeout)
+        # Execute step
+        result = env.step(prompt)
 
-            result_text = response.content if hasattr(response, 'content') and response.content else str(response)
+        # Check if episode should terminate
+        if result["done"]:
+            click.secho(f"\n[Episode] Terminating early at step {step_num}", fg="yellow")
+            break
 
-            if not result_text or len(result_text.strip()) == 0:
-                result_text = "[Agent returned empty response]"
+    # Close episode
+    summary = env.close()
 
-            all_results.append(result_text)
-            click.secho(f"\n[Result]:", fg="green")
-            click.secho(result_text[:500] + ("..." if len(result_text) > 500 else ""), fg="white")
-
-        except FuturesTimeoutError:
-            click.secho(f"\n[TIMEOUT]: Iteration exceeded {timeout}s", fg="red", bold=True)
-            result_text = f"[Iteration timed out after {timeout}s]"
-            all_results.append(result_text)
-
-        except Exception as e:
-            click.secho(f"\n[ERROR]: {e}", fg="red", bold=True)
-            result_text = f"[Error: {str(e)}]"
-            all_results.append(result_text)
-
-    result_text = "\n\n=== EXPLORATION SUMMARY ===\n\n".join([f"Step {i+1}:\n{r}" for i, r in enumerate(all_results)])
-    reward = calculate_reward(result_text)
-
-    add_observation(
-        agent_id=agent_id,
-        episode_id=episode_id,
-        observation_text=result_text,
-        action_code="agent.run(objective)",
-        outcome=result_text,
-        reward=reward,
-    )
-
-    memories = agent.get_user_memories(user_id=episode_id)
-    if memories:
-        click.secho(f"\n[Memory] Created {len(memories)} memories", fg="cyan")
-        for i, mem in enumerate(memories[:10], 1):
-            click.secho(f"  {i}. {mem.memory}", fg="white")
-        if len(memories) > 10:
-            click.secho(f"  ... and {len(memories) - 10} more", fg="white", dim=True)
-
-    click.secho(f"\n[Explore] Complete! (Reward: {reward})", fg="green", bold=True)
+    return summary
 
 
 @click.command()
-@click.option("--agent", "-a", type=click.Choice(list(AGENTS.keys())), required=True)
-@click.option("--objective", "-o", default="Explore and learn about nature, animals, and the world around you")
-@click.option("--steps", "-s", default=DEFAULT_EPISODE_STEPS)
-@click.option("--timeout", "-t", default=180, help="Timeout per iteration in seconds")
-def explore(agent: str, objective: str, steps: int, timeout: int):
+@click.option("--agent", "-a", type=click.Choice(list(AGENTS.keys())), required=True, help="Agent to run")
+@click.option("--objective", "-o", default="Explore and learn about nature, animals, and the world around you", help="Exploration objective")
+@click.option("--steps", "-s", default=DEFAULT_EPISODE_STEPS, help="Number of steps per episode")
+@click.option("--timeout", "-t", default=180, help="Timeout per step in seconds")
+@click.option("--epsilon", "-e", default=DEFAULT_EPSILON, type=float, help="Random exploration probability (0.0-1.0)")
+def explore(agent: str, objective: str, steps: int, timeout: int, epsilon: float):
+    """Run agent exploration episode"""
+
     click.secho("\n" + "="*60, fg="cyan")
-    click.secho("Incubator - Exploration", fg="cyan", bold=True)
+    click.secho("Incubator - Exploration Environment", fg="cyan", bold=True)
     click.secho("="*60 + "\n", fg="cyan")
-    run_agno_exploration(agent, objective, steps, timeout)
+
+    run_episode(agent, objective, steps, timeout, epsilon)
 
 
 if __name__ == "__main__":
