@@ -17,14 +17,14 @@ TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 
 # Persona emojis for Terrarium characters
 PERSONA_EMOJIS = {
-    "anya": "🎨",      # Creative director & artistic guide
-    "cassia": "☀️",    # Daily planner & morning briefings
-    "freya": "💪",     # Health, fitness & nutrition
-    "nigella": "🍷",   # Culinary guide & sommelier
-    "nyx": "🚀",       # Accelerationist & futurist
-    "sage": "📚",      # Strategic visionary & wisdom guide
-    "system": "🌿",    # System notifications
-    "default": "🤖",   # Fallback
+    "anya": "🎨",  # Creative director & artistic guide
+    "cassia": "☀️",  # Daily planner & morning briefings
+    "freya": "💪",  # Health, fitness & nutrition
+    "nigella": "🍷",  # Culinary guide & sommelier
+    "nyx": "🚀",  # Accelerationist & futurist
+    "sage": "📚",  # Strategic visionary & wisdom guide
+    "system": "🌿",  # System notifications
+    "default": "🤖",  # Fallback
 }
 
 dimensions = {
@@ -35,7 +35,7 @@ dimensions = {
 
 mcp = FastMCP(
     "Terrarium Utilities",
-    instructions="A collection of utilities for image generation, messaging, and automation."
+    instructions="A collection of utilities for image generation, messaging, and automation.",
 )
 
 
@@ -120,9 +120,7 @@ async def send_telegram_message(
 
     try:
         await bot.send_message(
-            chat_id=target_chat_id,
-            text=formatted_message,
-            parse_mode=parse_mode
+            chat_id=target_chat_id, text=formatted_message, parse_mode=parse_mode
         )
         return f"Message sent successfully to chat {target_chat_id}"
     except Exception as e:
@@ -157,6 +155,7 @@ async def send_telegram_document(
 
     # Expand home directory if needed
     from pathlib import Path
+
     file_path = str(Path(file_path).expanduser())
 
     # Check if file exists
@@ -176,12 +175,12 @@ async def send_telegram_document(
         parse_mode = None
 
     try:
-        with open(file_path, 'rb') as doc:
+        with open(file_path, "rb") as doc:
             await bot.send_document(
                 chat_id=target_chat_id,
                 document=doc,
                 caption=formatted_caption,
-                parse_mode=parse_mode
+                parse_mode=parse_mode,
             )
         return f"Document sent successfully to chat {target_chat_id}"
     except Exception as e:
@@ -246,7 +245,7 @@ async def list_supported_recipe_sites() -> dict:
             "seriouseats.com",
             "epicurious.com",
             "bbcgoodfood.com",
-        ]
+        ],
     }
 
 

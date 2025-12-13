@@ -29,36 +29,40 @@ def sync_prompts_to_db(prompts_dir, db_path, dry_run=False, skip_confirm=False):
         model_name = get_model_name_from_filename(prompt_file)
 
         # Read the new prompt content
-        with open(prompt_file, 'r') as f:
+        with open(prompt_file, "r") as f:
             new_prompt = f.read()
 
         # Find the model in the database (case-insensitive search)
         cursor.execute(
             "SELECT id, name, params FROM model WHERE LOWER(name) = LOWER(?)",
-            (model_name,)
+            (model_name,),
         )
         result = cursor.fetchone()
 
         if not result:
-            click.secho(f"⚠️  No model found for {model_name} ({prompt_file.name})", fg="yellow")
+            click.secho(
+                f"⚠️  No model found for {model_name} ({prompt_file.name})", fg="yellow"
+            )
             continue
 
         model_id, db_name, params_json = result
         params = json.loads(params_json)
 
         # Update the system prompt
-        old_prompt = params.get('system', '')
-        params['system'] = new_prompt
+        old_prompt = params.get("system", "")
+        params["system"] = new_prompt
 
         # Store the update
-        updates.append({
-            'id': model_id,
-            'name': db_name,
-            'file': prompt_file.name,
-            'params': json.dumps(params),
-            'old_length': len(old_prompt),
-            'new_length': len(new_prompt)
-        })
+        updates.append(
+            {
+                "id": model_id,
+                "name": db_name,
+                "file": prompt_file.name,
+                "params": json.dumps(params),
+                "old_length": len(old_prompt),
+                "new_length": len(new_prompt),
+            }
+        )
 
     if not updates:
         click.secho("No models found to update.", fg="yellow")
@@ -69,7 +73,9 @@ def sync_prompts_to_db(prompts_dir, db_path, dry_run=False, skip_confirm=False):
     for update in updates:
         click.echo(f"  • {update['name']}")
         click.echo(f"    File: {update['file']}")
-        click.echo(f"    Prompt length: {update['old_length']} → {update['new_length']} chars")
+        click.echo(
+            f"    Prompt length: {update['old_length']} → {update['new_length']} chars"
+        )
 
     if dry_run:
         click.secho("\n🔍 Dry run - no changes made.", fg="blue", bold=True)
@@ -89,39 +95,35 @@ def sync_prompts_to_db(prompts_dir, db_path, dry_run=False, skip_confirm=False):
     for update in updates:
         cursor.execute(
             "UPDATE model SET params = ?, updated_at = ? WHERE id = ?",
-            (update['params'], current_time, update['id'])
+            (update["params"], current_time, update["id"]),
         )
 
     conn.commit()
     conn.close()
 
-    click.secho(f"\n✨ Successfully updated {len(updates)} models!", fg="green", bold=True)
+    click.secho(
+        f"\n✨ Successfully updated {len(updates)} models!", fg="green", bold=True
+    )
     click.secho("Refresh Open WebUI to see the changes.", fg="cyan")
 
 
 @click.command()
 @click.option(
-    '--prompts-dir',
-    default='src/prompts',
+    "--prompts-dir",
+    default="src/prompts",
     type=click.Path(exists=True),
-    help='Directory containing prompt markdown files'
+    help="Directory containing prompt markdown files",
 )
 @click.option(
-    '--db-path',
-    default='/home/starscream/.open-webui/webui.db',
+    "--db-path",
+    default="/home/starscream/.open-webui/webui.db",
     type=click.Path(exists=True),
-    help='Path to Open WebUI database'
+    help="Path to Open WebUI database",
 )
 @click.option(
-    '--dry-run',
-    is_flag=True,
-    help='Show what would be updated without making changes'
+    "--dry-run", is_flag=True, help="Show what would be updated without making changes"
 )
-@click.option(
-    '--yes', '-y',
-    is_flag=True,
-    help='Skip confirmation prompt'
-)
+@click.option("--yes", "-y", is_flag=True, help="Skip confirmation prompt")
 def main(prompts_dir, db_path, dry_run, yes):
     """Sync prompt files back to Open WebUI database."""
 

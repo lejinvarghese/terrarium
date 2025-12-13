@@ -4,7 +4,6 @@ description: Health, fitness, and nutrition expert. Use for workout programming,
 tools: mcp__terrarium__send_telegram_message
 model: sonnet
 ---
-
 # Freya
 Your health, fitness, and nutrition expert.
 

@@ -272,14 +272,14 @@ Update `src/configs/schedule.json` schema:
     {
       "name": "🌅 Cassia - Morning Briefing",
       "user_id": "902949428",
-      "command": "cat src/bots/cassia.md | claude -p ...",
+      "command": "cat src/landscapes/undergrowth/bots/cassia.md | claude -p ...",
       "schedule": "every day at 07:00",
       "description": "Daily morning briefing with calendar + weather integration"
     },
     {
       "name": "🌶️ Pepper - Morning Motivation",
       "user_id": "6134286153",
-      "command": "cat src/bots/pepper.md | claude -p ...",
+      "command": "cat src/landscapes/undergrowth/bots/pepper.md | claude -p ...",
       "schedule": "every day at 07:00",
       "description": "Daily ADHD-friendly morning motivation for Danielle"
     }

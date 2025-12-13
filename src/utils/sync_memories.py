@@ -36,12 +36,12 @@ def export_from_openwebui(db_path, output_file):
     output_path = Path(output_file)
     existing_content = ""
     if output_path.exists():
-        with open(output_path, 'r') as f:
+        with open(output_path, "r") as f:
             existing_content = f.read()
 
     # Extract Open WebUI section or create new file
     openwebui_section = "\n\n---\n\n# Open WebUI Memories\n\n"
-    for content, in memories:
+    for (content,) in memories:
         openwebui_section += content.strip() + "\n\n"
 
     # Check if we need to append or replace
@@ -54,10 +54,12 @@ def export_from_openwebui(db_path, output_file):
         new_content = existing_content.rstrip() + openwebui_section
 
     # Write back
-    with open(output_path, 'w') as f:
+    with open(output_path, "w") as f:
         f.write(new_content)
 
-    click.secho(f"✨ Exported {len(memories)} memories to {output_file}", fg="green", bold=True)
+    click.secho(
+        f"✨ Exported {len(memories)} memories to {output_file}", fg="green", bold=True
+    )
 
 
 def import_to_openwebui(db_path, input_file, skip_confirm=False):
@@ -68,24 +70,24 @@ def import_to_openwebui(db_path, input_file, skip_confirm=False):
         click.secho(f"File not found: {input_file}", fg="red")
         return
 
-    with open(input_path, 'r') as f:
+    with open(input_path, "r") as f:
         content = f.read()
 
     # Parse markdown sections (## headers as separate memories)
     sections = []
     current_section = []
 
-    for line in content.split('\n'):
-        if line.startswith('## ') and current_section:
+    for line in content.split("\n"):
+        if line.startswith("## ") and current_section:
             # Save previous section
-            sections.append('\n'.join(current_section).strip())
+            sections.append("\n".join(current_section).strip())
             current_section = [line]
         else:
             current_section.append(line)
 
     # Add last section
     if current_section:
-        sections.append('\n'.join(current_section).strip())
+        sections.append("\n".join(current_section).strip())
 
     # Filter out empty sections and metadata sections
     sections = [s for s in sections if s and len(s) > 20]
@@ -100,14 +102,18 @@ def import_to_openwebui(db_path, input_file, skip_confirm=False):
     user_id = get_user_id(cursor)
 
     # Show preview
-    click.secho(f"\n📝 Found {len(sections)} memory sections to sync:", fg="cyan", bold=True)
+    click.secho(
+        f"\n📝 Found {len(sections)} memory sections to sync:", fg="cyan", bold=True
+    )
     for i, section in enumerate(sections, 1):
-        preview = section[:80].replace('\n', ' ')
+        preview = section[:80].replace("\n", " ")
         click.echo(f"  {i}. {preview}.")
 
     if not skip_confirm:
         click.echo()
-        if not click.confirm("Import these memories to Open WebUI (will replace existing)?"):
+        if not click.confirm(
+            "Import these memories to Open WebUI (will replace existing)?"
+        ):
             click.secho("Cancelled.", fg="yellow")
             conn.close()
             return
@@ -121,51 +127,51 @@ def import_to_openwebui(db_path, input_file, skip_confirm=False):
         memory_id = str(uuid.uuid4())
         cursor.execute(
             "INSERT INTO memory (id, user_id, content, created_at, updated_at) VALUES (?, ?, ?, ?, ?)",
-            (memory_id, user_id, section, current_time, current_time)
+            (memory_id, user_id, section, current_time, current_time),
         )
 
     conn.commit()
     conn.close()
 
-    click.secho(f"\n✨ Successfully imported {len(sections)} memories to Open WebUI!", fg="green", bold=True)
+    click.secho(
+        f"\n✨ Successfully imported {len(sections)} memories to Open WebUI!",
+        fg="green",
+        bold=True,
+    )
     click.secho("Refresh Open WebUI to see the changes.", fg="cyan")
 
 
 @click.command()
 @click.option(
-    '--mode',
-    type=click.Choice(['export', 'import', 'both']),
-    default='export',
-    help='Sync direction: export (OpenWebUI→file), import (file→OpenWebUI), or both'
+    "--mode",
+    type=click.Choice(["export", "import", "both"]),
+    default="export",
+    help="Sync direction: export (OpenWebUI→file), import (file→OpenWebUI), or both",
 )
 @click.option(
-    '--memory-file',
-    default='TERRARIUM_MEMORY.md',
+    "--memory-file",
+    default="TERRARIUM_MEMORY.md",
     type=click.Path(),
-    help='Path to memory markdown file'
+    help="Path to memory markdown file",
 )
 @click.option(
-    '--db-path',
-    default='/home/starscream/.open-webui/webui.db',
+    "--db-path",
+    default="/home/starscream/.open-webui/webui.db",
     type=click.Path(exists=True),
-    help='Path to Open WebUI database'
+    help="Path to Open WebUI database",
 )
-@click.option(
-    '--yes', '-y',
-    is_flag=True,
-    help='Skip confirmation prompts'
-)
+@click.option("--yes", "-y", is_flag=True, help="Skip confirmation prompts")
 def main(mode, memory_file, db_path, yes):
     """Bidirectional sync between TERRARIUM_MEMORY.md and Open WebUI memories."""
 
     click.secho("\n🌿 Terrarium Memory Sync", fg="green", bold=True)
     click.secho("=" * 50, fg="green")
 
-    if mode in ['export', 'both']:
+    if mode in ["export", "both"]:
         click.secho("\n📤 Exporting from Open WebUI.", fg="blue")
         export_from_openwebui(db_path, memory_file)
 
-    if mode in ['import', 'both']:
+    if mode in ["import", "both"]:
         click.secho("\n📥 Importing to Open WebUI.", fg="blue")
         import_to_openwebui(db_path, memory_file, yes)
 

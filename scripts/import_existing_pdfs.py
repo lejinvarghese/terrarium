@@ -5,7 +5,7 @@ import sys
 from pathlib import Path
 import httpx
 
-ARCHIVE_DATA_DIR = Path(__file__).parent.parent / "archive_data" / "uploads"
+ARCHIVE_DATA_DIR = Path(__file__).parent.parent / "data" / "archive_data" / "uploads"
 API_BASE_URL = "http://localhost:5055"
 
 

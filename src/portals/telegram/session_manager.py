@@ -28,7 +28,8 @@ class SessionManager:
     def _init_db(self):
         """Create database tables if they don't exist."""
         with self._get_connection() as conn:
-            conn.execute("""
+            conn.execute(
+                """
                 CREATE TABLE IF NOT EXISTS sessions (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     user_id INTEGER NOT NULL,
@@ -40,9 +41,11 @@ class SessionManager:
                     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     UNIQUE(user_id, persona)
                 )
-            """)
+            """
+            )
 
-            conn.execute("""
+            conn.execute(
+                """
                 CREATE TABLE IF NOT EXISTS users (
                     user_id INTEGER PRIMARY KEY,
                     username TEXT,
@@ -51,7 +54,8 @@ class SessionManager:
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     last_active TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 )
-            """)
+            """
+            )
 
             conn.commit()
             click.secho("📊 Database tables initialized", fg="green")
@@ -120,7 +124,10 @@ class SessionManager:
                 (user_id, persona, session_id),
             )
             conn.commit()
-            click.secho(f"💬 Session saved: user={user_id}, bot={persona or 'casper'}", fg="cyan")
+            click.secho(
+                f"💬 Session saved: user={user_id}, bot={persona or 'casper'}",
+                fg="cyan",
+            )
             return cursor.lastrowid
 
     def update_session_metadata(
@@ -173,7 +180,10 @@ class SessionManager:
                 (user_id, persona),
             )
             conn.commit()
-            click.secho(f"🗑️  Session cleared: user={user_id}, bot={persona or 'casper'}", fg="yellow")
+            click.secho(
+                f"🗑️  Session cleared: user={user_id}, bot={persona or 'casper'}",
+                fg="yellow",
+            )
 
     def clear_all_sessions(self, user_id: int):
         """
@@ -187,7 +197,9 @@ class SessionManager:
             conn.commit()
             click.secho(f"🗑️  All sessions cleared for user={user_id}", fg="red")
 
-    def get_session_info(self, user_id: int, persona: Optional[str] = None) -> Optional[Dict[str, Any]]:
+    def get_session_info(
+        self, user_id: int, persona: Optional[str] = None
+    ) -> Optional[Dict[str, Any]]:
         """
         Get session information.
 

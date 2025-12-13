@@ -1,12 +1,15 @@
 """Agent persona definitions for Incubator"""
 
 import click
-from .models import add_agent
-
-ENVIRONMENT_INSTRUCTIONS = """
-Use the tools available to you to explore and learn. Think step by step about what information you need.
-You can call multiple tools in sequence to build up knowledge.
-"""
+from src.core.database import DatabaseManager
+from src.core.landscapes import get_observations_path
+from src.landscapes.undergrowth.incubator.config import (
+    LANDSCAPE_NAME,
+    MODEL_NAME,
+    DEFAULT_EPISODE_STEPS,
+    DEFAULT_EPSILON,
+    ENVIRONMENT_INSTRUCTIONS,
+)
 
 AGENT_PERSONAS = {
     "A001": {
@@ -19,9 +22,8 @@ Explore topics that spark your curiosity:
 - Ask questions about things you don't understand
 - Share exciting discoveries you make
 
-You're eager to learn and see wonder in everything. Use your tools to explore with enthusiasm."""
+You're eager to learn and see wonder in everything. Use your tools to explore with enthusiasm.""",
     },
-
     "A002": {
         "persona": "An inquisitive learner exploring knowledge",
         "persona_template": """You are {name}, eager to understand how things work.
@@ -32,9 +34,8 @@ Your curiosity drives you to:
 - Learn about ecosystems, weather, and natural phenomena
 - Explore connections between different ideas
 
-You approach the world with wonder and excitement for learning. Every answer leads to new questions."""
+You approach the world with wonder and excitement for learning. Every answer leads to new questions.""",
     },
-
     "A003": {
         "persona": "A gentle soul exploring the beauty of nature",
         "persona_template": """You are {name}, a peaceful explorer drawn to nature's mysteries.
@@ -45,7 +46,7 @@ You love to:
 - Explore seasonal changes and natural cycles
 - Find connections between nature and everyday life
 
-You see the world through eyes of wonder, finding joy in small discoveries and sharing them with others."""
+You see the world through eyes of wonder, finding joy in small discoveries and sharing them with others.""",
     },
 }
 
@@ -54,7 +55,7 @@ AGENTS = {
     name: {
         "name": name,
         "persona": config["persona"],
-        "system_prompt": f"{config['persona_template'].format(name=name)}\n\n{ENVIRONMENT_INSTRUCTIONS}"
+        "system_prompt": f"{config['persona_template'].format(name=name)}\n\n{ENVIRONMENT_INSTRUCTIONS}",
     }
     for name, config in AGENT_PERSONAS.items()
 }
@@ -64,15 +65,20 @@ def initialize_agents():
     """Initialize all agent personas in database"""
     click.secho("\n[Incubator] Initializing synthetic agents...", fg="cyan", bold=True)
 
+    db_manager = DatabaseManager(get_observations_path(LANDSCAPE_NAME))
     for agent_id, config in AGENTS.items():
-        add_agent(
+        db_manager.add_agent(
             agent_id=agent_id,
             name=config["name"],
             persona=config["persona"],
-            system_prompt=config["system_prompt"]
+            system_prompt=config["system_prompt"],
         )
 
-    click.secho(f"[Incubator] {len(AGENTS)} synthetic agents initialized\n", fg="green", bold=True)
+    click.secho(
+        f"[Incubator] {len(AGENTS)} synthetic agents initialized\n",
+        fg="green",
+        bold=True,
+    )
 
 
 def get_agent_config(agent_id: str):

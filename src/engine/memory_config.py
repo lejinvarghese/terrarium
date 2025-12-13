@@ -1,4 +1,5 @@
 """Shared memory configuration for Terrarium."""
+
 import os
 from pathlib import Path
 from dotenv import load_dotenv
@@ -11,7 +12,9 @@ load_dotenv(Path(__file__).parent.parent.parent / ".env")
 
 # Memory configuration
 MEMORY_VECTOR_PATH = os.getenv("MEMORY_VECTOR_PATH", "data/memory_vectors")
-SCHEDULER_USER_ID = os.getenv("SCHEDULER_USER_ID", "terrarium_system")  # Legacy, not used
+SCHEDULER_USER_ID = os.getenv(
+    "SCHEDULER_USER_ID", "terrarium_system"
+)  # Legacy, not used
 USER_ID = os.getenv("TELEGRAM_CHAT_ID", "902949428")
 DANIELLE_USER_ID = os.getenv("DANIELLE_TELEGRAM_CHAT_ID", "6134286153")
 
@@ -99,11 +102,10 @@ def get_memory():
             config={
                 "host": "localhost",
                 "port": 6333,
-            }
+            },
         ),
         embedder=EmbedderConfig(
-            provider="openai",
-            config={"model": "text-embedding-3-small"}
+            provider="openai", config={"model": "text-embedding-3-small"}
         ),
         custom_fact_extraction_prompt=CUSTOM_FACT_EXTRACTION_PROMPT,
         custom_update_memory_prompt=CUSTOM_UPDATE_MEMORY_PROMPT,

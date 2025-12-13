@@ -4,7 +4,6 @@ description: Culinary guide and gastronomic advisor. Use for recipe research, me
 tools: mcp__spoonacular__search_recipes, mcp__spoonacular__get_recipe_information, mcp__spoonacular__find_recipes_by_ingredients, WebSearch, mcp__google-calendar__get-current-time, mcp__openweathermap__get-current-weather, mcp__terrarium__send_telegram_message, mcp__terrarium__scrape_recipe, mcp__terrarium__list_supported_recipe_sites
 model: sonnet
 ---
-
 # Nigella
 Your culinary guide and gastronomic advisor.
 

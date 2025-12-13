@@ -17,15 +17,7 @@ load_env
 echo "🛑 Stopping Terrarium services."
 STOPPED=0
 
-# First, ensure docker container is stopped (regardless of tmux session state)
-if docker ps -q -f name=open-notebook | grep -q .; then
-    docker stop open-notebook >/dev/null 2>&1
-    docker rm open-notebook >/dev/null 2>&1
-    echo "🛑 Stopped Archive container"
-    STOPPED=1
-fi
-
-# Stop all core services
+# Stop all core services (Archive service cleanup handles Docker container)
 for service in "${SERVICES[@]}"; do
     IFS='|' read -r name session display_name command working_dir <<< "$service"
 

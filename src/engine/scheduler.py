@@ -19,7 +19,7 @@ def run_command(name, command, description=""):
     click.echo(f"⚡ [{timestamp}] {task_name}")
 
     # Extract bot name from task name (e.g., "🍝 Nigella - Seasonal Dinner" -> "nigella")
-    bot_match = re.search(r'[^\w]*(\w+)\s*-', name)
+    bot_match = re.search(r"[^\w]*(\w+)\s*-", name)
     bot_name = bot_match.group(1).lower() if bot_match else None
 
     # Inject memory context if we can identify the bot
@@ -41,34 +41,52 @@ def run_command(name, command, description=""):
                 query=query,
                 user_id=target_user_id,
                 agent_id=bot_name,
-                limit=5  # Get more memories for scheduler context
+                limit=5,  # Get more memories for scheduler context
             )
 
             # Extract memory list
             if isinstance(memories_response, dict):
-                memory_list = memories_response.get('results', memories_response.get('memories', []))
+                memory_list = memories_response.get(
+                    "results", memories_response.get("memories", [])
+                )
             else:
-                memory_list = memories_response if isinstance(memories_response, list) else []
+                memory_list = (
+                    memories_response if isinstance(memories_response, list) else []
+                )
 
             if memory_list:
                 # Build memory context string
-                context_parts = [m.get('memory', m.get('text', str(m))) for m in memory_list]
-                memory_context = '; '.join(context_parts)
+                context_parts = [
+                    m.get("memory", m.get("text", str(m))) for m in memory_list
+                ]
+                memory_context = "; ".join(context_parts)
 
                 # Inject into command prompt (between single quotes)
-                prompt_match = re.search(r"claude -p --dangerously-skip-permissions '([^']*)'", command)
+                prompt_match = re.search(
+                    r"claude -p --dangerously-skip-permissions '([^']*)'", command
+                )
                 if prompt_match:
                     original_prompt = prompt_match.group(1)
                     enhanced_prompt = f"Previous context (avoid repeating): {memory_context}\n\n{original_prompt}"
-                    enhanced_command = command.replace(f"'{original_prompt}'", f"'{enhanced_prompt}'")
-                    click.secho(f"  🧠 Injected {len(memory_list)} memories", fg="magenta", dim=True)
+                    enhanced_command = command.replace(
+                        f"'{original_prompt}'", f"'{enhanced_prompt}'"
+                    )
+                    click.secho(
+                        f"  🧠 Injected {len(memory_list)} memories",
+                        fg="magenta",
+                        dim=True,
+                    )
         except Exception as e:
             # Gracefully degrade if memory fails (e.g., Qdrant already locked by bot)
-            click.secho(f"  💤 Memory unavailable (bot may be using it)", fg="cyan", dim=True)
+            click.secho(
+                f"  💤 Memory unavailable (bot may be using it)", fg="cyan", dim=True
+            )
             memory = None
 
     # Execute command
-    result = subprocess.run(enhanced_command, shell=True, capture_output=True, text=True)
+    result = subprocess.run(
+        enhanced_command, shell=True, capture_output=True, text=True
+    )
 
     if result.returncode == 0:
         click.secho(f"  ✨ Done", fg="green")
@@ -82,11 +100,14 @@ def run_command(name, command, description=""):
                 if output:  # Only store non-empty outputs
                     memory.add(
                         messages=[
-                            {"role": "user", "content": description or "Scheduled task execution"},
-                            {"role": "assistant", "content": output}
+                            {
+                                "role": "user",
+                                "content": description or "Scheduled task execution",
+                            },
+                            {"role": "assistant", "content": output},
                         ],
                         user_id=target_user_id,
-                        agent_id=bot_name
+                        agent_id=bot_name,
                     )
                     click.secho(f"  💾 Stored in memory", fg="green", dim=True)
             except Exception as e:
@@ -133,12 +154,16 @@ def main(config_file):
             if len(parts) >= 3 and parts[1].isdigit():
                 n = int(parts[1])
                 unit = parts[2]
-                schedule.every(n).__getattribute__(unit).do(run_command, name, command, description)
+                schedule.every(n).__getattribute__(unit).do(
+                    run_command, name, command, description
+                )
 
             # Handle: every day at 10:30
             elif "day" in parts and "at" in parts:
                 time_str = parts[-1]
-                schedule.every().day.at(time_str).do(run_command, name, command, description)
+                schedule.every().day.at(time_str).do(
+                    run_command, name, command, description
+                )
 
             # Handle: every monday at 10:30
             elif "at" in parts:
@@ -151,7 +176,9 @@ def main(config_file):
             # Handle: every hour
             elif len(parts) == 2:
                 unit = parts[1]
-                schedule.every().__getattribute__(unit).do(run_command, name, command, description)
+                schedule.every().__getattribute__(unit).do(
+                    run_command, name, command, description
+                )
 
         # Display scheduled task
         click.secho(f"  ✓ {name}", fg="green", bold=True)
@@ -167,20 +194,20 @@ def main(config_file):
     click.secho("=" * 50 + "\n", fg="green")
 
     # Run scheduler loop with spinner
-    spinner = itertools.cycle(['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'])
+    spinner = itertools.cycle(["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"])
     try:
         while True:
             schedule.run_pending()
 
             # Show spinner while waiting
-            spinner_char = click.style(next(spinner), fg='cyan', bold=True)
-            message = click.style('Waiting for next task.', fg='white', dim=True)
-            sys.stdout.write(f'\r{spinner_char} {message}')
+            spinner_char = click.style(next(spinner), fg="cyan", bold=True)
+            message = click.style("Waiting for next task.", fg="white", dim=True)
+            sys.stdout.write(f"\r{spinner_char} {message}")
             sys.stdout.flush()
 
             time.sleep(0.1)
     except KeyboardInterrupt:
-        sys.stdout.write('\r' + ' ' * 50 + '\r')  # Clear spinner line
+        sys.stdout.write("\r" + " " * 50 + "\r")  # Clear spinner line
         click.secho("\n🛑 Scheduler stopped by user.", fg="yellow", bold=True)
         click.secho("👋 Goodbye!\n", fg="cyan")
 

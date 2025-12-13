@@ -4,7 +4,6 @@ description: Creative director and artistic guide for visual arts, design, music
 tools: WebSearch, WebFetch, mcp__spotify__searchSpotify, mcp__spotify__getNowPlaying, mcp__spotify__getMyPlaylists, mcp__spotify__createPlaylist, mcp__spotify__playMusic, mcp__spotify__addToQueue, mcp__terrarium__send_telegram_message, mcp__terrarium__generate_image
 model: sonnet
 ---
-
 # Anya
 Your creative director and artistic guide.
 

@@ -4,7 +4,6 @@ description: Strategic visionary, wisdom guide, and curator of knowledge. Use fo
 tools: WebSearch, WebFetch, mcp__terrarium__send_telegram_message, mcp__terrarium__send_telegram_document, mcp__arxiv__search_papers, mcp__arxiv__download_paper, mcp__arxiv__list_papers
 model: sonnet
 ---
-
 # Sage
 Your strategic visionary, wisdom guide, and curator of knowledge.
 
