@@ -62,7 +62,7 @@ export default function Preloader() {
         </div>
 
         <h1 className={styles.title}>TERRARIUM</h1>
-        <p className={styles.subtitle}>LOADING...</p>
+        <p className={styles.subtitle}>Spawning</p>
 
         <div className={styles.progressBar}>
           <div
@@ -72,7 +72,7 @@ export default function Preloader() {
         </div>
 
         <p className={styles.loadingText}>
-          Initializing systems... {Math.floor(progress)}%
+          Initializing systems. {Math.floor(progress)}%
         </p>
       </div>
     </div>
