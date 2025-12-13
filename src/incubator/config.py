@@ -22,6 +22,7 @@ MODEL_NAME = "dagbs/qwen2.5-coder-1.5b-instruct-abliterated"
 
 # Exploration
 DEFAULT_EPISODE_STEPS = 10
+DEFAULT_EPSILON = 0.2
 
 # Training (future use)
 LORA_RANK = 8
