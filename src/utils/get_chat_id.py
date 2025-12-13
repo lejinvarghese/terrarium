@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+
 async def get_chat_id():
     token = os.getenv("TELEGRAM_TOKEN")
     if not token:
@@ -40,6 +41,7 @@ async def get_chat_id():
 
     if not seen_chats:
         print("\nNo messages found. Send a message to your bot first!")
+
 
 if __name__ == "__main__":
     asyncio.run(get_chat_id())

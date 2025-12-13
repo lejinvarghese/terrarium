@@ -18,8 +18,8 @@ echo "Starting Open Notebook with API URL: $API_URL"
 docker run --rm --name open-notebook \
     -p 8502:8502 \
     -p 5055:5055 \
-    -v ./archive_data:/app/data \
-    -v ./mydata_surrealdb:/mydata \
+    -v ./data/archive_data:/app/data \
+    -v ./data/mydata_surrealdb:/mydata \
     -e OPENAI_API_KEY="$OPENAI_API_KEY" \
     -e ANTHROPIC_API_KEY="$ANTHROPIC_API_KEY" \
     -e TAVILY_API_KEY="$TAVILY_API_KEY" \

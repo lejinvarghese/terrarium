@@ -44,8 +44,10 @@ stop_named_tunnel() {
 
     if session_exists "$session_name"; then
         tmux kill-session -t "$session_name" 2>/dev/null
-        echo "  ✓ Tunnel stopped"
+        echo "🛑 Stopped Tunnel"
+        return 0
     fi
+    return 1
 }
 
 # Create a cloudflare tunnel

@@ -1,0 +1,23 @@
+{
+  "dome": {
+    "port": 8081,
+    "targetUrl": "http://localhost:8080",
+    "title": "DOME ACCESS REQUIRED",
+    "serviceName": "Dome"
+  },
+  "archive": {
+    "port": 8503,
+    "targetUrl": "http://localhost:8502",
+    "title": "ARCHIVE ACCESS REQUIRED",
+    "serviceName": "Archive"
+  },
+  "accessCodes": [
+    "UNDERGROWTH",
+    "TERR4R1UM",
+    "CYB3RN3T1C",
+    "SW4RM",
+    "ECLIPSE"
+  ],
+  "cookieSecret": "terrarium-secure-session-2025",
+  "cookieMaxAge": 86400000
+}

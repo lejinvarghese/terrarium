@@ -100,8 +100,10 @@ Edit `src/configs/schedule.json` to adjust task timing or commands. Each task in
 
 ### Modifying Assistants
 
-Each assistant's personality and capabilities are defined in `src/bots/`
-  
+Each assistant's personality and capabilities are defined in:
+- `.claude/agents/` - For Claude CLI and Telegram portal integrations
+- `src/landscapes/undergrowth/bots/` - For landscape-specific bot definitions
+
 All assistants reference `TERRARIUM_MEMORY.md` for user context but assume familiarity—they don't recite your profile back to you.
 
 **Syncing prompts back to Dome (Open WebUI):**

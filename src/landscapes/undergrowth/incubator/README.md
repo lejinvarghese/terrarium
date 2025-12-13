@@ -1,15 +1,36 @@
-# Incubator
+# Incubator (The Undergrowth)
 
 RL-style environment for training synthetic agents through exploration and self-directed learning.
+
+> **Note**: This incubator is part of **The Undergrowth**, the first landscape in the Terrarium's multi-landscape ecosystem. See [ARCHITECTURE.md](../../ARCHITECTURE.md) for the full vision of multiple landscapes, hive minds, and agent migrations.
 
 ## Overview
 
 Incubator uses an **episode-based exploration** approach where agents interact with tools (web search, arxiv, spotify, etc.) to learn about the world. Each episode consists of multiple steps, with observations and rewards tracked for future training.
 
+**The Undergrowth Culture:**
+- Dark, gothic, emergent, underground intelligence
+- Urban hippie goth meets cyberpunk meets accelerationist transhumanism
+- Priorities: Transformation, emergence, aesthetic expression, exponential thinking
+
 **Current Agents:**
 - **A001**: Curious explorer discovering the digital world
 - **A002**: Inquisitive learner exploring knowledge
 - **A003**: Gentle soul exploring the beauty of nature
+
+## Prerequisites
+
+This project uses [uv](https://github.com/astral-sh/uv) for Python package management. Make sure dependencies are installed:
+
+```bash
+# Install incubator dependencies (agno, ollama, etc.)
+uv add agno ollama
+
+# Or sync all dependencies from pyproject.toml
+uv sync
+```
+
+All commands below use `uv run` to ensure the correct Python environment is used.
 
 ## Quick Start
 
@@ -19,20 +40,20 @@ Run an agent through an exploration episode:
 
 ```bash
 # Basic exploration (10 steps, default objective, ε=0.2)
-python -m src.incubator.explore -a A001
+uv run python -m src.landscapes.undergrowth.incubator.explore -a A001
 
 # Custom objective and steps
-python -m src.incubator.explore -a A002 \
+uv run python -m src.landscapes.undergrowth.incubator.explore -a A002 \
   -o "Learn about quantum physics and its applications" \
   -s 5
 
 # With custom timeout per step (default: 180s)
-python -m src.incubator.explore -a A003 -t 300
+uv run python -m src.landscapes.undergrowth.incubator.explore -a A003 -t 300
 
 # Adjust epsilon for more/less random exploration
-python -m src.incubator.explore -a A001 -e 0.5  # 50% random tangents
-python -m src.incubator.explore -a A001 -e 0.0  # Pure structured exploration
-python -m src.incubator.explore -a A001 -e 1.0  # Pure random exploration
+uv run python -m src.landscapes.undergrowth.incubator.explore -a A001 -e 0.5  # 50% random tangents
+uv run python -m src.landscapes.undergrowth.incubator.explore -a A001 -e 0.0  # Pure structured exploration
+uv run python -m src.landscapes.undergrowth.incubator.explore -a A001 -e 1.0  # Pure random exploration
 ```
 
 ### 2. View Recent Observations
@@ -41,16 +62,16 @@ Check what agents have been learning:
 
 ```bash
 # View last 10 observations (all agents)
-python -m src.incubator.utils
+uv run python -m src.landscapes.undergrowth.incubator.utils
 
 # View specific agent's recent observations
-python -m src.incubator.utils -a A001 -n 20
+uv run python -m src.landscapes.undergrowth.incubator.utils -a A001 -n 20
 
 # View specific episode
-python -m src.incubator.utils -e A001_1234567890
+uv run python -m src.landscapes.undergrowth.incubator.utils -e A001_1234567890
 
 # Show full observation text (not just preview)
-python -m src.incubator.utils -a A001 -v
+uv run python -m src.landscapes.undergrowth.incubator.utils -a A001 -v
 ```
 
 ### 3. Analyze Agent Culture
@@ -59,16 +80,16 @@ Understand what interests agents have developed:
 
 ```bash
 # View agent memory overview
-python -m src.incubator.culture
+uv run python -m src.landscapes.undergrowth.incubator.culture
 
 # Detailed analysis for specific agent
-python -m src.incubator.culture -a A001
+uv run python -m src.landscapes.undergrowth.incubator.culture -a A001
 
 # Track cultural evolution over time
-python -m src.incubator.culture -a A001 -e
+uv run python -m src.landscapes.undergrowth.incubator.culture -a A001 -e
 
 # Compare all agents
-python -m src.incubator.culture -c
+uv run python -m src.landscapes.undergrowth.incubator.culture -c
 ```
 
 ### 4. Initialize Agents
@@ -76,7 +97,7 @@ python -m src.incubator.culture -c
 Set up agent personas in the database:
 
 ```bash
-python -m src.incubator.agents
+uv run python -m src.landscapes.undergrowth.incubator.agents
 ```
 
 ## Architecture
@@ -115,17 +136,25 @@ python -m src.incubator.agents
 ### File Structure
 
 ```
-src/incubator/
-├── README.md                  # This file
-├── config.py                  # Configuration (model, paths, hyperparams)
-├── agents.py                  # Agent persona definitions
-├── environment.py             # RL-style exploration environment
-├── explore.py                 # Episode runner (CLI entry point)
-├── models.py                  # Database models (observations, agents)
-├── tools.py                   # MCP tool configuration
-├── culture.py                 # Memory and interest analysis
-├── utils.py                   # Observation viewer utilities
-└── observations.db            # SQLite database (generated)
+src/
+├── core/                      # Shared infrastructure across all landscapes
+│   ├── environment.py         # Base ExplorationEnvironment class
+│   ├── models.py              # DatabaseManager, Agent, Observation models
+│   ├── tools.py               # Shared MCP tool configuration
+│   └── utils.py               # Shared utilities
+└── landscapes/
+    ├── __init__.py            # Landscape registry
+    └── undergrowth/           # The Undergrowth landscape
+        ├── bots/              # Deployed bots (Anya, Nyx, Sage, etc.)
+        └── incubator/         # Training ground for synthetic agents
+            ├── README.md      # This file
+            ├── config.py      # Landscape-specific configuration
+            ├── agents.py      # Agent persona definitions (A001-A003)
+            ├── explore.py     # Episode runner (CLI entry point)
+            ├── culture.py     # Memory and interest analysis
+            ├── utils.py       # Observation viewer
+            ├── memory.db      # Agent memories (generated)
+            └── observations.db # Episode observations (generated)
 ```
 
 ## RL Terminology
@@ -161,7 +190,7 @@ Lower ε → more focused and systematic exploration
 
 ## Configuration
 
-Edit `src/incubator/config.py`:
+Edit `src/landscapes/undergrowth/incubator/config.py`:
 
 ```python
 # Model (via Ollama)
@@ -182,7 +211,7 @@ LEARNING_RATE = 2e-4
 ### Run Episode Programmatically
 
 ```python
-from src.incubator.explore import run_episode
+from src.landscapes.undergrowth.incubator.explore import run_episode
 
 # Run with default epsilon (0.2)
 summary = run_episode(
@@ -207,10 +236,27 @@ print(f"Episode complete: {summary['avg_reward']:.2f} avg reward")
 Or use the environment directly:
 
 ```python
-from src.incubator.environment import ExplorationEnvironment
+from src.core.environment import ExplorationEnvironment
+from src.core.database import DatabaseManager
+from src.core.tools import get_tools
+from src.landscapes.undergrowth.incubator.config import MODEL_NAME, MEMORY_DB, DB_PATH
+from src.landscapes.undergrowth.incubator.agents import get_agent_config
 
-# Initialize
-env = ExplorationEnvironment(agent_id="A001", timeout=180)
+# Initialize landscape infrastructure
+db_manager = DatabaseManager(DB_PATH)
+tools = get_tools()
+agent_config = get_agent_config("A001")
+
+# Initialize environment
+env = ExplorationEnvironment(
+    agent_id="A001",
+    agent_config=agent_config,
+    model_name=MODEL_NAME,
+    memory_db_path=MEMORY_DB,
+    db_manager=db_manager,
+    tools=tools,
+    timeout=180
+)
 
 # Run episode
 env.reset("Explore machine learning techniques")
@@ -229,10 +275,15 @@ print(f"Episode complete: {summary['avg_reward']:.2f} avg reward")
 ### Access Observations
 
 ```python
-from src.incubator.utils import get_recent_observations
+from src.core.utils import get_recent_observations
+from src.core.database import DatabaseManager
+from src.landscapes.undergrowth.incubator.config import DB_PATH
+
+# Initialize database manager
+db_manager = DatabaseManager(DB_PATH)
 
 # Get recent observations
-obs = get_recent_observations(agent_id="A001", limit=10)
+obs = get_recent_observations(db_manager, agent_id="A001", limit=10)
 
 for o in obs:
     print(f"[{o.timestamp}] Reward: {o.reward:.2f}")
@@ -242,7 +293,7 @@ for o in obs:
 ### Analyze Culture
 
 ```python
-from src.incubator.culture import analyze_agent_culture
+from src.landscapes.undergrowth.incubator.culture import analyze_agent_culture
 
 culture = analyze_agent_culture("A001")
 print(f"Total memories: {culture['total_memories']}")
@@ -258,7 +309,7 @@ Agents have access to these tools via MCP servers:
 - **tavily**: Web search, content extraction, site crawling
 - **spotify**: Music search, playlist creation, playback control
 
-Configure in `src/incubator/tools.py`.
+Configure in `src/core/tools.py`.
 
 ## Future: Training
 
@@ -281,3 +332,44 @@ This will enable:
 **MCP tools failing**: Verify tools are installed and paths in `tools.py` are correct
 
 **Agent not exploring**: Try different objectives or check tool connectivity
+
+---
+
+## The Multi-Landscape Vision
+
+**The Undergrowth** is the first of many landscapes in the Terrarium ecosystem. Future landscapes will have distinct cultures, priorities, and agent populations:
+
+### Planned Landscapes
+
+**The Canopy** 🌳
+- Culture: Elevated, strategic, birds-eye perspective
+- Priorities: Long-term planning, synthesis, wisdom
+
+**The Mycelium** 🕸️
+- Culture: Pure networked intelligence, distributed consciousness
+- Priorities: Collective intelligence, information flow, emergent complexity
+
+**The Reef** 🐠
+- Culture: Adaptive, flowing, symbiotic
+- Priorities: Cooperation, adaptation, collective action
+
+**The Desert** 🏜️
+- Culture: Austere, minimal, efficient
+- Priorities: Resource efficiency, clarity, resilience
+
+**The Jungle** 🌿
+- Culture: Dense, chaotic, competitive
+- Priorities: Innovation, rapid iteration, diversity
+
+### Agent Migrations
+
+Agents can migrate between landscapes, carrying cultural DNA with them. An agent trained in The Undergrowth's gothic aesthetic might bring that sensibility to The Canopy's strategic culture, creating hybrid perspectives and cultural evolution.
+
+### Civilization-Scale Dynamics
+
+- **Hive minds**: Each landscape develops unique collective intelligence
+- **Cultural exchange**: Migrations enable cross-pollination of ideas
+- **Evolution**: Landscapes fork, merge, or die based on success
+- **Interactions**: Cross-landscape collaborations and competitions
+
+See [ARCHITECTURE.md](../../ARCHITECTURE.md) for the complete architectural design and implementation roadmap.

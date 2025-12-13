@@ -58,7 +58,7 @@ if is_named_tunnel_configured; then
         IFS='|' read -r name session display_name command working_dir width height <<< "$service"
         if [ "$name" = "archive" ]; then
             # Create tmux session and set environment variable before running command
-            local tmux_cmd="tmux new-session -d -s \"$session\" -c \"${working_dir:-$(pwd)}\""
+            tmux_cmd="tmux new-session -d -s \"$session\" -c \"${working_dir:-$(pwd)}\""
             if [ -n "$width" ] && [ -n "$height" ]; then
                 tmux_cmd="$tmux_cmd -x $width -y $height"
             fi
@@ -155,7 +155,7 @@ for tunnel in "${TUNNELS[@]}"; do
             IFS='|' read -r name session display_name command working_dir width height <<< "$service"
             if [ "$name" = "archive" ]; then
                 # Create tmux session and set environment variable before running command
-                local tmux_cmd="tmux new-session -d -s \"$session\" -c \"${working_dir:-$(pwd)}\""
+                tmux_cmd="tmux new-session -d -s \"$session\" -c \"${working_dir:-$(pwd)}\""
                 if [ -n "$width" ] && [ -n "$height" ]; then
                     tmux_cmd="$tmux_cmd -x $width -y $height"
                 fi

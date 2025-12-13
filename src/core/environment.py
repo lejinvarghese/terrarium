@@ -1,17 +1,16 @@
 #!/usr/bin/env python3
-"""RL-style environment for agent exploration"""
+"""RL-style environment for agent exploration - shared across all landscapes"""
 
 import time
 import click
+from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor, TimeoutError as FuturesTimeoutError
 from agno.agent import Agent
 from agno.models.ollama import Ollama
 from agno.db.sqlite import SqliteDb
+from agno.memory import MemoryManager
 
-from src.incubator.config import MODEL_NAME, MEMORY_DB
-from src.incubator.agents import get_agent_config
-from src.incubator.models import add_observation
-from src.incubator.tools import get_mcp_tools
+from src.core.database import DatabaseManager
 
 
 class ExplorationEnvironment:
@@ -23,39 +22,63 @@ class ExplorationEnvironment:
     - State: Agent's accumulated knowledge and context
     """
 
-    def __init__(self, agent_id: str, timeout: int = 180):
+    def __init__(
+        self,
+        agent_id: str,
+        agent_config: dict,
+        model_name: str,
+        memory_db_path: Path,
+        db_manager: DatabaseManager,
+        tools: list,
+        timeout: int = 180,
+    ):
         """Initialize environment with agent configuration
 
         Args:
             agent_id: Agent identifier (e.g., "A001")
+            agent_config: Agent configuration dict with 'name' and 'system_prompt'
+            model_name: Ollama model name
+            memory_db_path: Path to memory database
+            db_manager: DatabaseManager for observations
+            tools: List of MCP tools
             timeout: Timeout per step in seconds
         """
         self.agent_id = agent_id
         self.timeout = timeout
-        self.agent_config = get_agent_config(agent_id)
+        self.agent_config = agent_config
+        self.db_manager = db_manager
 
         # Initialize model
         self.model = Ollama(
-            id=MODEL_NAME,
+            id=model_name,
             options={
                 "temperature": 0.7,
                 "top_p": 0.8,
                 "top_k": 20,
                 "repeat_penalty": 1.0,
                 "num_ctx": 4096,
-            }
+            },
         )
 
         # Initialize agent with MCP tools
-        self.mcp_tools = get_mcp_tools()
-        self.memory_db = SqliteDb(db_file=str(MEMORY_DB))
+        self.tools = tools
+        self.memory_db = SqliteDb(db_file=str(memory_db_path))
+
+        self.memory_manager = MemoryManager(
+            model=self.model,
+            db=self.memory_db,
+            add_memories=True,
+            update_memories=True,
+            delete_memories=False,
+        )
 
         self.agent = Agent(
-            name=self.agent_config['name'],
+            name=self.agent_config["name"],
             model=self.model,
-            tools=self.mcp_tools,
-            instructions=self.agent_config['system_prompt'],
+            tools=self.tools,
+            instructions=self.agent_config["system_prompt"],
             db=self.memory_db,
+            memory_manager=self.memory_manager,
             enable_user_memories=True,
             add_memories_to_context=True,
             add_history_to_context=False,
@@ -111,25 +134,29 @@ class ExplorationEnvironment:
 
         # Build context from previous steps
         if self.step_results:
-            context = "Previous discoveries:\n" + "\n".join([
-                f"- Step {i+1}: {r[:200]}..."
-                for i, r in enumerate(self.step_results)
-            ])
+            context = "Previous discoveries:\n" + "\n".join(
+                [f"- Step {i+1}: {r[:200]}..." for i, r in enumerate(self.step_results)]
+            )
             task = f"{self.objective}\n\n{context}\n\n{prompt if prompt else 'Continue exploring.'}"
         else:
             task = prompt if prompt else self.objective
 
         # Execute agent action with timeout
+        # Use agent_id as user_id so memories persist across episodes
         try:
             with ThreadPoolExecutor(max_workers=1) as executor:
                 future = executor.submit(
                     self.agent.run,
                     task,
-                    user_id=self.episode_id
+                    user_id=self.agent_id.lower(),  # Consistent user_id across episodes
                 )
                 response = future.result(timeout=self.timeout)
 
-            observation = response.content if hasattr(response, 'content') and response.content else str(response)
+            observation = (
+                response.content
+                if hasattr(response, "content") and response.content
+                else str(response)
+            )
 
             if not observation or len(observation.strip()) == 0:
                 observation = "[Agent returned empty response]"
@@ -138,7 +165,10 @@ class ExplorationEnvironment:
             done = False
 
             click.secho(f"\n[Observation]:", fg="green")
-            click.secho(observation[:500] + ("..." if len(observation) > 500 else ""), fg="white")
+            click.secho(
+                observation[:500] + ("..." if len(observation) > 500 else ""),
+                fg="white",
+            )
             click.secho(f"[Reward]: {reward}", fg="cyan")
 
         except FuturesTimeoutError:
@@ -146,7 +176,9 @@ class ExplorationEnvironment:
             reward = -0.5
             done = False
 
-            click.secho(f"\n[TIMEOUT]: Step exceeded {self.timeout}s", fg="red", bold=True)
+            click.secho(
+                f"\n[TIMEOUT]: Step exceeded {self.timeout}s", fg="red", bold=True
+            )
 
         except Exception as e:
             observation = f"[Error: {str(e)}]"
@@ -175,15 +207,14 @@ class ExplorationEnvironment:
             return {"message": "No active episode"}
 
         # Combine all observations
-        full_observation = "\n\n=== STEP ===\n\n".join([
-            f"Step {i+1}:\n{obs}"
-            for i, obs in enumerate(self.step_results)
-        ])
+        full_observation = "\n\n=== STEP ===\n\n".join(
+            [f"Step {i+1}:\n{obs}" for i, obs in enumerate(self.step_results)]
+        )
 
         total_reward = sum(self._calculate_reward(obs) for obs in self.step_results)
 
         # Store in database
-        add_observation(
+        self.db_manager.add_observation(
             agent_id=self.agent_id,
             episode_id=self.episode_id,
             observation_text=full_observation,
@@ -192,10 +223,10 @@ class ExplorationEnvironment:
             reward=total_reward / len(self.step_results) if self.step_results else 0.0,
         )
 
-        # Get memories created
-        memories = self.agent.get_user_memories(user_id=self.episode_id)
+        # Get memories created (use same user_id as in step execution)
+        memories = self.agent.get_user_memories(user_id=self.agent_id.lower())
         if memories:
-            click.secho(f"\n[Memory] Created {len(memories)} memories", fg="cyan")
+            click.secho(f"\n[Memory] Created {len(memories)} memories total", fg="cyan")
             for i, mem in enumerate(memories[:5], 1):
                 click.secho(f"  {i}. {mem.memory}", fg="white")
             if len(memories) > 5:
@@ -203,20 +234,27 @@ class ExplorationEnvironment:
 
         click.secho(f"\n[Environment] Episode Complete!", fg="green", bold=True)
         click.secho(f"  Total Steps: {self.current_step}", fg="white")
-        click.secho(f"  Avg Reward: {total_reward / len(self.step_results):.2f}", fg="white")
+        click.secho(
+            f"  Avg Reward: {total_reward / len(self.step_results):.2f}", fg="white"
+        )
 
         return {
             "episode_id": self.episode_id,
             "total_steps": self.current_step,
             "total_reward": total_reward,
-            "avg_reward": total_reward / len(self.step_results) if self.step_results else 0.0,
+            "avg_reward": (
+                total_reward / len(self.step_results) if self.step_results else 0.0
+            ),
         }
 
     def _calculate_reward(self, observation: str) -> float:
         """Calculate reward based on observation quality"""
         obs_lower = observation.lower()
 
-        if any(x in obs_lower for x in ["failed", "exception", "timeout", "connection error"]):
+        if any(
+            x in obs_lower
+            for x in ["failed", "exception", "timeout", "connection error"]
+        ):
             return -0.3
         if any(x in obs_lower for x in ["found", "discovered", "learned"]):
             return 0.7

@@ -29,7 +29,9 @@ class ClaudeEngine:
         """
         self.working_dir = working_dir or str(Path.cwd())
         self.timeout = timeout
-        self.bot_prompts_dir = Path(__file__).parent.parent.parent.parent / ".claude" / "agents"
+        self.bot_prompts_dir = (
+            Path(__file__).parent.parent.parent.parent / ".claude" / "agents"
+        )
         # Get Danielle's user ID from env (chat_id is same as user_id for DMs)
         self.danielle_user_id = os.getenv("DANIELLE_TELEGRAM_CHAT_ID")
         click.secho(f"⚙️  ClaudeEngine initialized: {self.working_dir}", fg="blue")
@@ -135,7 +137,7 @@ class ClaudeEngine:
                 "-p",  # Print mode (non-interactive)
                 "--output-format",
                 "json",  # Get structured output with session ID
-                "--dangerously-skip-permissions"
+                "--dangerously-skip-permissions",
             ]
 
             # Add working directory access for file operations
@@ -192,7 +194,9 @@ class ClaudeEngine:
                 events = json.loads(output)
 
                 if not isinstance(events, list) or not events:
-                    click.secho(f"⚠️  Unexpected JSON format from Claude CLI", fg="yellow")
+                    click.secho(
+                        f"⚠️  Unexpected JSON format from Claude CLI", fg="yellow"
+                    )
                     return "", session_id or "unknown", {}
 
                 # Extract data from event stream
@@ -232,7 +236,8 @@ class ClaudeEngine:
                     session_display = "unknown"
 
                 click.secho(
-                    f"✅ Response received (length: {len(response_text)}, session: {session_display})", fg="green"
+                    f"✅ Response received (length: {len(response_text)}, session: {session_display})",
+                    fg="green",
                 )
                 return response_text, new_session_id or "unknown", metadata
 
@@ -285,6 +290,15 @@ class ClaudeEngine:
         Returns:
             True if it's a bot command
         """
-        bot_commands = ["/clear", "/new", "/bot", "/bots", "/status", "/help", "/start", "/cancel"]
+        bot_commands = [
+            "/clear",
+            "/new",
+            "/bot",
+            "/bots",
+            "/status",
+            "/help",
+            "/start",
+            "/cancel",
+        ]
         message_lower = message.lower().strip()
         return any(message_lower.startswith(cmd) for cmd in bot_commands)

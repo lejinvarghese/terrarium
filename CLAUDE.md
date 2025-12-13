@@ -15,6 +15,17 @@ Terrarium is a meta-project for orchestrating a local ecosystem of AI/ML service
 
 For personal preferences and memories, refer to the `TERRARIUM_MEMORY.md` file. This file contains a log of my memories and your preferences.
 
+## Multi-Landscape Architecture
+
+The Terrarium is evolving toward a **multi-landscape ecosystem** where distinct civilizations of AI agents can emerge, interact, and migrate. See `ARCHITECTURE.md` for the complete vision.
+
+**Current Landscape: The Undergrowth**
+- Culture: Dark, gothic, emergent, underground intelligence (urban hippie goth meets cyberpunk)
+- Deployed bots: Anya, Nyx, Sage, Pepper, Cassia, Freya, Nigella, Casper
+- Incubator agents: A001-A003 (training through RL exploration)
+
+**Future**: Multiple biome-based landscapes (The Canopy, The Mycelium, The Reef, etc.) with distinct cultures, hive minds, and agent migrations between them.
+
 ## Architecture
 
 This is primarily an orchestration project. The `src/` directory is currently empty and intended for automation scripts rather than a full application. Configuration is managed via `.env` file (gitignored for secrets and machine-specific settings).

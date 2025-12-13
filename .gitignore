@@ -212,14 +212,33 @@ __marimo__/
 *_key
 src/bots/luci.md
 data/
+!data/.gitkeep
+data/archive_data/
+data/mydata_surrealdb/
 src/configs/mcpo.json
-archive_data/
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-lock.yaml
+yarn.lock
+# Note: package-lock.json should be tracked for reproducible builds
+
+# Build outputs
+.next/
+out/
+dist/
+build/
+
+# TypeScript
+*.tsbuildinfo
 
 # Temporary directories and files
 tmp*/
 
 # Database files and directories
-mydata_surrealdb/
 *.db
 *.sqlite
 *.sqlite3
