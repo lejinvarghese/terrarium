@@ -1,16 +1,14 @@
-"""Agent persona definitions for Incubator"""
+"""Agent persona definitions"""
 
-import click
+from src.core.base_agents import AgentRegistry
 from src.core.database import DatabaseManager
 from src.core.landscapes import get_observations_path
 from src.landscapes.undergrowth.incubator.config import (
     LANDSCAPE_NAME,
-    MODEL_NAME,
-    DEFAULT_EPISODE_STEPS,
-    DEFAULT_EPSILON,
     ENVIRONMENT_INSTRUCTIONS,
 )
 
+# Landscape-specific agent persona definitions
 AGENT_PERSONAS = {
     "A001": {
         "persona": "A curious explorer discovering the digital world",
@@ -50,53 +48,29 @@ You see the world through eyes of wonder, finding joy in small discoveries and s
     },
 }
 
-# Build complete agent configs by combining persona + code guidelines
-AGENTS = {
-    name: {
-        "name": name,
-        "persona": config["persona"],
-        "system_prompt": f"{config['persona_template'].format(name=name)}\n\n{ENVIRONMENT_INSTRUCTIONS}",
-    }
-    for name, config in AGENT_PERSONAS.items()
-}
+
+def get_registry() -> AgentRegistry:
+    """Get or create agent registry"""
+    db_manager = DatabaseManager(get_observations_path(LANDSCAPE_NAME))
+    return AgentRegistry(LANDSCAPE_NAME, AGENT_PERSONAS, ENVIRONMENT_INSTRUCTIONS, db_manager)
 
 
+# Convenience functions for backward compatibility
 def initialize_agents():
     """Initialize all agent personas in database"""
-    click.secho("\n[Incubator] Initializing synthetic agents...", fg="cyan", bold=True)
-
-    db_manager = DatabaseManager(get_observations_path(LANDSCAPE_NAME))
-    for agent_id, config in AGENTS.items():
-        db_manager.add_agent(
-            agent_id=agent_id,
-            name=config["name"],
-            persona=config["persona"],
-            system_prompt=config["system_prompt"],
-        )
-
-    click.secho(
-        f"[Incubator] {len(AGENTS)} synthetic agents initialized\n",
-        fg="green",
-        bold=True,
-    )
+    get_registry()
 
 
 def get_agent_config(agent_id: str):
     """Get configuration for specific agent"""
-    if agent_id not in AGENTS:
-        raise ValueError(f"Unknown agent: {agent_id}. Available: {list(AGENTS.keys())}")
-    return AGENTS[agent_id]
+    return get_registry().get_config(agent_id)
 
 
 def list_agents():
     """List all available agents"""
-    click.secho("\n[Incubator] Synthetic Agents:", fg="cyan", bold=True)
-    for agent_name, config in AGENTS.items():
-        click.secho(f"  • {agent_name}", fg="yellow")
-        click.secho(f"    {config['persona']}", fg="white", dim=True)
-    click.secho("")
+    get_registry().list()
 
 
 if __name__ == "__main__":
-    initialize_agents()
-    list_agents()
+    registry = get_registry()
+    registry.list()
