@@ -15,10 +15,7 @@ from src.landscapes.undergrowth.incubator.config import (
     DEFAULT_EPISODE_STEPS,
     DEFAULT_EPSILON,
 )
-from src.landscapes.undergrowth.incubator.agents import (
-    AGENTS,
-    get_agent_config,
-)
+from src.landscapes.undergrowth.incubator.agents import get_agent_config, get_registry
 
 
 STEP_PROMPTS = [
@@ -97,7 +94,7 @@ def run_episode(
 @click.option(
     "--agent",
     "-a",
-    type=click.Choice(list(AGENTS.keys())),
+    type=click.Choice(list(get_registry().agents.keys())),
     required=True,
     help="Agent to run",
 )
