@@ -2,6 +2,7 @@
 
 import click
 from src.core.database import DatabaseManager
+from src.core.landscapes import get_observations_path
 
 
 class Agent:
@@ -19,28 +20,24 @@ class Agent:
 class AgentRegistry:
     """Manages collection of agents"""
 
-    def __init__(self, landscape_name: str, agent_personas: dict, env_instructions: str, db_manager: DatabaseManager):
+    def __init__(self, landscape_name: str, agent_personas: dict, env_instructions: str):
         """
         Args:
             landscape_name: Name of the landscape
             agent_personas: Dict of {agent_id: {"persona": str, "persona_template": str}}
             env_instructions: Environment instructions to append to all agents
-            db_manager: Database manager instance
         """
         self.landscape_name = landscape_name
-        self.db_manager = db_manager
-
-        # Build Agent instances
+        self.db_manager = DatabaseManager(get_observations_path(landscape_name))
         self.agents = {
             agent_id: Agent(agent_id, config["persona"], config["persona_template"], env_instructions)
             for agent_id, config in agent_personas.items()
         }
 
-        # Initialize in database
         click.secho(f"\n[{landscape_name.title()}] Initializing {len(self.agents)} agents...", fg="cyan", bold=True)
         for agent in self.agents.values():
             config = agent.to_dict()
-            db_manager.add_agent(agent.agent_id, config["name"], agent.persona, config["system_prompt"])
+            self.db_manager.add_agent(agent.agent_id, config["name"], agent.persona, config["system_prompt"])
         click.secho(f"[{landscape_name.title()}] ✓ Agents initialized\n", fg="green")
 
     def get(self, agent_id: str) -> Agent:
@@ -51,7 +48,7 @@ class AgentRegistry:
     def get_config(self, agent_id: str) -> dict:
         return self.get(agent_id).to_dict()
 
-    def list(self):
+    def display(self):
         """Display all agents"""
         click.secho(f"\n[{self.landscape_name.title()}] Agents:", fg="cyan", bold=True)
         for agent in self.agents.values():

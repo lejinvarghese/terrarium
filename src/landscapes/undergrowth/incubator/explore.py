@@ -1,13 +1,10 @@
 #!/usr/bin/env python3
-"""Exploration runner using RL-style environment"""
+"""Exploration runner using environment"""
 
 import click
 import random
 
-from src.core.environment import ExplorationEnvironment
-from src.core.database import DatabaseManager
-from src.core.tools import get_tools
-from src.core.landscapes import get_observations_path, get_memory_path
+from src.core.environment import Environment
 from src.landscapes.undergrowth.incubator.config import (
     LANDSCAPE_NAME,
     LANDSCAPE_DISPLAY_NAME,
@@ -15,7 +12,7 @@ from src.landscapes.undergrowth.incubator.config import (
     DEFAULT_EPISODE_STEPS,
     DEFAULT_EPSILON,
 )
-from src.landscapes.undergrowth.incubator.agents import get_agent_config, get_registry
+from src.landscapes.undergrowth.incubator.agents import agent_registry
 
 
 STEP_PROMPTS = [
@@ -47,17 +44,14 @@ def run_episode(
     timeout: int = 180,
     epsilon: float = DEFAULT_EPSILON,
 ):
-    db_manager = DatabaseManager(get_observations_path(LANDSCAPE_NAME))
-    tools = get_tools()
-    agent_config = get_agent_config(agent_id)
 
-    env = ExplorationEnvironment(
+    agent_config = agent_registry.get_config(agent_id)
+
+    env = Environment(
         agent_id=agent_id,
         agent_config=agent_config,
         model_name=MODEL_NAME,
-        memory_db_path=get_memory_path(LANDSCAPE_NAME),
-        db_manager=db_manager,
-        tools=tools,
+        landscape_name=LANDSCAPE_NAME,
         timeout=timeout,
     )
 
@@ -94,7 +88,7 @@ def run_episode(
 @click.option(
     "--agent",
     "-a",
-    type=click.Choice(list(get_registry().agents.keys())),
+    type=click.Choice(list(agent_registry.agents.keys())),
     required=True,
     help="Agent to run",
 )
