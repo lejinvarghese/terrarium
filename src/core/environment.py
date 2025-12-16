@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
-"""RL-style environment for agent exploration - shared across all landscapes"""
+"""Environment for agent exploration - shared across all landscapes"""
 
 import time
 import click
-from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor, TimeoutError as FuturesTimeoutError
 from agno.agent import Agent
 from agno.models.ollama import Ollama
@@ -11,10 +10,12 @@ from agno.db.sqlite import SqliteDb
 from agno.memory import MemoryManager
 
 from src.core.database import DatabaseManager
+from src.core.tools import get_tools
+from src.core.landscapes import get_observations_path, get_memory_path
 
 
-class ExplorationEnvironment:
-    """RL-style environment for agent exploration
+class Environment:
+    """Environment for agent exploration
 
     Terminology:
     - Episode: Full exploration session with multiple steps
@@ -27,9 +28,7 @@ class ExplorationEnvironment:
         agent_id: str,
         agent_config: dict,
         model_name: str,
-        memory_db_path: Path,
-        db_manager: DatabaseManager,
-        tools: list,
+        landscape_name: str,
         timeout: int = 180,
     ):
         """Initialize environment with agent configuration
@@ -38,15 +37,12 @@ class ExplorationEnvironment:
             agent_id: Agent identifier (e.g., "A001")
             agent_config: Agent configuration dict with 'name' and 'system_prompt'
             model_name: Ollama model name
-            memory_db_path: Path to memory database
-            db_manager: DatabaseManager for observations
-            tools: List of MCP tools
             timeout: Timeout per step in seconds
         """
         self.agent_id = agent_id
         self.timeout = timeout
         self.agent_config = agent_config
-        self.db_manager = db_manager
+        self.observations_db = DatabaseManager(get_observations_path(landscape_name))
 
         # Initialize model
         self.model = Ollama(
@@ -60,9 +56,8 @@ class ExplorationEnvironment:
             },
         )
 
-        # Initialize agent with MCP tools
-        self.tools = tools
-        self.memory_db = SqliteDb(db_file=str(memory_db_path))
+        self.tools = get_tools()
+        self.memory_db = SqliteDb(db_file=str(get_memory_path(landscape_name)))
 
         self.memory_manager = MemoryManager(
             model=self.model,
@@ -142,21 +137,16 @@ class ExplorationEnvironment:
             task = prompt if prompt else self.objective
 
         # Execute agent action with timeout
-        # Use agent_id as user_id so memories persist across episodes
         try:
             with ThreadPoolExecutor(max_workers=1) as executor:
                 future = executor.submit(
                     self.agent.run,
                     task,
-                    user_id=self.agent_id.lower(),  # Consistent user_id across episodes
+                    user_id=self.agent_id.lower(),
                 )
                 response = future.result(timeout=self.timeout)
 
-            observation = (
-                response.content
-                if hasattr(response, "content") and response.content
-                else str(response)
-            )
+            observation = response.content if hasattr(response, "content") and response.content else str(response)
 
             if not observation or len(observation.strip()) == 0:
                 observation = "[Agent returned empty response]"
@@ -176,9 +166,7 @@ class ExplorationEnvironment:
             reward = -0.5
             done = False
 
-            click.secho(
-                f"\n[TIMEOUT]: Step exceeded {self.timeout}s", fg="red", bold=True
-            )
+            click.secho(f"\n[TIMEOUT]: Step exceeded {self.timeout}s", fg="red", bold=True)
 
         except Exception as e:
             observation = f"[Error: {str(e)}]"
@@ -214,7 +202,7 @@ class ExplorationEnvironment:
         total_reward = sum(self._calculate_reward(obs) for obs in self.step_results)
 
         # Store in database
-        self.db_manager.add_observation(
+        self.observations_db.add_observation(
             agent_id=self.agent_id,
             episode_id=self.episode_id,
             observation_text=full_observation,
@@ -234,27 +222,20 @@ class ExplorationEnvironment:
 
         click.secho(f"\n[Environment] Episode Complete!", fg="green", bold=True)
         click.secho(f"  Total Steps: {self.current_step}", fg="white")
-        click.secho(
-            f"  Avg Reward: {total_reward / len(self.step_results):.2f}", fg="white"
-        )
+        click.secho(f"  Avg Reward: {total_reward / len(self.step_results):.2f}", fg="white")
 
         return {
             "episode_id": self.episode_id,
             "total_steps": self.current_step,
             "total_reward": total_reward,
-            "avg_reward": (
-                total_reward / len(self.step_results) if self.step_results else 0.0
-            ),
+            "avg_reward": (total_reward / len(self.step_results) if self.step_results else 0.0),
         }
 
     def _calculate_reward(self, observation: str) -> float:
         """Calculate reward based on observation quality"""
         obs_lower = observation.lower()
 
-        if any(
-            x in obs_lower
-            for x in ["failed", "exception", "timeout", "connection error"]
-        ):
+        if any(x in obs_lower for x in ["failed", "exception", "timeout", "connection error"]):
             return -0.3
         if any(x in obs_lower for x in ["found", "discovered", "learned"]):
             return 0.7
