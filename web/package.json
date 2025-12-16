@@ -15,6 +15,7 @@
     "@emotion/styled": "^11.11.0",
     "@xterm/addon-fit": "^0.10.0",
     "@xterm/xterm": "^5.5.0",
+    "better-sqlite3": "^12.5.0",
     "date-fns": "^4.1.0",
     "framer-motion": "^10.16.16",
     "hover-effect": "^1.2.1",
@@ -27,6 +28,7 @@
     "react-intersection-observer": "^9.5.3"
   },
   "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^20.10.5",
     "@types/p5": "^1.7.7",
     "@types/react": "^18.2.45",
