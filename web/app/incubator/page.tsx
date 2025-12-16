@@ -151,7 +151,7 @@ export default function IncubatorPage() {
           isOpen={showAccessModal}
           onClose={() => router.push('/')}
           targetUrl="/incubator"
-          title="ACCESS REQUIRED"
+          title="ACCESS"
         />
       </>
     );
