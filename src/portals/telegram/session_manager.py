@@ -70,21 +70,24 @@ class SessionManager:
         finally:
             conn.close()
 
-    def get_session(self, user_id: int, persona: Optional[str] = None) -> Optional[str]:
+    def get_session(self, user_id: int, persona: Optional[str] = None, max_age_hours: int = 24) -> Optional[str]:
         """
-        Get active session ID for user and persona.
+        Get active session ID for user and persona, with automatic expiry.
 
         Args:
             user_id: Telegram user ID
             persona: Persona name (optional, defaults to None for general chat)
+            max_age_hours: Maximum hours since last message before expiry (default: 24)
 
         Returns:
-            Claude session ID, or None if no active session
+            Claude session ID, or None if no active session or session expired
         """
         with self._get_connection() as conn:
             cursor = conn.execute(
                 """
-                SELECT session_id FROM sessions
+                SELECT session_id,
+                       ROUND((JULIANDAY('now') - JULIANDAY(updated_at)) * 24, 1) as hours_since_last_message
+                FROM sessions
                 WHERE user_id = ? AND persona IS ?
                 ORDER BY updated_at DESC
                 LIMIT 1
@@ -92,7 +95,21 @@ class SessionManager:
                 (user_id, persona),
             )
             row = cursor.fetchone()
-            return row["session_id"] if row else None
+
+            if not row:
+                return None
+
+            # Check if session expired
+            hours_old = row["hours_since_last_message"]
+            if hours_old > max_age_hours:
+                click.secho(
+                    f"⏰ Session expired ({hours_old:.1f}h since last message) - user={user_id}, bot={persona or 'casper'}",
+                    fg="yellow"
+                )
+                self.clear_session(user_id, persona)
+                return None
+
+            return row["session_id"]
 
     def create_session(
         self,

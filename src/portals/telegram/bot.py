@@ -39,6 +39,7 @@ TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 DB_PATH = os.getenv("SESSION_DB_PATH", "data/sessions.db")
 WORKING_DIR = os.getenv("CLAUDE_WORKING_DIR", os.getcwd())
 MEMORY_VECTOR_PATH = os.getenv("MEMORY_VECTOR_PATH", "data/memory_vectors")
+SESSION_EXPIRY_HOURS = int(os.getenv("SESSION_EXPIRY_HOURS", "24"))  # Default: 24 hours
 
 filterwarnings("ignore")
 
@@ -419,7 +420,7 @@ async def compact_command(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
     claude_engine = context.bot_data["claude_engine"]
     session_manager = context.bot_data["session_manager"]
 
-    session_id = session_manager.get_session(user_id, bot)
+    session_id = session_manager.get_session(user_id, bot, max_age_hours=SESSION_EXPIRY_HOURS)
 
     if not session_id:
         await update.message.reply_text(
@@ -686,9 +687,9 @@ async def chat_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
             )
             return
 
-    # Get bot and session
+    # Get bot and session (with auto-expiry)
     bot = context.user_data.get("bot")
-    session_id = session_manager.get_session(user.id, bot)
+    session_id = session_manager.get_session(user.id, bot, max_age_hours=SESSION_EXPIRY_HOURS)
 
     try:
         # Show typing

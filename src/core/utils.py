@@ -37,45 +37,34 @@ def get_recent_observations(
     return observations
 
 
-def display_observations(observations, verbose: bool = False):
-    """Display observations in a formatted way
-
-    Args:
-        observations: List of Observation objects
-        verbose: Show full observation text
-    """
+def display_observations_with_breakdowns(observations, verbose: bool = False):
+    """Display observations including reward breakdowns."""
     if not observations:
         click.secho("No observations found.", fg="yellow")
         return
 
     click.secho(f"\n{'='*80}", fg="cyan")
-    click.secho(f"Found {len(observations)} observations", fg="cyan", bold=True)
+    click.secho(f"Found {len(observations)} observations with breakdowns", fg="cyan", bold=True)
     click.secho(f"{'='*80}\n", fg="cyan")
 
     for i, obs in enumerate(observations, 1):
-        # Header
         click.secho(f"[{i}] Observation #{obs.id}", fg="yellow", bold=True)
-        click.secho(
-            f"    Agent: {obs.agent_id} | Episode: {obs.episode_id}", fg="white"
-        )
-        click.secho(
-            f"    Time: {obs.timestamp.strftime('%Y-%m-%d %H:%M:%S')}", fg="white"
-        )
-        click.secho(
-            f"    Reward: {obs.reward:.2f}", fg="green" if obs.reward > 0 else "red"
-        )
+        click.secho(f"    Agent: {obs.agent_id} | Episode: {obs.episode_id}", fg="white")
+        click.secho(f"    Time: {obs.timestamp.strftime('%Y-%m-%d %H:%M:%S')}", fg="white")
+        click.secho(f"    Reward: {obs.reward:.3f}", fg="green" if obs.reward > 0.3 else "red")
 
-        # Action
         if obs.action_code:
             click.secho(f"    Action: {obs.action_code}", fg="blue")
 
-        # Observation
+        if obs.avg_reward_breakdown:  # Assuming hybrid_property
+            click.secho(f"    Breakdown: { {k: f'{v:.2f}' for k,v in obs.avg_reward_breakdown.items()} }", fg="magenta")
+
         if verbose:
             click.secho(f"\n    Observation:", fg="cyan")
             click.secho(f"    {obs.observation_text}\n", fg="white", dim=True)
         else:
-            preview = obs.observation_text[:200] if obs.observation_text else ""
+            preview = obs.observation_text[:200] + "..." if obs.observation_text else ""
             preview = preview.replace("\n", " ")
-            click.secho(f"    Preview: {preview}...", fg="white", dim=True)
+            click.secho(f"    Preview: {preview}", fg="white", dim=True)
 
         click.secho("")

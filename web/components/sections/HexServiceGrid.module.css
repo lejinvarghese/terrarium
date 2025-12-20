@@ -1,0 +1,159 @@
+.grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  padding: 4rem 2rem;
+  perspective: 1000px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.hexWrapper {
+  position: relative;
+  width: 180px;
+  height: 200px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: z-index 0s 0.3s; /* Delay z-index reset so it stays on top during exit */
+  z-index: 1;
+}
+
+.hexWrapper:hover {
+  z-index: 100;
+  transition: z-index 0s;
+}
+
+/* The Base Hexagon (Visible when not hovered) */
+.hexagon {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(10, 25, 41, 0.8), rgba(0, 0, 0, 0.9));
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  border: 0; /* clip-path cuts border, using pseudo for border effect */
+}
+
+/* Hexagon Border/Glow Effect */
+.hexagon::before {
+  content: '';
+  position: absolute;
+  inset: 2px;
+  background: rgba(10, 25, 41, 0.9);
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  z-index: -1;
+}
+
+.hexagon::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, var(--hex-color), transparent 60%);
+  opacity: 0.3;
+  z-index: -1;
+}
+
+.hexContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  z-index: 2;
+  text-align: center;
+}
+
+.hexPrefix {
+  font-family: var(--font-jetbrains-mono);
+  font-size: 0.75rem;
+  color: var(--hex-color);
+  letter-spacing: 0.1em;
+  opacity: 0.8;
+}
+
+.hexIcon {
+  font-size: 1.5rem;
+  color: #fff;
+  opacity: 0.9;
+}
+
+.hexStatus {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: var(--hex-color);
+  box-shadow: 0 0 10px var(--hex-color);
+}
+
+/* Hover Interaction */
+.hexWrapper:hover .hexagon {
+  transform: scale(1.1);
+  opacity: 0; /* Fade out hex as card appears? Or keep it? Let's fade out to reveal card */
+}
+
+/* The Info Card (Visible on hover) */
+.infoCard {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.5);
+  width: 360px;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  z-index: 10;
+  /* Glassmorphism background matching the theme */
+  background: rgba(5, 10, 18, 0.95);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 
+    0 20px 50px rgba(0, 0, 0, 0.5),
+    0 0 30px rgba(0, 0, 0, 0.3);
+  padding: 0; /* ServiceCard has padding */
+  display: flex;
+}
+
+.hexWrapper:hover .infoCard {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+  pointer-events: auto;
+  border-color: var(--hex-color);
+  box-shadow: 
+    0 25px 60px rgba(0, 0, 0, 0.7),
+    0 0 40px rgba(var(--hex-rgb), 0.2);
+}
+
+/* Connecting Lines (Decorative) */
+.connector {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.05);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Staggered Grid for Honeycomb Effect */
+.grid > div:nth-child(even) {
+  margin-top: 50px; /* Offset for honeycomb visual */
+}
+
+@media (max-width: 768px) {
+  .grid > div:nth-child(even) {
+    margin-top: 0;
+  }
+  
+  .hexWrapper {
+    width: 140px;
+    height: 160px;
+  }
+  
+  .infoCard {
+    width: 300px;
+  }
+}
