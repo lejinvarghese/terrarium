@@ -80,15 +80,22 @@
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  color: #666;
-  font-size: 0.9rem;
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
   margin-bottom: 1.5rem;
-  transition: all 0.3s ease;
+  padding: 0.5rem 1rem;
+  border: 1px solid rgba(235, 250, 29, 0.3);
+  background: rgba(235, 250, 29, 0.05);
   text-decoration: none;
+  transition: all 0.3s ease;
 }
 
 .backLink:hover {
   color: #EBFA1D;
+  border-color: #EBFA1D;
+  background: rgba(235, 250, 29, 0.1);
   transform: translateX(-4px);
 }
 
@@ -285,6 +292,27 @@
   color: #666;
   text-transform: uppercase;
   letter-spacing: 0.1em;
+}
+
+/* Chart Section */
+.chartSection {
+  max-width: 1400px;
+  margin: 0 auto 3rem;
+  position: relative;
+  z-index: 10;
+}
+
+.chartContainer {
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 2rem;
+  transition: all 0.3s ease;
+}
+
+.chartContainer:hover {
+  border-color: #EBFA1D;
+  box-shadow: 0 0 20px rgba(235, 250, 29, 0.2);
 }
 
 /* Logs Section */

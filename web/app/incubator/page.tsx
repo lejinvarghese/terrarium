@@ -4,6 +4,8 @@ import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { format } from 'date-fns';
 import SecureAccessModal from '@/components/ui/SecureAccessModal';
 import styles from './incubator.module.css';
 
@@ -23,6 +25,12 @@ interface Observation {
   modelCheckpoint: string;
 }
 
+interface DailyAverage {
+  date: string;
+  avgReward: number;
+  count: number;
+}
+
 export default function IncubatorPage() {
   const [showAccessModal, setShowAccessModal] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -32,6 +40,8 @@ export default function IncubatorPage() {
   const [selectedAgent, setSelectedAgent] = useState<string | null>(null);
   const [selectedObservation, setSelectedObservation] = useState<Observation | null>(null);
   const [autoRefresh, setAutoRefresh] = useState(false);
+  const [limit, setLimit] = useState<number>(10);
+  const [dailyAverages, setDailyAverages] = useState<DailyAverage[]>([]);
   const router = useRouter();
 
   // Check authentication on mount
@@ -53,8 +63,8 @@ export default function IncubatorPage() {
 
     try {
       const url = selectedAgent
-        ? `/api/incubator/logs?agent_id=${selectedAgent}&limit=100`
-        : '/api/incubator/logs?limit=100';
+        ? `/api/incubator/logs?agent_id=${selectedAgent}&limit=${limit}`
+        : `/api/incubator/logs?limit=${limit}`;
 
       console.log('Fetching logs from:', url);
       const response = await fetch(url);
@@ -67,12 +77,15 @@ export default function IncubatorPage() {
       if (data.agents) {
         setAgents(data.agents);
       }
+      if (data.dailyAverages) {
+        setDailyAverages(data.dailyAverages);
+      }
     } catch (error) {
       console.error('Failed to load logs:', error);
     } finally {
       setLoading(false);
     }
-  }, [isAuthenticated, selectedAgent]);
+  }, [isAuthenticated, selectedAgent, limit]);
 
   useEffect(() => {
     fetchLogs();
@@ -184,7 +197,7 @@ export default function IncubatorPage() {
         </Link>
         <div className={styles.headerInfo}>
           <h1 className={styles.title}>
-            <span className={styles.titlePrefix}>//</span>the incubator
+            <span className={styles.titlePrefix}>{'//'}</span>the incubator
           </h1>
           <p className={styles.subtitle}>exploration logs · undergrowth landscape</p>
         </div>
@@ -205,6 +218,20 @@ export default function IncubatorPage() {
                 {agentId}
               </option>
             ))}
+          </select>
+        </div>
+
+        <div className={styles.filterGroup}>
+          <label className={styles.filterLabel}>Show:</label>
+          <select
+            className={`${styles.filterSelect} cursor-hover`}
+            value={limit}
+            onChange={(e) => setLimit(parseInt(e.target.value))}
+          >
+            <option value="10">10</option>
+            <option value="25">25</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
           </select>
         </div>
 
@@ -236,6 +263,62 @@ export default function IncubatorPage() {
           Refresh
         </button>
       </div>
+
+      {/* Reward Chart */}
+      {dailyAverages.length > 0 && (
+        <section className={styles.chartSection}>
+          <h2 className={styles.sectionTitle}>Average Reward Over Time</h2>
+          <div className={styles.chartContainer}>
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart data={dailyAverages}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+                <XAxis
+                  dataKey="date"
+                  stroke="#888"
+                  tick={{ fill: '#888', fontSize: 12 }}
+                  tickFormatter={(date) => format(new Date(date), 'MMM d')}
+                />
+                <YAxis
+                  stroke="#888"
+                  tick={{ fill: '#888', fontSize: 12 }}
+                  domain={[0, 1]}
+                  ticks={[0, 0.25, 0.5, 0.75, 1]}
+                />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: '#1a1a1a',
+                    border: '1px solid #EBFA1D',
+                    borderRadius: '4px',
+                    color: '#fff',
+                    padding: '8px 12px',
+                    fontSize: '12px',
+                  }}
+                  labelStyle={{
+                    color: '#EBFA1D',
+                    fontSize: '11px',
+                    marginBottom: '4px',
+                  }}
+                  itemStyle={{
+                    color: '#fff',
+                    fontSize: '12px',
+                    padding: '2px 0',
+                  }}
+                  labelFormatter={(date) => format(new Date(date), 'MMM d')}
+                  formatter={(value: number) => value.toFixed(3)}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="avgReward"
+                  stroke="#EBFA1D"
+                  strokeWidth={2}
+                  dot={{ fill: '#EBFA1D', r: 4 }}
+                  activeDot={{ r: 6, fill: '#EBFA1D' }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </section>
+      )}
 
       {/* Stats */}
       <div className={styles.stats}>

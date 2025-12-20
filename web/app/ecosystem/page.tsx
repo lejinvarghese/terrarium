@@ -42,7 +42,7 @@ export default function EcosystemPage() {
           Back
         </Link>
         <h1 className={styles.title}>
-          <span className={styles.titlePrefix}>//</span>the swarm
+          <span className={styles.titlePrefix}>{'//'}</span>the swarm
         </h1>
         <p className={styles.tagline}>
           These cybernetic minds form a distributed intelligence, each tending to our terrarium with a purpose and emergent behavior.

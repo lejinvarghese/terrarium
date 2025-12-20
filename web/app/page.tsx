@@ -32,7 +32,7 @@ export default function Home() {
       <section className={styles.services}>
         <div className="container">
           <h2 className={styles.sectionTitle}>
-            <span className={styles.titlePrefix}>//</span>substations
+            <span className={styles.titlePrefix}>{'//'}</span>substations
           </h2>
           <div className={styles.grid}>
             {services.map((service, index) => (

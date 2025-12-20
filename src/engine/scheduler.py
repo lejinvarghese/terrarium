@@ -9,6 +9,7 @@ import click
 import sys
 import itertools
 import re
+import uuid
 from memory_config import get_memory, USER_ID, DANIELLE_USER_ID
 
 
@@ -55,11 +56,25 @@ def run_command(name, command, description=""):
                 )
 
             if memory_list:
-                # Build memory context string
+                # Build memory context string with character limit
+                MAX_CONTEXT_CHARS = 500  # Limit to prevent context inflation
                 context_parts = [
                     m.get("memory", m.get("text", str(m))) for m in memory_list
                 ]
-                memory_context = "; ".join(context_parts)
+
+                # Truncate each memory snippet to reasonable length
+                truncated_parts = []
+                total_chars = 0
+                for part in context_parts:
+                    if total_chars >= MAX_CONTEXT_CHARS:
+                        break
+                    # Limit each snippet to 150 chars
+                    snippet = part[:150] + "..." if len(part) > 150 else part
+                    if total_chars + len(snippet) <= MAX_CONTEXT_CHARS:
+                        truncated_parts.append(snippet)
+                        total_chars += len(snippet)
+
+                memory_context = "; ".join(truncated_parts)
 
                 # Inject into command prompt (between single quotes)
                 prompt_match = re.search(
@@ -72,7 +87,7 @@ def run_command(name, command, description=""):
                         f"'{original_prompt}'", f"'{enhanced_prompt}'"
                     )
                     click.secho(
-                        f"  🧠 Injected {len(memory_list)} memories",
+                        f"  🧠 Injected {len(truncated_parts)}/{len(memory_list)} memories ({total_chars} chars)",
                         fg="magenta",
                         dim=True,
                     )
@@ -82,6 +97,17 @@ def run_command(name, command, description=""):
                 f"  💤 Memory unavailable (bot may be using it)", fg="cyan", dim=True
             )
             memory = None
+
+    # Add fresh session ID to prevent Claude context accumulation
+    session_id = str(uuid.uuid4())
+    if "claude -p" in enhanced_command:
+        # Inject --session-id flag to force fresh session per run
+        enhanced_command = enhanced_command.replace(
+            "claude -p --dangerously-skip-permissions",
+            f"claude -p --dangerously-skip-permissions --session-id {session_id}",
+            1  # Only replace first occurrence
+        )
+        click.secho(f"  🆔 Session: {session_id[:8]}...", fg="cyan", dim=True)
 
     # Execute command
     result = subprocess.run(

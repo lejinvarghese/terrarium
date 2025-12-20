@@ -92,7 +92,31 @@ uv run python -m src.landscapes.undergrowth.incubator.culture -a A001 -e
 uv run python -m src.landscapes.undergrowth.incubator.culture -c
 ```
 
-### 4. Initialize Agents
+### 4. Continuous Exploration Scheduler
+
+Run agents automatically on a schedule throughout the day:
+
+```bash
+# Start scheduler as part of dev environment
+dev up
+
+# Attach to scheduler session
+dev attach incubator
+
+# Or run standalone
+./scripts/start_incubator.sh start
+```
+
+**How it works:**
+- Automatically discovers all agents from `agents.py`
+- Auto-staggers intervals to avoid overlaps (4h, 6h, 8h, ...)
+- Adds random jitter for organic timing
+- Only one episode runs at a time (serial execution)
+- Logs saved to `scheduler.log`
+
+To add a new agent, just add it to `agents.py` and restart the scheduler.
+
+### 5. Initialize Agents
 
 Set up agent personas in the database:
 
@@ -157,36 +181,24 @@ src/
             └── observations.db # Episode observations (generated)
 ```
 
-## RL Terminology
+### Reward System
 
-- **Episode**: Complete exploration session (e.g., 10 steps exploring nature)
-- **Step**: Single action where agent uses tools and receives reward
-- **Observation**: What agent discovers/learns in a step
-- **Reward**: Quality score for observation (-0.5 to 0.7)
-- **State**: Agent's accumulated knowledge and context
-- **Action**: Agent's tool usage and information gathering
-- **Epsilon (ε)**: Exploration-exploitation tradeoff parameter (0.0-1.0)
-  - At each step, with probability ε, agent follows a **random tangent** (explore)
-  - With probability 1-ε, agent follows **structured prompts** (exploit)
-  - Default ε=0.2 (20% random exploration)
+The reward function encourages undergrowth culture: embodiment, reflection, curiosity, tool use, and evolution. Raw score (0-40+) normalized to [0.2,1.0] + penalties.
 
-### Epsilon-Greedy Exploration
+**Components**:
+- **Embodiment** (max 10): Keywords like "i feel", "alive in" (+2.5 each).
+- **Reflection** (max 8): "i learned", "i am becoming" (+2 each).
+- **Curiosity** (max 6): "what if", "let me explore" (+1.5 each).
+- **Tool Use**: Intent +4, actual call +8.
+- **Evolution** (max 6): "unique self", "co-evolution" (+2 each).
+- **Momentum** +3: Ends with question/next step.
+- **Novelty** +4: Low overlap with prior context.
+- **Penalties**: -5 low uniqueness, -6 assistant language, -5 errors.
 
-The agent balances two strategies:
+Breakdowns logged per step + avg per episode; stored in DB as JSON. Tune in config.py.
 
-**Structured Prompts (Exploitation - probability 1-ε):**
-- Follow logical progression: deeper analysis → patterns → synthesis
-- Build coherent understanding of the objective
-- Systematic knowledge accumulation
-
-**Random Prompts (Exploration - probability ε):**
-- "Follow a tangent. Pick something unrelated and see where it leads."
-- "What's the weirdest thing you could explore right now?"
-- "Find a connection between this topic and something completely unrelated."
-- Discover unexpected connections and novel insights
-
-Higher ε → more serendipity and creativity
-Lower ε → more focused and systematic exploration
+**Example**:
+Step reward 0.65: embodiment:7.5, curiosity:3.0, tool_call:8.0 (total raw 25.5 → norm).
 
 ## Configuration
 

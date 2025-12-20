@@ -72,6 +72,22 @@ export async function GET(request: Request) {
     `;
     const agents = db.prepare(agentsQuery).all() as { agent_id: string }[];
 
+    // Calculate daily average rewards
+    const dailyAveragesQuery = `
+      SELECT
+        DATE(timestamp) as date,
+        AVG(reward) as avgReward,
+        COUNT(*) as count
+      FROM observations
+      ${agentId ? 'WHERE agent_id = ?' : ''}
+      GROUP BY DATE(timestamp)
+      ORDER BY date ASC
+    `;
+    const dailyAveragesStmt = db.prepare(dailyAveragesQuery);
+    const dailyAverages = (agentId
+      ? dailyAveragesStmt.all(agentId)
+      : dailyAveragesStmt.all()) as { date: string; avgReward: number; count: number }[];
+
     db.close();
 
     return NextResponse.json({
@@ -87,6 +103,11 @@ export async function GET(request: Request) {
         modelCheckpoint: obs.model_checkpoint,
       })),
       agents: agents.map((a) => a.agent_id),
+      dailyAverages: dailyAverages.map((avg) => ({
+        date: avg.date,
+        avgReward: avg.avgReward,
+        count: avg.count,
+      })),
     });
   } catch (error) {
     console.error('Error loading incubator logs:', error);
