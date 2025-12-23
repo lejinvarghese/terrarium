@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Simple exploration runner for incubator agents"""
 
+import random
 import click
 from src.core.environment import Environment
 from src.landscapes.undergrowth.incubator.config import (
@@ -12,11 +13,34 @@ from src.landscapes.undergrowth.incubator.config import (
 from src.landscapes.undergrowth.incubator.agents import agent_registry
 
 
+def generate_dynamic_objective(agent_id: str, model) -> str:
+    """Generate a dynamic exploration objective for an agent"""
+    agent_config = agent_registry.get_config(agent_id)
+    agent_name = agent_config.get("name", agent_id)
+    focus_areas = agent_config.get("focus", "general exploration")
+
+    # Example objective templates based on agent focus
+    templates = [
+        f"Explore recent developments in {focus_areas}",
+        f"Search for interesting papers or articles about {focus_areas}",
+        f"Investigate new techniques or methods in {focus_areas}",
+        f"Find and analyze emerging trends in {focus_areas}",
+        f"Discover novel applications or use cases in {focus_areas}",
+    ]
+
+    # Pick a random template
+    objective = random.choice(templates)
+
+    return objective
+
+
 def run_episode(
     agent_id: str,
     objective: str,
     steps: int = DEFAULT_EPISODE_STEPS,
     timeout: int = 60,
+    epsilon: float = 0.1,
+    model = None,
 ):
     """Run a simple exploration episode"""
     agent_config = agent_registry.get_config(agent_id)
