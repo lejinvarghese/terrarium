@@ -1,5 +1,5 @@
 import pytest
-from src.core.environment import RewardCalculator
+from src.landscapes.core.environment import RewardCalculator
 
 @pytest.fixture
 def reward_calc():
