@@ -2,8 +2,10 @@ import asyncio
 import click
 
 from agno.agent import Agent
+
 from agno.models.ollama import Ollama
 
+from src.landscapes.core.constants import DATABASE
 
 
 class BaseAgent:
@@ -15,12 +17,14 @@ class BaseAgent:
         self,
         id: str,
         name: str,
+        user_id: str,
         instructions: str,
         model_name: str,
         debug: bool,
     ):
         self._id = id
         self._name = name
+        self._user_id = user_id
         self._instructions = instructions
         self._model_name = model_name
         self._debug = debug
@@ -46,8 +50,10 @@ class BaseAgent:
             id=self._id,
             name=self._name,
             model=self._model,
+            user_id=self._user_id,
+            db=DATABASE,
             markdown=True,
-            system_message=self._instructions,
+            instructions=self._instructions,
             # tools
             compress_tool_results=True,
             tools=[],
@@ -55,18 +61,22 @@ class BaseAgent:
             # state
             enable_agentic_state=True,
             enable_agentic_memory=True,
+            enable_user_memories=True,
             # session
             add_session_state_to_context=True,
+            add_session_summary_to_context=True,
+            add_memories_to_context=True,
             search_session_history=True,
             cache_session=True,
             enable_session_summaries=True,
-            add_session_summary_to_context=True,
             # history
             add_history_to_context=True,
             num_history_sessions=5,
+            read_chat_history=True,
             # events
             store_events=True,
             debug_mode=self._debug,
+            debug_level=2,
         )
 
     @property
@@ -95,7 +105,8 @@ async def run_agent(task: str, debug: bool):
     agent = BaseAgent(
         id="1",
         name="Agent 1",
-        instructions="You are a helpful assistant.",
+        user_id="1",
+        instructions="""You are a self-directed agent. After completing any task, immediately use update_user_memory to save what you learned and accomplished. Remember everything important autonomously.""",
         model_name="qwen3:1.7b",
         debug=debug,
     )
@@ -123,7 +134,7 @@ async def run_agent(task: str, debug: bool):
     required=True,
     default="What is the best value of humanity, and why?",
 )
-@click.option("--debug", type=bool, required=False, default=False)
+@click.option("--debug", type=bool, required=False, is_flag=True, default=False)
 def main(task: str, debug: bool):
     asyncio.run(run_agent(task, debug))
 
