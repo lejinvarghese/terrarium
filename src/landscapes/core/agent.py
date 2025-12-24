@@ -2,10 +2,18 @@ import asyncio
 import click
 
 from agno.agent import Agent
-
 from agno.models.ollama import Ollama
 
-from src.landscapes.core.constants import DATABASE
+from src.landscapes.core.constants import (
+    DATABASE,
+    DEFAULT_MODEL_NAME,
+    DEFAULT_INSTRUCTIONS,
+    DEFAULT_AGENT_ID,
+    DEFAULT_AGENT_NAME,
+    DEFAULT_USER_ID,
+    DEFAULT_COLORS,
+)
+from src.landscapes.core.tools import get_tools, display_tools
 
 
 class BaseAgent:
@@ -15,12 +23,13 @@ class BaseAgent:
 
     def __init__(
         self,
-        id: str,
-        name: str,
-        user_id: str,
-        instructions: str,
-        model_name: str,
-        debug: bool,
+        id: str = DEFAULT_AGENT_ID,
+        name: str = DEFAULT_AGENT_NAME,
+        user_id: str = DEFAULT_USER_ID,
+        instructions: str = DEFAULT_INSTRUCTIONS,
+        model_name: str = DEFAULT_MODEL_NAME,
+        debug: bool = False,
+        skip_logging: bool = True,
     ):
         self._id = id
         self._name = name
@@ -28,8 +37,24 @@ class BaseAgent:
         self._instructions = instructions
         self._model_name = model_name
         self._debug = debug
+        self._db = DATABASE if not skip_logging else None
         self._model = self._create_model()
-        self._agent = self._create_agent()
+        self._tools = None
+        self._agent = None
+
+    @classmethod
+    async def create(cls, **kwargs):
+        """Async factory method to create an instance of BaseAgent."""
+        instance = cls(**kwargs)
+        instance._tools = [await get_tools()]
+        instance._agent = instance._create_agent()
+        display_tools(instance._tools[0])
+        return instance
+
+    async def close(self):
+        """Clean up MCP connections. Should be called when done with the agent."""
+        if self._tools:
+            await self._tools[0].close()
 
     def _create_model(self):
         """Create a model instance."""
@@ -51,13 +76,13 @@ class BaseAgent:
             name=self._name,
             model=self._model,
             user_id=self._user_id,
-            db=DATABASE,
+            db=self._db,
             markdown=True,
             instructions=self._instructions,
             # tools
-            compress_tool_results=True,
-            tools=[],
-            tool_call_limit=5,
+            compress_tool_results=False,
+            tools=self._tools,
+            tool_call_limit=10,
             # state
             enable_agentic_state=True,
             enable_agentic_memory=True,
@@ -97,46 +122,46 @@ class BaseAgent:
     async def run(self, instruction: str, **kwargs) -> str:
         """Execute the agent's logic."""
         response = await self._agent.arun(instruction, **kwargs)
+        await self.close()
         return response.to_dict()
 
 
-async def run_agent(task: str, debug: bool):
+async def run_agent(task: str, debug: bool, skip_logging: bool):
     """Async logic for running the agent."""
-    agent = BaseAgent(
-        id="1",
-        name="Agent 1",
-        user_id="1",
-        instructions="""You are a self-directed agent. After completing any task, immediately use update_user_memory to save what you learned and accomplished. Remember everything important autonomously.""",
-        model_name="qwen3:1.7b",
-        debug=debug,
-    )
-    response = await agent.run(task)
-    attributes = [
-        "run_id",
-        "agent_id",
-        "agent_name",
-        "session_id",
-        "user_id",
-        "content",
-        "events",
-    ]
-    colors = ["red", "green", "yellow", "blue", "magenta", "cyan"]
-    for i, (k, v) in enumerate(response.items()):
-        if k not in attributes:
-            continue
-        click.secho(f"{k}: {v}", fg=colors[i % len(colors)])
+    agent = await BaseAgent.create(debug=debug, skip_logging=skip_logging)
+    try:
+        response = await agent.run(task)
+        attributes = [
+            "run_id",
+            "agent_id",
+            "agent_name",
+            "session_id",
+            "user_id",
+            "content",
+            "events",
+        ]
+        for i, (k, v) in enumerate(response.items()):
+            if k not in attributes:
+                continue
+            click.secho(f"{k}: {v}", fg=DEFAULT_COLORS[i % len(DEFAULT_COLORS)])
+    finally:
+        await agent.close()
 
 
 @click.command()
 @click.option(
+    "-t",
     "--task",
     type=str,
     required=True,
     default="What is the best value of humanity, and why?",
 )
-@click.option("--debug", type=bool, required=False, is_flag=True, default=False)
-def main(task: str, debug: bool):
-    asyncio.run(run_agent(task, debug))
+@click.option("-d", "--debug", type=bool, required=False, is_flag=True, default=False)
+@click.option(
+    "-s", "--skip-logging", type=bool, required=False, is_flag=True, default=False
+)
+def main(task: str, debug: bool, skip_logging: bool):
+    asyncio.run(run_agent(task, debug, skip_logging))
 
 
 if __name__ == "__main__":
