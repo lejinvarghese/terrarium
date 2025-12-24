@@ -63,7 +63,7 @@ The auth proxies start automatically with `./dev up`:
 
 ```bash
 # Dome proxy
-cd src/auth-proxy
+cd src/authentication
 SERVICE=dome node server.js
 
 # Archive proxy
@@ -133,7 +133,7 @@ Visit `/auth/logout` to clear authentication cookie.
 npm run dev  # or docker run...
 
 # Terminal 2: Start auth proxy
-cd src/auth-proxy
+cd src/authentication
 npm install
 SERVICE=dome node server.js
 
@@ -169,7 +169,7 @@ The login page HTML is embedded in `server.js`. Edit the `loginPageHTML` constan
 ## Files
 
 ```
-src/auth-proxy/
+src/authentication/
 ├── server.js       # Main Express server with embedded HTML
 ├── config.json     # Service & access code configuration
 ├── package.json    # Dependencies

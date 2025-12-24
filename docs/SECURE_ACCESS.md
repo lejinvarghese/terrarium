@@ -73,7 +73,7 @@ web/components/ui/
 ├── SecureAccessModal.tsx          # Homepage modal (sets cookie)
 └── SecureAccessModal.module.css
 
-src/auth-proxy/
+src/authentication/
 ├── server.js                      # Express auth proxy
 └── config.json                    # Codes & service config
 
