@@ -5,6 +5,7 @@ import heapq
 import logging
 import random
 import signal
+import subprocess
 import sys
 import time
 from datetime import datetime, timedelta
@@ -16,7 +17,7 @@ from src.core.landscapes import get_observations_path
 from src.landscapes.undergrowth.incubator.explore import run_episode, generate_dynamic_objective
 from src.landscapes.undergrowth.incubator.agents import agent_registry
 from src.landscapes.undergrowth.incubator.config import (
-    DEFAULT_EPISODE_STEPS, 
+    DEFAULT_EPISODE_STEPS,
     DEFAULT_EPSILON,
     LANDSCAPE_NAME,
     MODEL_NAME
@@ -30,6 +31,37 @@ shutdown_requested = False
 DEFAULT_BASE_INTERVAL_HOURS = 4
 DEFAULT_JITTER_HOURS = 1.0
 DEFAULT_TIMEOUT = 180
+
+
+def get_mcp_processes():
+    """Get PIDs of all MCP server processes"""
+    try:
+        result = subprocess.run(
+            ["pgrep", "-f", "arxiv-mcp-server|tavily-mcp|spotify-mcp|mcp/server.py"],
+            capture_output=True,
+            text=True
+        )
+        if result.returncode == 0:
+            return set(int(pid) for pid in result.stdout.strip().split('\n') if pid)
+        return set()
+    except Exception as e:
+        logging.warning(f"Failed to get MCP processes: {e}")
+        return set()
+
+
+def cleanup_orphaned_mcp_processes(before_pids: set):
+    """Kill any MCP processes that weren't running before the episode"""
+    after_pids = get_mcp_processes()
+    orphaned = after_pids - before_pids
+
+    if orphaned:
+        logging.warning(f"Found {len(orphaned)} orphaned MCP processes, cleaning up...")
+        for pid in orphaned:
+            try:
+                subprocess.run(["kill", str(pid)], timeout=5)
+                logging.info(f"Killed orphaned MCP process: {pid}")
+            except Exception as e:
+                logging.error(f"Failed to kill process {pid}: {e}")
 
 
 class AgentScheduler:
@@ -107,17 +139,21 @@ class AgentScheduler:
             )
 
     def run_agent_episode(self, agent_id: str, config: dict):
-        """Execute a single agent episode"""
+        """Execute a single agent episode with proper MCP cleanup"""
         global shutdown_requested
 
         if shutdown_requested:
             return
 
+        # Track MCP processes before starting
+        before_pids = get_mcp_processes()
+        logging.debug(f"[{agent_id}] MCP processes before episode: {len(before_pids)}")
+
         try:
             # Refresh objective based on latest context
             current_objective = generate_dynamic_objective(agent_id, self.model)
             logging.info(f"[{agent_id}] Starting episode with objective: {current_objective}")
-            
+
             start_time = time.time()
 
             run_episode(
@@ -134,6 +170,13 @@ class AgentScheduler:
 
         except Exception as e:
             logging.error(f"[{agent_id}] Episode failed: {e}", exc_info=True)
+
+        finally:
+            # Always cleanup orphaned MCP processes after episode
+            try:
+                cleanup_orphaned_mcp_processes(before_pids)
+            except Exception as cleanup_error:
+                logging.error(f"[{agent_id}] Cleanup failed: {cleanup_error}", exc_info=True)
 
     def run_forever(self):
         """Main scheduler loop"""
@@ -166,10 +209,21 @@ class AgentScheduler:
 
 
 def handle_shutdown(signum, frame):
-    """Handle graceful shutdown"""
+    """Handle graceful shutdown with MCP cleanup"""
     global shutdown_requested
     logging.info(f"Received signal {signum}, shutting down...")
     shutdown_requested = True
+
+    # Clean up all MCP processes on shutdown
+    logging.info("Cleaning up all MCP processes...")
+    mcp_pids = get_mcp_processes()
+    if mcp_pids:
+        logging.info(f"Killing {len(mcp_pids)} MCP processes")
+        for pid in mcp_pids:
+            try:
+                subprocess.run(["kill", str(pid)], timeout=5)
+            except Exception as e:
+                logging.error(f"Failed to kill process {pid}: {e}")
 
 
 if __name__ == "__main__":
@@ -189,5 +243,18 @@ if __name__ == "__main__":
     signal.signal(signal.SIGINT, handle_shutdown)
     signal.signal(signal.SIGTERM, handle_shutdown)
 
-    scheduler.run_forever()
+    try:
+        scheduler.run_forever()
+    finally:
+        # Final cleanup on exit
+        logging.info("Final cleanup...")
+        mcp_pids = get_mcp_processes()
+        if mcp_pids:
+            logging.info(f"Cleaning up {len(mcp_pids)} remaining MCP processes")
+            for pid in mcp_pids:
+                try:
+                    subprocess.run(["kill", str(pid)], timeout=5)
+                except Exception as e:
+                    logging.error(f"Failed to kill process {pid}: {e}")
+
     sys.exit(0)

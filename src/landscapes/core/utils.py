@@ -4,14 +4,14 @@ import click
 from agno.memory import MemoryManager
 from agno.models.ollama import Ollama
 
-from src.landscapes.core.constants import DATABASE
+from src.landscapes.core.constants import DATABASE, DEFAULT_MODEL_NAME
 
 
 async def optimize_user_memory(user_id: str, preview: bool = False):
     """Optimize and summarize user memories to remove duplicates."""
     memory_manager = MemoryManager(
         db=DATABASE,
-        model=Ollama(id="qwen3:1.7b"),
+        model=Ollama(id=DEFAULT_MODEL_NAME),
     )
 
     result = await memory_manager.aoptimize_memories(
