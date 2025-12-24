@@ -162,7 +162,7 @@ export default function IncubatorPage() {
         </div>
         <SecureAccessModal
           isOpen={showAccessModal}
-          onClose={() => router.push('/')}
+          onClose={() => setShowAccessModal(false)}
           targetUrl="/incubator"
           title="ACCESS"
         />
