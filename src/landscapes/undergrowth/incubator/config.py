@@ -4,9 +4,11 @@ LANDSCAPE_NAME = "undergrowth"
 LANDSCAPE_DISPLAY_NAME = "The Undergrowth"
 LANDSCAPE_DESCRIPTION = "Dark, gothic, emergent, underground intelligence"
 
-MODEL_NAME = "qwen3:1.7b"
+# Model configuration
+MODEL_NAME = "qwen3:1.7b"  # Local student model
+TEACHER_MODEL = "x-ai/grok-4.1-fast"  # Teacher model via OpenRouter (Grok)
 
-DEFAULT_EPISODE_STEPS = 10
+DEFAULT_EPISODE_STEPS = 5
 DEFAULT_EPSILON = 0.2  # 20% random exploration
 
 # Training (future use)

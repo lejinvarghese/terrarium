@@ -1,5 +1,6 @@
 import asyncio
 import click
+import re
 
 from agno.agent import Agent
 from agno.models.ollama import Ollama
@@ -14,11 +15,22 @@ from src.landscapes.core.constants import (
     DEFAULT_COLORS,
 )
 from src.landscapes.core.tools import get_tools, display_tools
+from src.core.models import ModelFactory
+
+def remove_thinking_tags(
+    run_output,
+) -> str:
+    """Remove thinking tags."""
+    return re.sub(r'^.*</think>\s*', '', run_output.content, flags=re.DOTALL)
 
 
 class BaseAgent:
     """
     Base class for an agent.
+
+    Supports multiple model backends:
+    - ollama: Local models via Ollama
+    - openrouter: API models via OpenRouter (e.g., Grok)
     """
 
     def __init__(
@@ -28,6 +40,7 @@ class BaseAgent:
         user_id: str = DEFAULT_USER_ID,
         instructions: str = DEFAULT_INSTRUCTIONS,
         model_name: str = DEFAULT_MODEL_NAME,
+        model_type: str = "ollama",
         debug: bool = False,
         skip_logging: bool = True,
     ):
@@ -36,6 +49,7 @@ class BaseAgent:
         self._user_id = user_id
         self._instructions = instructions
         self._model_name = model_name
+        self._model_type = model_type
         self._debug = debug
         self._db = DATABASE if not skip_logging else None
         self._model = self._create_model()
@@ -57,17 +71,34 @@ class BaseAgent:
             await self._tools[0].close()
 
     def _create_model(self):
-        """Create a model instance."""
-        return Ollama(
-            id=self._model_name,
-            options={
-                "temperature": 0.1,
-                "top_p": 0.8,
-                "top_k": 20,
-                "repeat_penalty": 1.0,
-                "num_ctx": 4096,
-            },
-        )
+        """Create a model instance based on model_type.
+
+        Supports:
+        - ollama: Local models
+        - openrouter: API models (Grok, Claude, etc.)
+        """
+        if self._model_type == "ollama":
+            return Ollama(
+                id=self._model_name,
+                options={
+                    "temperature": 0.1,
+                    "top_p": 0.8,
+                    "top_k": 20,
+                    "repeat_penalty": 1.0,
+                    "num_ctx": 4096,
+                },
+            )
+        elif self._model_type == "openrouter":
+            return ModelFactory.create_openrouter(
+                model_id=self._model_name,
+                temperature=0.7,
+                max_tokens=4096,
+            )
+        else:
+            raise ValueError(
+                f"Unknown model_type: {self._model_type}. "
+                "Supported: ollama, openrouter"
+            )
 
     def _create_agent(self):
         """Create an agent instance."""
@@ -102,6 +133,7 @@ class BaseAgent:
             store_events=True,
             debug_mode=self._debug,
             debug_level=2,
+            post_hooks=[remove_thinking_tags],
         )
 
     @property
@@ -119,11 +151,14 @@ class BaseAgent:
         """The instructions for the agent."""
         return self._instructions
 
-    async def run(self, instruction: str, **kwargs) -> str:
-        """Execute the agent's logic."""
+    async def run(self, instruction: str, **kwargs):
+        """Execute the agent's logic.
+
+        Returns:
+            RunResponse object from agno
+        """
         response = await self._agent.arun(instruction, **kwargs)
-        await self.close()
-        return response.to_dict()
+        return response
 
 
 async def run_agent(task: str, debug: bool, skip_logging: bool):
