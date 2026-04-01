@@ -160,7 +160,8 @@ class ClaudeEngine:
                     else:
                         click.secho(f"🪴 Using Casper (Concierge)", fg="cyan")
 
-            # Add the message
+            # Add the message (use -- to separate from flags)
+            cmd.append("--")
             cmd.append(message)
 
             click.secho(f"🚀 Executing Claude CLI.", fg="bright_blue")
@@ -185,7 +186,10 @@ class ClaudeEngine:
 
             if process.returncode != 0:
                 error_msg = stderr.decode() if stderr else "Unknown error"
-                click.secho(f"❌ Claude CLI error: {error_msg}", fg="red", bold=True)
+                click.secho(f"❌ Claude CLI failed with return code: {process.returncode}", fg="red", bold=True)
+                click.secho(f"❌ stderr: {error_msg}", fg="red")
+                click.secho(f"❌ stdout: {stdout.decode() if stdout else 'None'}", fg="red")
+                click.secho(f"❌ Command: {' '.join(cmd)}", fg="red")
                 raise RuntimeError(f"Claude CLI failed: {error_msg}")
 
             # Parse JSON output
