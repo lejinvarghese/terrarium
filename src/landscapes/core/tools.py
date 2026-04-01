@@ -16,11 +16,23 @@ async def get_tools():
             f"python3 {CUSTOM_MCP_SERVER_PATH}",
             "uv tool run arxiv-mcp-server --storage-path ./data/arxiv",
             f"{NPM_DIRECTORY}/tavily-mcp",
-            f"{NPM_DIRECTORY}/spotify-mcp",
         ],
         env={**os.environ},
         timeout_seconds=120,
         allow_partial_failure=True,
+        include_tools=[
+            "generate_image",
+            "scrape_recipe",
+            "list_supported_recipe_sites",
+            "search_papers",
+            "download_paper",
+            "list_papers",
+            "read_paper",
+            "tavily-search",
+            "tavily-extract",
+            "tavily-crawl",
+            "tavily-map",
+        ],
     )
     await mcp_tools.connect()
     return mcp_tools
