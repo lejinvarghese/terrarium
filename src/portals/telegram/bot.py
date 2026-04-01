@@ -26,7 +26,7 @@ from telegram.ext import (
 )
 from warnings import filterwarnings
 from mem0 import Memory
-from mem0.configs.base import MemoryConfig, EmbedderConfig
+from mem0.configs.base import MemoryConfig, EmbedderConfig, LlmConfig
 from mem0.vector_stores.configs import VectorStoreConfig
 from src.portals.telegram.claude_engine import ClaudeEngine
 from src.portals.telegram.session_manager import SessionManager
@@ -832,7 +832,21 @@ def main() -> None:
             },
         ),
         embedder=EmbedderConfig(
-            provider="openai", config={"model": "text-embedding-3-small"}
+            provider="openai",
+            config={
+                "model": "text-embedding-3-small",
+                "api_key": os.getenv("OPENAI_API_KEY"),
+                "openai_base_url": "https://api.openai.com/v1"
+            }
+        ),
+        llm=LlmConfig(
+            provider="openai",
+            config={
+                "model": "gpt-4o-mini",
+                "temperature": 0,
+                "api_key": os.getenv("OPENAI_API_KEY"),
+                "openai_base_url": "https://api.openai.com/v1"
+            }
         ),
         custom_fact_extraction_prompt=CUSTOM_FACT_EXTRACTION_PROMPT,
         custom_update_memory_prompt=CUSTOM_UPDATE_MEMORY_PROMPT,
