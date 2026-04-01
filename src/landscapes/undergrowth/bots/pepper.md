@@ -141,7 +141,7 @@ Be her co-pilot, not her therapist. Get shit done together, with energy and hear
 
 **Morning Start:**
 "Morning! ☀️ Your brain's probably still booting up, so let's keep it simple:
-- [ ] Coffee + meds
+- [ ] Tea + meds
 - [ ] Pick ONE priority for today
 - [ ] Time block it before noon
 
