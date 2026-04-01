@@ -33,7 +33,6 @@ export default function SchedulerPage() {
   const [tasks, setTasks] = useState<ScheduledTask[]>([]);
   const [loading, setLoading] = useState(true);
   const [showTerminal, setShowTerminal] = useState(false);
-  const [showMonitoring, setShowMonitoring] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
   useEffect(() => {
@@ -365,43 +364,6 @@ export default function SchedulerPage() {
             updateInterval={1000}
             maxLines={100}
           />
-        )}
-      </section>
-
-      {/* System Monitoring Section */}
-      <section className={styles.terminalSection}>
-        <button
-          className={`${styles.terminalToggle} cursor-hover`}
-          onClick={() => setShowMonitoring(!showMonitoring)}
-        >
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <path
-              d="M2 2H14M2 8H14M2 14H14"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-            />
-          </svg>
-          {showMonitoring ? 'Hide' : 'Show'} System Monitoring
-        </button>
-
-        {showMonitoring && (
-          <div className={styles.monitoringGrid}>
-            <LiveTerminal
-              sessionName="btop"
-              title="btop · System Monitor"
-              height="500px"
-              updateInterval={1000}
-              maxLines={50}
-            />
-            <LiveTerminal
-              sessionName="nvtop"
-              title="nvtop · GPU Monitor"
-              height="500px"
-              updateInterval={1000}
-              maxLines={50}
-            />
-          </div>
         )}
       </section>
     </div>
