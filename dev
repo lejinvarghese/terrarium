@@ -12,7 +12,7 @@ source "$SCRIPT_DIR/scripts/lib/services.conf"
 show_help() {
     echo "Terrarium Development Manager"
     echo ""
-    echo "Usage: $0 {up|down|attach <service>|status|setup}"
+    echo "Usage: $0 {up|down|attach <service>|status|setup|landscapes <subcommand>}"
     echo ""
     echo "Commands:"
     echo "  up                       - Start all services in separate tmux sessions"
@@ -20,6 +20,7 @@ show_help() {
     echo "  attach <service>         - Attach to a specific service session"
     echo "  status                   - Check which services are running"
     echo "  setup                    - Configure Cloudflare named tunnel with custom domain"
+    echo "  landscapes <subcommand>  - Manage landscapes (list, status)"
     echo ""
     echo "Available services:"
     for service in "${SERVICES[@]}"; do
@@ -38,6 +39,7 @@ show_help() {
     echo "  dev attach dome             # Attach to dome service"
     echo "  dev attach tunnel           # Attach to dome tunnel (see public URL)"
     echo "  dev status                  # Check what's running"
+    echo "  dev landscapes list         # List all landscapes"
     echo ""
     echo "Tmux shortcuts:"
     echo "  Ctrl+B then D               - Detach from session"
@@ -58,6 +60,10 @@ case "$1" in
         ;;
     setup)
         "$COMMANDS_DIR/setup.sh"
+        ;;
+    landscapes)
+        shift
+        "$COMMANDS_DIR/landscapes.sh" "$@"
         ;;
     *)
         show_help
