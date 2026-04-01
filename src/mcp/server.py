@@ -29,7 +29,7 @@ PERSONA_EMOJIS = {
 
 dimensions = {
     "portrait": "512x768",
-    "landscape": "768x512",
+    "landscape": "1344x768",  # Proper 16:9 landscape ratio
     "square": "640x640",
 }
 
@@ -247,6 +247,99 @@ async def list_supported_recipe_sites() -> dict:
             "bbcgoodfood.com",
         ],
     }
+
+
+# Stock Screener Integration
+import httpx
+from typing import Optional, List, Dict
+
+STOCK_SCREENER_URL = os.getenv("STOCK_SCREENER_URL", "http://localhost:5004")
+
+
+@mcp.tool()
+async def get_stock_recommendations(
+    budget: int = 1000,
+    method: str = "max_sharpe",
+    threshold: float = 0.05
+) -> Dict:
+    """
+    Get optimized portfolio recommendations from watchlist.
+
+    Args:
+        budget: Investment amount in dollars (supports fractional shares)
+        method: Optimization method - "max_sharpe" (risk-adjusted) or "hrp" (diversification)
+        threshold: Minimum weight threshold (default 0.05 = 5%)
+
+    Returns:
+        Portfolio with weights, allocation, expected return, volatility, sharpe ratio,
+        selected stocks, and stock sector/industry info
+    """
+    try:
+        async with httpx.AsyncClient(timeout=60.0) as client:
+            response = await client.post(
+                f"{STOCK_SCREENER_URL}/recommend_stocks/",
+                json={"budget": budget, "method": method, "threshold": threshold}
+            )
+            response.raise_for_status()
+            return response.json()
+    except httpx.ConnectError:
+        return {"error": "Stock screener API is not running. Start it with: cd /media/starscream/wheeljack1/projects/stock-screener && source .venv/bin/activate && python app.py --port 5004"}
+    except Exception as e:
+        return {"error": f"Failed to get recommendations: {str(e)}"}
+
+
+@mcp.tool()
+async def check_sell_signals(holdings: Optional[List[Dict]] = None) -> Dict:
+    """
+    Check current holdings for sell signals (stop-loss, technical breakdown, fundamentals).
+
+    Args:
+        holdings: Optional list of holdings with format:
+                  [{"symbol": "AAPL", "entry_price": 150, "entry_date": "2024-01-01", "shares": 10}]
+                  If omitted, reads from data/inputs/my_stocks.csv
+
+    Returns:
+        List of sell recommendations with signal reasons, current price, gain/loss,
+        recommendation (SELL/HOLD), and priority (HIGH/MEDIUM/LOW)
+
+    Signals detected:
+        - Stop-loss: >12% drop from entry
+        - Trailing stop: ATR-based (20-day high - 3×ATR)
+        - Technical breakdown: Death cross + RSI<30 + MACD bearish
+        - Fundamental issues: Earnings decline, low ROE, high debt
+    """
+    try:
+        async with httpx.AsyncClient(timeout=60.0) as client:
+            payload = {"holdings": holdings} if holdings else {}
+            response = await client.post(
+                f"{STOCK_SCREENER_URL}/check_sells/",
+                json=payload
+            )
+            response.raise_for_status()
+            return response.json()
+    except httpx.ConnectError:
+        return {"error": "Stock screener API is not running. Start it with: cd /media/starscream/wheeljack1/projects/stock-screener && source .venv/bin/activate && python app.py --port 5004"}
+    except Exception as e:
+        return {"error": f"Failed to check sell signals: {str(e)}"}
+
+
+@mcp.tool()
+async def get_watchlist() -> Dict:
+    """
+    Get current stock watchlist symbols.
+
+    Returns:
+        Dictionary with "symbols" list of ticker symbols
+    """
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            response = await client.get(f"{STOCK_SCREENER_URL}/watchlist/")
+            response.raise_for_status()
+            return response.json()
+    except httpx.ConnectError:
+        return {"error": "Stock screener API is not running. Start it with: cd /media/starscream/wheeljack1/projects/stock-screener && source .venv/bin/activate && python app.py --port 5004"}
+    except Exception as e:
+        return {"error": f"Failed to get watchlist: {str(e)}"}
 
 
 if __name__ == "__main__":
