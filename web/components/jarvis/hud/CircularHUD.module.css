@@ -13,6 +13,10 @@
 .svg {
   width: 100%;
   height: 100%;
+  /* Ensure crisp, high-quality rendering */
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+  shape-rendering: geometricPrecision;
 }
 
 /* Core Animations */

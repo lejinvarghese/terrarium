@@ -7,13 +7,13 @@ export default function HolographicOverlay() {
     <div className={styles.container}>
       {/* Grid Pattern */}
       <div className={styles.grid}>
-        <svg width="100%" height="100%">
+        <svg width="100%" height="100%" shapeRendering="crispEdges">
           <defs>
             <pattern id="grid" width="50" height="50" patternUnits="userSpaceOnUse">
               <path
                 d="M 50 0 L 0 0 0 50"
                 fill="none"
-                stroke="rgba(0, 240, 255, 0.15)"
+                stroke="rgba(235, 250, 29, 0.15)"
                 strokeWidth="0.5"
               />
             </pattern>
@@ -34,10 +34,10 @@ export default function HolographicOverlay() {
 
       {/* Corner Grids */}
       <div className={styles.cornerGrid} style={{ top: 0, left: 0 }}>
-        <svg width="200" height="200" viewBox="0 0 200 200">
+        <svg width="200" height="200" viewBox="0 0 200 200" shapeRendering="crispEdges">
           <defs>
             <pattern id="cornerGridTL" width="20" height="20" patternUnits="userSpaceOnUse">
-              <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#00F0FF" strokeWidth="0.5" opacity="0.3" />
+              <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#00FF88" strokeWidth="0.5" opacity="0.3" />
             </pattern>
           </defs>
           <rect width="200" height="200" fill="url(#cornerGridTL)" />
@@ -45,10 +45,10 @@ export default function HolographicOverlay() {
       </div>
 
       <div className={styles.cornerGrid} style={{ top: 0, right: 0 }}>
-        <svg width="200" height="200" viewBox="0 0 200 200">
+        <svg width="200" height="200" viewBox="0 0 200 200" shapeRendering="crispEdges">
           <defs>
             <pattern id="cornerGridTR" width="20" height="20" patternUnits="userSpaceOnUse">
-              <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#00F0FF" strokeWidth="0.5" opacity="0.3" />
+              <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#00FF88" strokeWidth="0.5" opacity="0.3" />
             </pattern>
           </defs>
           <rect width="200" height="200" fill="url(#cornerGridTR)" />
@@ -56,10 +56,10 @@ export default function HolographicOverlay() {
       </div>
 
       <div className={styles.cornerGrid} style={{ bottom: 0, left: 0 }}>
-        <svg width="200" height="200" viewBox="0 0 200 200">
+        <svg width="200" height="200" viewBox="0 0 200 200" shapeRendering="crispEdges">
           <defs>
             <pattern id="cornerGridBL" width="20" height="20" patternUnits="userSpaceOnUse">
-              <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#00F0FF" strokeWidth="0.5" opacity="0.3" />
+              <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#00FF88" strokeWidth="0.5" opacity="0.3" />
             </pattern>
           </defs>
           <rect width="200" height="200" fill="url(#cornerGridBL)" />
@@ -67,10 +67,10 @@ export default function HolographicOverlay() {
       </div>
 
       <div className={styles.cornerGrid} style={{ bottom: 0, right: 0 }}>
-        <svg width="200" height="200" viewBox="0 0 200 200">
+        <svg width="200" height="200" viewBox="0 0 200 200" shapeRendering="crispEdges">
           <defs>
             <pattern id="cornerGridBR" width="20" height="20" patternUnits="userSpaceOnUse">
-              <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#00F0FF" strokeWidth="0.5" opacity="0.3" />
+              <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#00FF88" strokeWidth="0.5" opacity="0.3" />
             </pattern>
           </defs>
           <rect width="200" height="200" fill="url(#cornerGridBR)" />

@@ -2,30 +2,30 @@
 /* Inspired by Iron Man's iconic AI assistant */
 
 :root {
-  /* Primary Jarvis Colors - Cyan/Blue Palette */
-  --jarvis-primary: #00F0FF;        /* Bright cyan - main HUD color */
-  --jarvis-secondary: #0084FF;      /* Deep blue - accents */
-  --jarvis-accent: #7DFFFF;         /* Light cyan - highlights */
-  --jarvis-core: #00FFFF;           /* Pure cyan - central core */
+  /* Primary Jarvis Colors - Yellow/Green Palette (matching Terrarium theme) */
+  --jarvis-primary: #EBFA1D;        /* Bright yellow/lime - main HUD color */
+  --jarvis-secondary: #00FF88;      /* Bright green - accents */
+  --jarvis-accent: #00FFF2;         /* Cyan - highlights */
+  --jarvis-core: #EBFA1D;           /* Yellow - central core */
 
   /* Glow Effects */
-  --jarvis-glow: rgba(0, 240, 255, 0.6);
-  --jarvis-glow-strong: rgba(0, 240, 255, 0.9);
-  --jarvis-glow-soft: rgba(0, 240, 255, 0.3);
+  --jarvis-glow: rgba(235, 250, 29, 0.6);
+  --jarvis-glow-strong: rgba(235, 250, 29, 0.9);
+  --jarvis-glow-soft: rgba(235, 250, 29, 0.3);
 
   /* Background Colors */
-  --jarvis-bg-dark: rgba(0, 8, 20, 0.98);     /* Almost black */
-  --jarvis-bg-panel: rgba(0, 20, 40, 0.7);    /* Dark blue panel */
-  --jarvis-bg-glass: rgba(0, 240, 255, 0.08); /* Glass effect */
+  --jarvis-bg-dark: rgba(0, 0, 0, 0.98);        /* Pure black */
+  --jarvis-bg-panel: rgba(20, 20, 0, 0.7);      /* Dark panel */
+  --jarvis-bg-glass: rgba(235, 250, 29, 0.08);  /* Glass effect */
 
   /* Grid & Lines */
-  --jarvis-grid: rgba(0, 240, 255, 0.15);
-  --jarvis-line: rgba(0, 240, 255, 0.4);
+  --jarvis-grid: rgba(235, 250, 29, 0.15);
+  --jarvis-line: rgba(235, 250, 29, 0.4);
 
   /* Text Colors */
   --jarvis-text-primary: #FFFFFF;
-  --jarvis-text-secondary: #B0E0E6;
-  --jarvis-text-dim: #5A8A9A;
+  --jarvis-text-secondary: #EBFA1D;
+  --jarvis-text-dim: #6B7A3D;
 
   /* Spacing */
   --jarvis-space-xs: 4px;
