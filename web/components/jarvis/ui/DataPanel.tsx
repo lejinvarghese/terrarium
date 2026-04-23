@@ -28,17 +28,27 @@ export default function DataPanel({ title, position, isActive }: DataPanelProps)
       return;
     }
 
-    const sampleData: DataItem[] = [
+    const systemStatusData: DataItem[] = [
       { label: 'POWER CORE', value: '99.8%', status: 'success' },
       { label: 'SHIELD STATUS', value: 'ACTIVE', status: 'success' },
       { label: 'REPULSOR CHARGE', value: '100%', status: 'success' },
       { label: 'FLIGHT SYSTEMS', value: 'ONLINE', status: 'success' },
       { label: 'WEAPON SYSTEMS', value: 'STANDBY', status: 'normal' },
-      { label: 'DIAGNOSTICS', value: 'NOMINAL', status: 'success' },
-      { label: 'NEURAL LINK', value: 'CONNECTED', status: 'success' },
       { label: 'AI CORE', value: 'ACTIVE', status: 'success' },
     ];
 
+    const diagnosticsData: DataItem[] = [
+      { label: 'CPU TEMP', value: '42°C', status: 'success' },
+      { label: 'GPU LOAD', value: '34%', status: 'success' },
+      { label: 'NETWORK', value: '1.2 GB/s', status: 'success' },
+      { label: 'DISK I/O', value: 'OPTIMAL', status: 'success' },
+      { label: 'MEMORY', value: '64.3 GB', status: 'success' },
+      { label: 'UPTIME', value: '127 DAYS', status: 'success' },
+      { label: 'PROCESSES', value: '342', status: 'normal' },
+      { label: 'CONNECTIONS', value: '28', status: 'normal' },
+    ];
+
+    const sampleData = title === 'SYSTEM STATUS' ? systemStatusData : diagnosticsData;
     setData(sampleData);
 
     // Randomly update values
