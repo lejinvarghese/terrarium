@@ -1,0 +1,63 @@
+/* Jarvis Interface - CSS Variables */
+/* Inspired by Iron Man's iconic AI assistant */
+
+:root {
+  /* Primary Jarvis Colors - Cyan/Blue Palette */
+  --jarvis-primary: #00F0FF;        /* Bright cyan - main HUD color */
+  --jarvis-secondary: #0084FF;      /* Deep blue - accents */
+  --jarvis-accent: #7DFFFF;         /* Light cyan - highlights */
+  --jarvis-core: #00FFFF;           /* Pure cyan - central core */
+
+  /* Glow Effects */
+  --jarvis-glow: rgba(0, 240, 255, 0.6);
+  --jarvis-glow-strong: rgba(0, 240, 255, 0.9);
+  --jarvis-glow-soft: rgba(0, 240, 255, 0.3);
+
+  /* Background Colors */
+  --jarvis-bg-dark: rgba(0, 8, 20, 0.98);     /* Almost black */
+  --jarvis-bg-panel: rgba(0, 20, 40, 0.7);    /* Dark blue panel */
+  --jarvis-bg-glass: rgba(0, 240, 255, 0.08); /* Glass effect */
+
+  /* Grid & Lines */
+  --jarvis-grid: rgba(0, 240, 255, 0.15);
+  --jarvis-line: rgba(0, 240, 255, 0.4);
+
+  /* Text Colors */
+  --jarvis-text-primary: #FFFFFF;
+  --jarvis-text-secondary: #B0E0E6;
+  --jarvis-text-dim: #5A8A9A;
+
+  /* Spacing */
+  --jarvis-space-xs: 4px;
+  --jarvis-space-sm: 8px;
+  --jarvis-space-md: 16px;
+  --jarvis-space-lg: 24px;
+  --jarvis-space-xl: 32px;
+
+  /* Border Radius */
+  --jarvis-radius-sm: 2px;
+  --jarvis-radius-md: 4px;
+  --jarvis-radius-lg: 8px;
+  --jarvis-radius-circle: 50%;
+
+  /* Transitions */
+  --jarvis-transition-fast: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  --jarvis-transition-normal: 400ms cubic-bezier(0.4, 0, 0.2, 1);
+  --jarvis-transition-slow: 600ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Z-Index Layers */
+  --jarvis-z-background: 1;
+  --jarvis-z-particles: 2;
+  --jarvis-z-grid: 3;
+  --jarvis-z-hud: 10;
+  --jarvis-z-overlay: 20;
+  --jarvis-z-controls: 30;
+
+  /* Glow Shadows */
+  --jarvis-shadow-sm: 0 0 10px var(--jarvis-glow-soft);
+  --jarvis-shadow-md: 0 0 20px var(--jarvis-glow);
+  --jarvis-shadow-lg: 0 0 40px var(--jarvis-glow-strong);
+  --jarvis-shadow-core: 0 0 60px var(--jarvis-glow-strong),
+                        0 0 100px var(--jarvis-glow),
+                        0 0 150px var(--jarvis-glow-soft);
+}

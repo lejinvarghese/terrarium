@@ -1,0 +1,23 @@
+.container {
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background: var(--jarvis-bg-dark);
+  position: relative;
+}
+
+.loading {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 24px;
+  color: var(--jarvis-primary);
+  text-shadow: var(--jarvis-shadow-md);
+  letter-spacing: 4px;
+  animation: jarvis-pulse 1.5s ease-in-out infinite;
+}
