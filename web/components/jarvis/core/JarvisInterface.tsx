@@ -63,7 +63,8 @@ export default function JarvisInterface() {
     const handleKeyPress = (e: KeyboardEvent) => {
       if (e.key === ' ') {
         e.preventDefault();
-        handleActivate();
+        setIsActive(prev => !prev);
+        setState(prev => prev === 'idle' ? 'listening' : 'idle');
       }
       if (e.key === 'f' || e.key === 'F') {
         handleFullscreen();
@@ -72,7 +73,7 @@ export default function JarvisInterface() {
 
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
-  }, [isActive]);
+  }, []);
 
   console.log('JarvisInterface render - isActive:', isActive);
 
