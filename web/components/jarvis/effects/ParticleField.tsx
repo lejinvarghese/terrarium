@@ -65,7 +65,7 @@ function Particles({ isActive }: ParticlesProps) {
     <Points ref={ref} positions={particles} stride={3} frustumCulled={false}>
       <PointMaterial
         transparent
-        color="#00F0FF"
+        color="#EBFA1D"
         size={0.08}
         sizeAttenuation={true}
         depthWrite={false}
@@ -85,7 +85,12 @@ export default function ParticleField({ isActive }: ParticleFieldProps) {
     <div className={styles.container}>
       <Canvas
         camera={{ position: [0, 0, 10], fov: 75 }}
-        gl={{ alpha: true, antialias: true }}
+        gl={{
+          alpha: true,
+          antialias: true,
+          powerPreference: 'high-performance',
+        }}
+        dpr={[1, 2]}
       >
         <ambientLight intensity={0.5} />
         <Particles isActive={isActive} />

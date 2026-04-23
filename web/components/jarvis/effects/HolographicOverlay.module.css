@@ -38,8 +38,9 @@
     var(--jarvis-primary),
     transparent
   );
-  box-shadow: 0 0 20px var(--jarvis-glow);
+  box-shadow: 0 0 20px var(--jarvis-glow), 0 0 40px var(--jarvis-glow-soft);
   animation: jarvis-scan 6s linear infinite;
+  will-change: transform;
 }
 
 /* Glass Effect */
