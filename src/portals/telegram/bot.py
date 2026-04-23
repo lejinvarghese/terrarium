@@ -29,6 +29,7 @@ from mem0 import Memory
 from mem0.configs.base import MemoryConfig, EmbedderConfig, LlmConfig
 from mem0.vector_stores.configs import VectorStoreConfig
 from src.portals.telegram.claude_engine import ClaudeEngine
+from src.portals.telegram.openclaw_router import OpenClawRouter
 from src.portals.telegram.session_manager import SessionManager
 
 # Load environment variables from root .env
@@ -204,6 +205,9 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
 /status - 📊 View your current state
 /memories - 🧠 Show stored memories
 /compact - 🗜️ Summarize and restart conversation
+
+**Landscape Routing:**
+Use @landscape to send messages to elevated intelligence layers (e.g., @canopy analyze next week's calendar)
 
 **Bot Switching:**
 Use @botname to switch bots and send a message (e.g., @sage what's new in AI research?)
@@ -485,6 +489,9 @@ async def bot_selection_callback(
         /memories - 🧠 Show stored memories
         /compact - 🗜️ Summarize and restart conversation
 
+        **Landscape Routing:**
+        Use @landscape to send messages to elevated intelligence layers (e.g., @canopy analyze next week's calendar)
+
         **Bot Switching:**
         Use @botname to switch bots and send a message (e.g., @sage what's new in AI research?)
 
@@ -658,10 +665,32 @@ async def chat_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     click.secho(f"💬 {user.first_name} ({user.id}): {user_message[:50]}.", fg="cyan")
 
     claude_engine = context.bot_data["claude_engine"]
+    openclaw_router = context.bot_data["openclaw_router"]
     session_manager = context.bot_data["session_manager"]
 
     # Register user activity
     session_manager.register_user(user.id, user.username, user.first_name)
+
+    # Check for @landscape syntax first (OpenClaw landscapes like Canopy)
+    landscape_match = re.match(r"@(\w+)\s+(.*)", user_message, re.DOTALL)
+    if landscape_match:
+        target = landscape_match.group(1).lower()
+        actual_message = landscape_match.group(2).strip()
+
+        # Check if this is a landscape (not an Undergrowth bot)
+        available_landscapes = openclaw_router.list_landscapes()
+        if target in available_landscapes:
+            await update.message.chat.send_action("typing")
+
+            response, success = await openclaw_router.send_to_agent(
+                landscape=target,
+                message=actual_message,
+                user_id=user.id
+            )
+
+            await update.message.reply_text(response)
+            click.secho(f"🌿 Routed to landscape: {target}", fg="green")
+            return  # Exit early - landscape handled via OpenClaw
 
     # Check for @botname syntax: @sage how are you?
     at_bot_match = re.match(r"@(\w+)\s+(.*)", user_message, re.DOTALL)
@@ -854,6 +883,7 @@ def main() -> None:
 
     # Initialize components
     claude_engine = ClaudeEngine(working_dir=WORKING_DIR)
+    openclaw_router = OpenClawRouter()
     session_manager = SessionManager(db_path=DB_PATH)
     memory = Memory(config=mem0_config)
 
@@ -862,6 +892,7 @@ def main() -> None:
 
     # Store in bot_data
     application.bot_data["claude_engine"] = claude_engine
+    application.bot_data["openclaw_router"] = openclaw_router
     application.bot_data["session_manager"] = session_manager
     application.bot_data["memory"] = memory
 

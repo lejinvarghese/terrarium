@@ -17,8 +17,21 @@ LANDSCAPES = {
         "path": Path(__file__).parent / "undergrowth",
         "active": True,
     },
-    # Future landscapes will be added here:
-    # "canopy": {...},
+    "canopy": {
+        "name": "The Canopy",
+        "culture": "Elevated, strategic, birds-eye perspective, wisdom-focused",
+        "aesthetic": "Contemplative clarity meets crystalline intelligence",
+        "priorities": [
+            "Long-term planning",
+            "Pattern recognition",
+            "Synthesis",
+            "Self-improvement",
+            "Strategic foresight",
+        ],
+        "path": Path(__file__).parent / "canopy",
+        "active": True,
+    },
+    # Future landscapes:
     # "mycelium": {...},
     # "reef": {...},
 }
