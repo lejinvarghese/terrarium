@@ -74,13 +74,15 @@ export default function JarvisInterface() {
     return () => window.removeEventListener('keydown', handleKeyPress);
   }, [isActive]);
 
+  console.log('JarvisInterface render - isActive:', isActive);
+
   return (
     <div className={styles.interface}>
       {/* 3D Particle Background */}
-      <ParticleField isActive={isActive} />
+      {/* <ParticleField isActive={isActive} /> */}
 
       {/* Holographic Grid Overlay */}
-      <HolographicOverlay />
+      {/* <HolographicOverlay /> */}
 
       {/* Main HUD Container */}
       <div className={styles.hudContainer}>
