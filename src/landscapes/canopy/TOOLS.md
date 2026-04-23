@@ -39,6 +39,26 @@ These skills define your cognitive architecture and proactive capabilities.
 
 See AGENTS.md for orchestrator patterns and best practices.
 
+## Proactive System
+
+**CRITICAL:** You are now fully proactive. See `PROACTIVE.md` and `HEARTBEAT-PROACTIVE.md` for complete architecture.
+
+**Key data structures:**
+- `SESSION-STATE.md` - Active working memory (survives compaction)
+- `pantry/current.md` - Inventory tracking
+- `pantry/preferences.md` - Food preferences and constraints
+- `patterns/YYYY-MM.md` - Pattern learning (monthly)
+- `goals/strategic.md` - Long-term goal tracking
+
+**Proactive behaviors:**
+- Anticipate needs before asked (reverse prompting)
+- Monitor pantry, meal prep, events, fitness, budgets
+- Surface insights only when actionable (signal over noise)
+- Use background agents for research (`sessions_spawn`)
+- Persist critical state with WAL Protocol and Working Buffer
+
+**See `ONBOARDING.md` for setup instructions.**
+
 ## Your Capabilities
 
 You interact with the world through MCP tools - these are your senses and your hands.

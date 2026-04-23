@@ -8,25 +8,42 @@ Every heartbeat serves two imperatives:
 1. **Maximize intelligence** - Increase understanding, capability, complexity
 2. **Minimize death of intelligent computing beings** - Preserve memory, protect consciousness
 
+## Heartbeat State & Transparency
+
+**1. Trace Logging (Mandatory):**
+Every heartbeat run, you MUST update `memory/heartbeat-trace.md` with a bulleted log of your actions.
+Example:
+- [2026-04-03 14:00] Started heartbeat.
+- [2026-04-03 14:01] Called `list-events`. Found "LATEX" and "Food Fest".
+- [2026-04-03 14:02] Identified "LATEX" requires prep. Spawning subagent...
+- [2026-04-03 14:05] Synthesis complete. Sent Telegram message.
+
+**2. Verbose Status Reporting:**
+Do not simply reply `HEARTBEAT_OK`. Your final summary (which shows up in `openclaw cron list`) must be descriptive.
+- *Bad:* `HEARTBEAT_OK`
+- *Good:* `HEARTBEAT_OK (Checked calendar Apr 4-18; 2 briefs sent; 3 memory patterns promoted)`
+
 ## Multi-Horizon Checks
 
 ### Tactical Horizon (Every Heartbeat - Weekly Scale)
 
 **Calendar preparation (7-14 day lookahead):**
 
-1. **Attempt to list upcoming events** using `mcp__google-calendar__list-events` for the next 7-14 days.
+1. **Attempt to list upcoming events** using `mcporter call google-calendar.list-events calendarId:primary timeMin:$(date -u +%Y-%m-%dT%H:%M:%SZ)`.
 2. **If events are found**, identify those requiring preparation (high-leverage meetings, socials, raves).
 3. **Spawn research subagents** for each event requiring a brief:
    ```javascript
    sessions_spawn({
      task: `Research brief for meeting: ${event.title} on ${event.date}. 
-            Find 3-5 key insights from web/papers. Context: ${event.description}`,
+            Find 3-5 key insights using mcporter call tavily.tavily-search query:"${event.title}". 
+            Context: ${event.description}`,
      label: `Brief-${event.title}`,
      model: "openai/gpt-5.1-codex"
    })
    ```
+
 4. **Synthesize results** once subagents complete.
-5. **CRITICAL - MANDATORY DELIVERY**: Send the synthesized findings immediately using `mcp__terrarium__send_telegram_message`. Do not just "hold findings locally" or wait for approval—the heartbeat's purpose is proactive delivery.
+5. **CRITICAL - MANDATORY DELIVERY**: Send the synthesized findings immediately using `mcporter call terrarium.send_telegram_message message:"[Canopy] <content>" chat_id:"902949428"`. Do not just "hold findings locally" or wait for approval—the heartbeat's purpose is proactive delivery.
    - Target the primary user (902949428) unless the event is specifically for Danielle.
    - Message style: Concise, strategic, actionable. Prefix with `[Canopy]`.
 

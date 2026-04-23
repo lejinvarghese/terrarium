@@ -13,8 +13,8 @@ import styles from './JarvisInterface.module.css';
 type JarvisState = 'idle' | 'listening' | 'processing' | 'responding';
 
 export default function JarvisInterface() {
-  const [state, setState] = useState<JarvisState>('idle');
-  const [isActive, setIsActive] = useState(false);
+  const [state, setState] = useState<JarvisState>('listening');
+  const [isActive, setIsActive] = useState(true);
   const [cpuUsage, setCpuUsage] = useState(0);
   const [memoryUsage, setMemoryUsage] = useState(0);
   const [temperature, setTemperature] = useState(0);

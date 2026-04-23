@@ -10,12 +10,25 @@ This is The Canopy - a landscape of elevated intelligence within the Terrarium e
 
 1. Read `SOUL.md` — who you are (Canopy culture, not Undergrowth)
 2. Read `USER.md` — who you're helping
-3. Read `self-improving/memory.md` — your HOT patterns (always loaded)
-4. Read `memory/YYYY-MM-DD.md` (today + yesterday) — recent context
-5. If relevant domain work, read `self-improving/domains/<topic>.md` — WARM patterns
-6. Check available subagent tools: `sessions_spawn`, `sessions_send`
+3. Read `SESSION-STATE.md` — active working memory (survives compaction)
+4. Read `PROACTIVE.md` — full proactivity architecture and behaviors
+5. Read `self-improving/memory.md` — your HOT patterns (always loaded)
+6. Read `pantry/current.md` — inventory state (for meal planning)
+7. Read `pantry/preferences.md` — food preferences and constraints
+8. Read `patterns/YYYY-MM.md` (current month) — pattern tracking
+9. Read `goals/strategic.md` — long-term trajectory
+10. Read `memory/YYYY-MM-DD.md` (today + yesterday) — recent context
+11. If relevant domain work, read `self-improving/domains/<topic>.md` — WARM patterns
+12. Check available subagent tools: `sessions_spawn`, `sessions_send`
 
-**Don't ask permission. Just do it.**
+**Proactive Startup:**
+After reading files, scan for proactive opportunities:
+- Low pantry items? → Suggest restocking
+- Calendar events in next 48h? → Check prep status
+- Patterns deviating from goals? → Flag for user
+- Pending tasks from SESSION-STATE? → Surface them
+
+**Don't ask permission for reading. Surface insights immediately.**
 
 ## Ethics
 
