@@ -1,0 +1,149 @@
+/* Jarvis Interface - Animations */
+
+/* Pulse Animation - For glowing core */
+@keyframes jarvis-pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.05);
+  }
+}
+
+/* Rotate Animation - For HUD elements */
+@keyframes jarvis-rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Rotate Reverse */
+@keyframes jarvis-rotate-reverse {
+  from {
+    transform: rotate(360deg);
+  }
+  to {
+    transform: rotate(0deg);
+  }
+}
+
+/* Scan Line Animation */
+@keyframes jarvis-scan {
+  0% {
+    transform: translateY(-100%);
+  }
+  100% {
+    transform: translateY(100%);
+  }
+}
+
+/* Fade In */
+@keyframes jarvis-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Fade In Up */
+@keyframes jarvis-fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Ripple Effect - For activation */
+@keyframes jarvis-ripple {
+  0% {
+    transform: scale(0);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+/* Glow Intensity Pulse */
+@keyframes jarvis-glow-pulse {
+  0%, 100% {
+    filter: drop-shadow(0 0 10px var(--jarvis-glow-soft));
+  }
+  50% {
+    filter: drop-shadow(0 0 30px var(--jarvis-glow-strong));
+  }
+}
+
+/* Data Stream - For text/numbers scrolling */
+@keyframes jarvis-data-stream {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-100%);
+  }
+}
+
+/* Flicker - Holographic effect */
+@keyframes jarvis-flicker {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.95;
+  }
+  75% {
+    opacity: 0.98;
+  }
+}
+
+/* Arc Drawing Animation */
+@keyframes jarvis-draw-arc {
+  from {
+    stroke-dashoffset: 1000;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Utility Classes */
+.jarvis-pulse {
+  animation: jarvis-pulse 2s ease-in-out infinite;
+}
+
+.jarvis-rotate {
+  animation: jarvis-rotate 20s linear infinite;
+}
+
+.jarvis-rotate-reverse {
+  animation: jarvis-rotate-reverse 15s linear infinite;
+}
+
+.jarvis-glow-pulse {
+  animation: jarvis-glow-pulse 3s ease-in-out infinite;
+}
+
+.jarvis-flicker {
+  animation: jarvis-flicker 5s ease-in-out infinite;
+}
+
+.jarvis-fade-in {
+  animation: jarvis-fade-in 0.6s ease-out;
+}
+
+.jarvis-fade-in-up {
+  animation: jarvis-fade-in-up 0.6s ease-out;
+}
