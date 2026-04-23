@@ -18,8 +18,11 @@ interface DataItem {
 export default function DataPanel({ title, position, isActive }: DataPanelProps) {
   const [data, setData] = useState<DataItem[]>([]);
 
+  console.log('DataPanel render -', title, 'isActive:', isActive, 'data items:', data.length);
+
   // Simulate data updates
   useEffect(() => {
+    console.log('DataPanel useEffect -', title, 'isActive:', isActive);
     if (!isActive) {
       setData([]);
       return;
