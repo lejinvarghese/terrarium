@@ -81,3 +81,70 @@
   letter-spacing: 2px;
   text-align: right;
 }
+
+/* New HUD Elements */
+.targetingReticle {
+  position: absolute;
+  top: 5%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: var(--jarvis-z-hud);
+  opacity: 0;
+  animation: jarvis-fade-in 1s ease-out 0.5s forwards;
+}
+
+.radar {
+  position: absolute;
+  bottom: 80px;
+  left: 40px;
+  z-index: var(--jarvis-z-hud);
+  opacity: 0;
+  animation: jarvis-fade-in 1s ease-out 0.7s forwards;
+}
+
+.gauges {
+  position: absolute;
+  bottom: 80px;
+  right: 40px;
+  display: flex;
+  gap: 20px;
+  z-index: var(--jarvis-z-hud);
+  opacity: 0;
+  animation: jarvis-fade-in 1s ease-out 0.9s forwards;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1400px) {
+  .targetingReticle {
+    transform: translateX(-50%) scale(0.8);
+  }
+
+  .radar {
+    bottom: 60px;
+    left: 20px;
+    transform: scale(0.8);
+  }
+
+  .gauges {
+    bottom: 60px;
+    right: 20px;
+    gap: 10px;
+    transform: scale(0.8);
+  }
+}
+
+@media (max-width: 900px) {
+  .targetingReticle {
+    transform: translateX(-50%) scale(0.6);
+  }
+
+  .radar {
+    display: none;
+  }
+
+  .gauges {
+    flex-direction: column;
+    gap: 5px;
+    transform: scale(0.6);
+  }
+}
