@@ -4,6 +4,10 @@
   position: relative;
   overflow: hidden;
   background: var(--jarvis-bg-dark);
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .hudContainer {
@@ -60,7 +64,7 @@
 .activationButton.active {
   background: var(--jarvis-primary);
   color: var(--jarvis-bg-dark);
-  box-shadow: var(--jarvis-shadow-core);
+  box-shadow: 0 0 15px rgba(235, 250, 29, 0.4);
 }
 
 .controls {

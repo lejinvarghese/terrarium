@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useMemo } from 'react';
+import { useRef, useMemo, useState, useEffect } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Points, PointMaterial } from '@react-three/drei';
 import * as THREE from 'three';
@@ -15,7 +15,7 @@ function Particles({ isActive }: ParticlesProps) {
 
   // Generate random particle positions
   const particles = useMemo(() => {
-    const count = 2000;
+    const count = 400; // Reduced for better performance
     const positions = new Float32Array(count * 3);
 
     for (let i = 0; i < count; i++) {
@@ -81,16 +81,37 @@ interface ParticleFieldProps {
 }
 
 export default function ParticleField({ isActive }: ParticleFieldProps) {
+  const [hasWebGL, setHasWebGL] = useState(true);
+
+  useEffect(() => {
+    // Check for WebGL support on client side
+    try {
+      const canvas = document.createElement('canvas');
+      const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+      if (!gl) {
+        console.warn('WebGL not supported, ParticleField disabled');
+        setHasWebGL(false);
+      }
+    } catch (e) {
+      console.warn('WebGL check failed:', e);
+      setHasWebGL(false);
+    }
+  }, []);
+
+  if (!hasWebGL) return null;
+
   return (
     <div className={styles.container}>
       <Canvas
         camera={{ position: [0, 0, 10], fov: 75 }}
         gl={{
           alpha: true,
-          antialias: true,
+          antialias: false, // Disable for better performance
           powerPreference: 'high-performance',
+          failIfMajorPerformanceCaveat: false,
         }}
-        dpr={[1, 2]}
+        dpr={Math.min(window.devicePixelRatio || 1, 2)} // Cap at 2x for performance
+        performance={{ min: 0.5 }} // Allow degradation for performance
       >
         <ambientLight intensity={0.5} />
         <Particles isActive={isActive} />
