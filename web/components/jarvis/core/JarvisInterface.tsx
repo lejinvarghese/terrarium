@@ -8,6 +8,7 @@ import TargetingReticle from '../hud/TargetingReticle';
 import DataPanel from '../ui/DataPanel';
 import ParticleField from '../effects/ParticleField';
 import HolographicOverlay from '../effects/HolographicOverlay';
+import { useSystemMetrics } from '@/hooks/jarvis/useSystemMetrics';
 import styles from './JarvisInterface.module.css';
 
 type JarvisState = 'idle' | 'listening' | 'processing' | 'responding';
@@ -15,33 +16,9 @@ type JarvisState = 'idle' | 'listening' | 'processing' | 'responding';
 export default function JarvisInterface() {
   const [state, setState] = useState<JarvisState>('listening');
   const [isActive, setIsActive] = useState(true);
-  const [cpuUsage, setCpuUsage] = useState(0);
-  const [memoryUsage, setMemoryUsage] = useState(0);
-  const [temperature, setTemperature] = useState(0);
 
-  // Simulate system metrics
-  useEffect(() => {
-    if (!isActive) {
-      setCpuUsage(0);
-      setMemoryUsage(0);
-      setTemperature(0);
-      return;
-    }
-
-    // Initial values
-    setCpuUsage(Math.random() * 30 + 20);
-    setMemoryUsage(Math.random() * 40 + 30);
-    setTemperature(Math.random() * 10 + 35);
-
-    // Update periodically
-    const interval = setInterval(() => {
-      setCpuUsage((prev) => Math.min(100, Math.max(0, prev + (Math.random() - 0.5) * 10)));
-      setMemoryUsage((prev) => Math.min(100, Math.max(0, prev + (Math.random() - 0.5) * 5)));
-      setTemperature((prev) => Math.min(100, Math.max(20, prev + (Math.random() - 0.5) * 2)));
-    }, 2000);
-
-    return () => clearInterval(interval);
-  }, [isActive]);
+  // Fetch real system metrics
+  const { metrics } = useSystemMetrics(isActive);
 
   // Activation handler (will be replaced with voice activation later)
   const handleActivate = () => {
@@ -75,20 +52,24 @@ export default function JarvisInterface() {
     return () => window.removeEventListener('keydown', handleKeyPress);
   }, []);
 
-  console.log('JarvisInterface render - isActive:', isActive);
-
   return (
     <div className={styles.interface}>
       {/* 3D Particle Background */}
-      {/* <ParticleField isActive={isActive} /> */}
+      <ParticleField isActive={isActive} />
 
-      {/* Holographic Grid Overlay */}
+      {/* Holographic Grid Overlay - Disabled for performance */}
       {/* <HolographicOverlay /> */}
 
       {/* Main HUD Container */}
       <div className={styles.hudContainer}>
         {/* Central Circular HUD */}
-        <CircularHUD state={state} isActive={isActive} />
+        <CircularHUD
+          state={state}
+          isActive={isActive}
+          cpuUsage={metrics.cpu}
+          memoryUsage={metrics.memory}
+          temperature={metrics.temperature}
+        />
 
         {/* Targeting Reticle - Top Center */}
         <div className={styles.targetingReticle}>
@@ -104,7 +85,7 @@ export default function JarvisInterface() {
         <div className={styles.gauges}>
           <CircularGauge
             label="CPU"
-            value={cpuUsage}
+            value={metrics.cpu}
             max={100}
             unit="%"
             color="yellow"
@@ -112,7 +93,7 @@ export default function JarvisInterface() {
           />
           <CircularGauge
             label="MEMORY"
-            value={memoryUsage}
+            value={metrics.memory}
             max={100}
             unit="%"
             color="green"
@@ -120,7 +101,7 @@ export default function JarvisInterface() {
           />
           <CircularGauge
             label="TEMP"
-            value={temperature}
+            value={metrics.temperature}
             max={100}
             unit="°C"
             color="cyan"
@@ -136,9 +117,9 @@ export default function JarvisInterface() {
         <div className={styles.statusDisplay}>
           <div className={styles.statusText}>
             {state === 'idle' && 'STANDBY'}
-            {state === 'listening' && 'LISTENING...'}
-            {state === 'processing' && 'PROCESSING...'}
-            {state === 'responding' && 'JARVIS ONLINE'}
+            {state === 'listening' && 'LISTENING'}
+            {state === 'processing' && 'PROCESSING'}
+            {state === 'responding' && 'ONLINE'}
           </div>
         </div>
 
@@ -147,7 +128,7 @@ export default function JarvisInterface() {
           className={`${styles.activationButton} ${isActive ? styles.active : ''}`}
           onClick={handleActivate}
         >
-          {isActive ? 'DEACTIVATE' : 'ACTIVATE JARVIS'}
+          {isActive ? 'DEACTIVATE' : 'ACTIVATE'}
         </button>
 
         {/* Controls Help */}

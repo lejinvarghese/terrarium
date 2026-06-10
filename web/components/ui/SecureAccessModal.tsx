@@ -11,6 +11,7 @@ interface SecureAccessModalProps {
   targetUrl: string;
   title?: string;
   validCodes?: string[];
+  onAuthenticated?: () => void;
 }
 
 // Default access codes - can be overridden via props or environment
@@ -27,7 +28,8 @@ export default function SecureAccessModal({
   onClose,
   targetUrl,
   title = 'ACCESS REQUIRED',
-  validCodes = DEFAULT_ACCESS_CODES
+  validCodes = DEFAULT_ACCESS_CODES,
+  onAuthenticated
 }: SecureAccessModalProps) {
   const [accessCode, setAccessCode] = useState('');
   const [error, setError] = useState('');
@@ -57,11 +59,15 @@ export default function SecureAccessModal({
     await new Promise(resolve => setTimeout(resolve, 600));
 
     if (validateAccessCode(accessCode, validCodes)) {
-      // Success - set shared cookie for all subdomains
-      document.cookie = `terrarium_auth=valid; path=/; domain=.${window.location.hostname}; max-age=86400; SameSite=Lax`;
+      // Success - set cookie
+      document.cookie = `terrarium_auth=valid; path=/; max-age=86400; SameSite=Lax`;
 
-      // Redirect
-      router.push(targetUrl);
+      // Call onAuthenticated callback if provided, otherwise redirect
+      if (onAuthenticated) {
+        onAuthenticated();
+      } else {
+        router.push(targetUrl);
+      }
       onClose();
     } else {
       setError('INVALID ACCESS CODE');

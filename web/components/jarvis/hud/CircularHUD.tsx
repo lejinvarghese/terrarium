@@ -6,9 +6,12 @@ import styles from './CircularHUD.module.css';
 interface CircularHUDProps {
   state: 'idle' | 'listening' | 'processing' | 'responding';
   isActive: boolean;
+  cpuUsage?: number;
+  memoryUsage?: number;
+  temperature?: number;
 }
 
-export default function CircularHUD({ state, isActive }: CircularHUDProps) {
+export default function CircularHUD({ state, isActive, cpuUsage = 0, memoryUsage = 0, temperature = 0 }: CircularHUDProps) {
   const coreRef = useRef<SVGCircleElement>(null);
 
   useEffect(() => {
@@ -21,6 +24,30 @@ export default function CircularHUD({ state, isActive }: CircularHUDProps) {
     }
   }, [isActive]);
 
+  // Calculate circle progress (percentage to arc length)
+  const getArcLength = (radius: number, percentage: number) => {
+    const circumference = 2 * Math.PI * radius;
+    return circumference * (percentage / 100);
+  };
+
+  const getStrokeDasharray = (radius: number, percentage: number) => {
+    const circumference = 2 * Math.PI * radius;
+    const filled = getArcLength(radius, percentage);
+    return `${filled} ${circumference - filled}`;
+  };
+
+  // Color based on value
+  const getMetricColor = (value: number, type: 'cpu' | 'memory' | 'temp') => {
+    if (type === 'temp') {
+      if (value > 80) return '#FF4444';
+      if (value > 70) return '#FFB800';
+      return '#00FF88';
+    }
+    if (value > 80) return '#FF4444';
+    if (value > 60) return '#FFB800';
+    return '#00FF88';
+  };
+
   return (
     <div className={styles.container}>
       <svg
@@ -31,13 +58,14 @@ export default function CircularHUD({ state, isActive }: CircularHUDProps) {
       >
         {/* Glowing Core */}
         <defs>
-          {/* Core Glow Filter */}
-          <filter id="coreGlow" x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur stdDeviation="25" result="blur" />
-            <feFlood floodColor="#EBFA1D" floodOpacity="0.8" />
-            <feComposite in2="blur" operator="in" />
+          {/* Core Glow Filter - Enhanced */}
+          <filter id="coreGlow" x="-100%" y="-100%" width="300%" height="300%">
+            <feGaussianBlur stdDeviation="40" result="blur" />
+            <feFlood floodColor="#EBFA1D" floodOpacity="1" />
+            <feComposite in2="blur" operator="in" result="glow" />
             <feMerge>
-              <feMergeNode />
+              <feMergeNode in="glow" />
+              <feMergeNode in="glow" />
               <feMergeNode in="SourceGraphic" />
             </feMerge>
           </filter>
@@ -84,59 +112,95 @@ export default function CircularHUD({ state, isActive }: CircularHUDProps) {
           className={styles.corePulse}
         />
 
-        {/* Ring 1 - Innermost rotating ring */}
+        {/* Ring 1 - CPU Usage */}
         <circle
           cx="1000"
           cy="1000"
           r="200"
           fill="none"
-          stroke="#EBFA1D"
-          strokeWidth="3"
-          opacity="0.7"
+          stroke="rgba(235, 250, 29, 0.2)"
+          strokeWidth="8"
+          opacity="0.3"
+        />
+        <circle
+          cx="1000"
+          cy="1000"
+          r="200"
+          fill="none"
+          stroke={getMetricColor(cpuUsage, 'cpu')}
+          strokeWidth="8"
+          opacity="0.9"
           filter="url(#ringGlow)"
-          className={styles.ring1}
-          strokeDasharray="25 12"
+          strokeDasharray={getStrokeDasharray(200, cpuUsage)}
+          strokeDashoffset={2 * Math.PI * 200 * 0.25}
+          strokeLinecap="round"
+          transform="rotate(-90 1000 1000)"
+          style={{ transition: 'stroke-dasharray 0.5s ease' }}
         />
 
-        {/* Ring 2 - Second ring with segments */}
+        {/* Ring 2 - Memory Usage */}
         <circle
           cx="1000"
           cy="1000"
           r="300"
           fill="none"
-          stroke="#00FF88"
-          strokeWidth="4"
-          opacity="0.6"
+          stroke="rgba(0, 255, 136, 0.2)"
+          strokeWidth="8"
+          opacity="0.3"
+        />
+        <circle
+          cx="1000"
+          cy="1000"
+          r="300"
+          fill="none"
+          stroke={getMetricColor(memoryUsage, 'memory')}
+          strokeWidth="8"
+          opacity="0.9"
           filter="url(#ringGlow)"
-          className={styles.ring2}
-          strokeDasharray="50 25"
+          strokeDasharray={getStrokeDasharray(300, memoryUsage)}
+          strokeDashoffset={2 * Math.PI * 300 * 0.25}
+          strokeLinecap="round"
+          transform="rotate(-90 1000 1000)"
+          style={{ transition: 'stroke-dasharray 0.5s ease' }}
         />
 
-        {/* Ring 3 - Larger ring */}
+        {/* Ring 3 - Temperature */}
         <circle
           cx="1000"
           cy="1000"
           r="425"
           fill="none"
-          stroke="#00FFF2"
-          strokeWidth="2"
-          opacity="0.5"
+          stroke="rgba(0, 255, 242, 0.2)"
+          strokeWidth="6"
+          opacity="0.3"
+        />
+        <circle
+          cx="1000"
+          cy="1000"
+          r="425"
+          fill="none"
+          stroke={getMetricColor(temperature, 'temp')}
+          strokeWidth="6"
+          opacity="0.8"
           filter="url(#ringGlow)"
-          className={styles.ring3}
-          strokeDasharray="12 38"
+          strokeDasharray={getStrokeDasharray(425, temperature)}
+          strokeDashoffset={2 * Math.PI * 425 * 0.25}
+          strokeLinecap="round"
+          transform="rotate(-90 1000 1000)"
+          style={{ transition: 'stroke-dasharray 0.5s ease' }}
         />
 
-        {/* Ring 4 - Outermost ring */}
+        {/* Ring 4 - Voice Activity (reserved for voice integration) */}
         <circle
           cx="1000"
           cy="1000"
           r="550"
           fill="none"
           stroke="#EBFA1D"
-          strokeWidth="3"
-          opacity="0.4"
+          strokeWidth="4"
+          opacity={state === 'listening' || state === 'processing' ? 0.8 : 0.3}
           filter="url(#ringGlow)"
-          className={styles.ring4}
+          className={state === 'listening' || state === 'processing' ? styles.voiceActive : styles.voiceIdle}
           strokeDasharray="75 50"
         />
 
