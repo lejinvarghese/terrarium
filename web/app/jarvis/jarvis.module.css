@@ -1,0 +1,68 @@
+.container {
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background: var(--jarvis-bg-dark);
+  position: relative;
+}
+
+.loading {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 24px;
+  color: var(--jarvis-primary);
+  text-shadow: var(--jarvis-shadow-md);
+  letter-spacing: 4px;
+  animation: jarvis-pulse 1.5s ease-in-out infinite;
+}
+
+.lockedContainer {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  background: #000;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lockedContent {
+  position: relative;
+  z-index: 10;
+  text-align: center;
+  padding: 40px;
+  max-width: 600px;
+}
+
+.lockIcon {
+  font-size: 80px;
+  margin-bottom: 30px;
+  opacity: 0.8;
+  animation: jarvis-pulse 3s ease-in-out infinite;
+}
+
+.lockedTitle {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 36px;
+  font-weight: 700;
+  color: var(--jarvis-primary);
+  letter-spacing: 8px;
+  margin-bottom: 20px;
+  text-shadow: 0 0 20px var(--jarvis-glow);
+  animation: jarvis-glow 2s ease-in-out infinite;
+}
+
+.lockedMessage {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.6);
+  letter-spacing: 2px;
+  line-height: 1.8;
+}

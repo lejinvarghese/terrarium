@@ -1,0 +1,142 @@
+.container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  max-width: 800px;
+  height: 100%;
+  max-height: 800px;
+  pointer-events: none;
+}
+
+.svg {
+  width: 100%;
+  height: 100%;
+  /* Ensure crisp, high-quality rendering */
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+  shape-rendering: geometricPrecision;
+}
+
+/* Core Animations */
+.core {
+  transition: all var(--jarvis-transition-slow);
+}
+
+.coreActive {
+  filter: url(#coreGlow)
+    drop-shadow(0 0 80px rgba(235, 250, 29, 0.9))
+    drop-shadow(0 0 120px rgba(235, 250, 29, 0.6))
+    drop-shadow(0 0 160px rgba(235, 250, 29, 0.3));
+  animation: jarvis-pulse 2s ease-in-out infinite;
+}
+
+.corePulse {
+  animation: jarvis-pulse 3s ease-in-out infinite;
+}
+
+.activating {
+  animation: jarvis-ripple 0.6s ease-out;
+}
+
+/* Ring Animations */
+.ring1 {
+  animation: jarvis-rotate 20s linear infinite;
+  transform-origin: 50% 50%;
+}
+
+.ring2 {
+  animation: jarvis-rotate-reverse 25s linear infinite;
+  transform-origin: 50% 50%;
+}
+
+.ring3 {
+  animation: jarvis-rotate 30s linear infinite;
+  transform-origin: 50% 50%;
+}
+
+.ring4 {
+  animation: jarvis-rotate-reverse 35s linear infinite;
+  transform-origin: 50% 50%;
+}
+
+/* Voice activity states */
+.voiceActive {
+  animation: jarvis-rotate-reverse 2s linear infinite, jarvis-pulse 1s ease-in-out infinite;
+  transform-origin: 50% 50%;
+}
+
+.voiceIdle {
+  animation: jarvis-rotate-reverse 35s linear infinite;
+  transform-origin: 50% 50%;
+  transition: opacity 0.3s ease;
+}
+
+/* Arc Animations */
+.arcTop,
+.arcBottom {
+  stroke-dasharray: 300;
+  stroke-dashoffset: 0;
+  animation: jarvis-draw-arc 3s ease-in-out infinite alternate;
+}
+
+/* Corner Brackets */
+.corners {
+  animation: jarvis-glow-pulse 4s ease-in-out infinite;
+}
+
+/* Data Points */
+.dataPoints circle {
+  filter: drop-shadow(0 0 5px var(--jarvis-glow));
+}
+
+/* Info Panels */
+.infoPanel {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  pointer-events: none;
+  animation: jarvis-fade-in-up 0.8s ease-out;
+}
+
+.panelTitle {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--jarvis-text-dim);
+  letter-spacing: 2px;
+}
+
+.panelValue {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 16px;
+  font-weight: 300;
+  color: var(--jarvis-primary);
+  letter-spacing: 3px;
+  text-shadow: var(--jarvis-shadow-sm);
+}
+
+/* Responsive scaling */
+@media (max-width: 900px) {
+  .container {
+    max-width: 600px;
+    max-height: 600px;
+  }
+}
+
+@media (max-width: 600px) {
+  .container {
+    max-width: 400px;
+    max-height: 400px;
+  }
+
+  .panelTitle {
+    font-size: 8px;
+  }
+
+  .panelValue {
+    font-size: 12px;
+  }
+}

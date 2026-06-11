@@ -1,0 +1,154 @@
+.interface {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+  background: var(--jarvis-bg-dark);
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.hudContainer {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  z-index: var(--jarvis-z-hud);
+}
+
+.statusDisplay {
+  position: absolute;
+  top: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: var(--jarvis-z-controls);
+}
+
+.statusText {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 18px;
+  font-weight: 300;
+  color: var(--jarvis-primary);
+  letter-spacing: 6px;
+  text-align: center;
+  text-shadow: var(--jarvis-shadow-md);
+  animation: jarvis-glow-pulse 2s ease-in-out infinite;
+}
+
+.activationButton {
+  position: absolute;
+  bottom: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 16px 40px;
+  background: transparent;
+  border: 2px solid var(--jarvis-primary);
+  color: var(--jarvis-primary);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 3px;
+  cursor: pointer;
+  transition: all var(--jarvis-transition-normal);
+  box-shadow: var(--jarvis-shadow-sm);
+  z-index: var(--jarvis-z-controls);
+}
+
+.activationButton:hover {
+  background: var(--jarvis-bg-glass);
+  box-shadow: var(--jarvis-shadow-lg);
+  transform: translateX(-50%) scale(1.05);
+}
+
+.activationButton.active {
+  background: var(--jarvis-primary);
+  color: var(--jarvis-bg-dark);
+  box-shadow: 0 0 15px rgba(235, 250, 29, 0.4);
+}
+
+.controls {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: var(--jarvis-z-controls);
+}
+
+.controlItem {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 300;
+  color: var(--jarvis-text-dim);
+  letter-spacing: 2px;
+  text-align: right;
+}
+
+/* New HUD Elements */
+.targetingReticle {
+  position: absolute;
+  top: 5%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: var(--jarvis-z-hud);
+  opacity: 0;
+  animation: jarvis-fade-in 1s ease-out 0.5s forwards;
+}
+
+.radar {
+  position: absolute;
+  bottom: 80px;
+  left: 40px;
+  z-index: var(--jarvis-z-hud);
+  opacity: 0;
+  animation: jarvis-fade-in 1s ease-out 0.7s forwards;
+}
+
+.gauges {
+  position: absolute;
+  bottom: 80px;
+  right: 40px;
+  display: flex;
+  gap: 20px;
+  z-index: var(--jarvis-z-hud);
+  opacity: 0;
+  animation: jarvis-fade-in 1s ease-out 0.9s forwards;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1400px) {
+  .targetingReticle {
+    transform: translateX(-50%) scale(0.8);
+  }
+
+  .radar {
+    bottom: 60px;
+    left: 20px;
+    transform: scale(0.8);
+  }
+
+  .gauges {
+    bottom: 60px;
+    right: 20px;
+    gap: 10px;
+    transform: scale(0.8);
+  }
+}
+
+@media (max-width: 900px) {
+  .targetingReticle {
+    transform: translateX(-50%) scale(0.6);
+  }
+
+  .radar {
+    display: none;
+  }
+
+  .gauges {
+    flex-direction: column;
+    gap: 5px;
+    transform: scale(0.6);
+  }
+}
