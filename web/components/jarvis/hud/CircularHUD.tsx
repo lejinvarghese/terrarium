@@ -8,10 +8,12 @@ interface CircularHUDProps {
   isActive: boolean;
   cpuUsage?: number;
   memoryUsage?: number;
+  gpuUtilization?: number;
+  gpuMemory?: number;
   temperature?: number;
 }
 
-export default function CircularHUD({ state, isActive, cpuUsage = 0, memoryUsage = 0, temperature = 0 }: CircularHUDProps) {
+export default function CircularHUD({ state, isActive, cpuUsage = 0, memoryUsage = 0, gpuUtilization = 0, gpuMemory = 0, temperature = 0 }: CircularHUDProps) {
   const coreRef = useRef<SVGCircleElement>(null);
 
   useEffect(() => {
@@ -24,28 +26,54 @@ export default function CircularHUD({ state, isActive, cpuUsage = 0, memoryUsage
     }
   }, [isActive]);
 
-  // Calculate circle progress (percentage to arc length)
-  const getArcLength = (radius: number, percentage: number) => {
-    const circumference = 2 * Math.PI * radius;
-    return circumference * (percentage / 100);
-  };
+  // Create arc path for thick filled rings
+  const createRingPath = (radius: number, thickness: number, percentage: number) => {
+    const innerRadius = radius - thickness / 2;
+    const outerRadius = radius + thickness / 2;
+    const angle = (percentage / 100) * 360;
 
-  const getStrokeDasharray = (radius: number, percentage: number) => {
-    const circumference = 2 * Math.PI * radius;
-    const filled = getArcLength(radius, percentage);
-    return `${filled} ${circumference - filled}`;
-  };
-
-  // Color based on value
-  const getMetricColor = (value: number, type: 'cpu' | 'memory' | 'temp') => {
-    if (type === 'temp') {
-      if (value > 80) return '#FF4444';
-      if (value > 70) return '#FFB800';
-      return '#00FF88';
+    if (percentage === 0) return '';
+    if (percentage >= 100) {
+      // Full circle
+      return `
+        M ${1000 + outerRadius} 1000
+        A ${outerRadius} ${outerRadius} 0 1 1 ${1000 + outerRadius - 0.001} 1000
+        L ${1000 + innerRadius - 0.001} 1000
+        A ${innerRadius} ${innerRadius} 0 1 0 ${1000 + innerRadius} 1000
+        Z
+      `;
     }
-    if (value > 80) return '#FF4444';
-    if (value > 60) return '#FFB800';
-    return '#00FF88';
+
+    const endAngle = angle - 90; // Start from top
+    const largeArc = angle > 180 ? 1 : 0;
+
+    const outerEndX = 1000 + outerRadius * Math.cos(endAngle * Math.PI / 180);
+    const outerEndY = 1000 + outerRadius * Math.sin(endAngle * Math.PI / 180);
+    const innerEndX = 1000 + innerRadius * Math.cos(endAngle * Math.PI / 180);
+    const innerEndY = 1000 + innerRadius * Math.sin(endAngle * Math.PI / 180);
+
+    return `
+      M 1000 ${1000 - outerRadius}
+      A ${outerRadius} ${outerRadius} 0 ${largeArc} 1 ${outerEndX} ${outerEndY}
+      L ${innerEndX} ${innerEndY}
+      A ${innerRadius} ${innerRadius} 0 ${largeArc} 0 1000 ${1000 - innerRadius}
+      Z
+    `;
+  };
+
+  // Color with opacity for diffused effect
+  const getMetricColor = (value: number, type: 'cpu' | 'memory' | 'temp', opacity = 0.6) => {
+    let baseColor;
+    if (type === 'temp') {
+      if (value > 80) baseColor = '255, 68, 68';
+      else if (value > 70) baseColor = '255, 184, 0';
+      else baseColor = '0, 255, 136';
+    } else {
+      if (value > 80) baseColor = '255, 68, 68';
+      else if (value > 60) baseColor = '255, 184, 0';
+      else baseColor = '0, 255, 136';
+    }
+    return `rgba(${baseColor}, ${opacity})`;
   };
 
   return (
@@ -113,88 +141,35 @@ export default function CircularHUD({ state, isActive, cpuUsage = 0, memoryUsage
         />
 
         {/* Ring 1 - CPU Usage */}
-        <circle
-          cx="1000"
-          cy="1000"
-          r="200"
-          fill="none"
-          stroke="rgba(235, 250, 29, 0.2)"
-          strokeWidth="8"
-          opacity="0.3"
-        />
-        <circle
-          cx="1000"
-          cy="1000"
-          r="200"
-          fill="none"
-          stroke={getMetricColor(cpuUsage, 'cpu')}
-          strokeWidth="8"
-          opacity="0.9"
-          filter="url(#ringGlow)"
-          strokeDasharray={getStrokeDasharray(200, cpuUsage)}
-          strokeDashoffset={2 * Math.PI * 200 * 0.25}
-          strokeLinecap="round"
-          transform="rotate(-90 1000 1000)"
-          style={{ transition: 'stroke-dasharray 0.5s ease' }}
-        />
+        <circle cx="1000" cy="1000" r="190" fill="none" stroke="rgba(235, 250, 29, 0.08)" strokeWidth="50" />
+        <path d={createRingPath(190, 50, cpuUsage)} fill={getMetricColor(cpuUsage, 'cpu', 0.5)} filter="url(#ringGlow)" style={{ transition: 'all 0.8s ease' }} />
+        <text x="1000" y="795" textAnchor="middle" fill="rgba(235, 250, 29, 0.5)" fontSize="11" fontFamily="JetBrains Mono, monospace" letterSpacing="3" fontWeight="300">CPU</text>
 
         {/* Ring 2 - Memory Usage */}
-        <circle
-          cx="1000"
-          cy="1000"
-          r="300"
-          fill="none"
-          stroke="rgba(0, 255, 136, 0.2)"
-          strokeWidth="8"
-          opacity="0.3"
-        />
-        <circle
-          cx="1000"
-          cy="1000"
-          r="300"
-          fill="none"
-          stroke={getMetricColor(memoryUsage, 'memory')}
-          strokeWidth="8"
-          opacity="0.9"
-          filter="url(#ringGlow)"
-          strokeDasharray={getStrokeDasharray(300, memoryUsage)}
-          strokeDashoffset={2 * Math.PI * 300 * 0.25}
-          strokeLinecap="round"
-          transform="rotate(-90 1000 1000)"
-          style={{ transition: 'stroke-dasharray 0.5s ease' }}
-        />
+        <circle cx="1000" cy="1000" r="270" fill="none" stroke="rgba(0, 255, 136, 0.08)" strokeWidth="50" />
+        <path d={createRingPath(270, 50, memoryUsage)} fill={getMetricColor(memoryUsage, 'memory', 0.5)} filter="url(#ringGlow)" style={{ transition: 'all 0.8s ease' }} />
+        <text x="1000" y="715" textAnchor="middle" fill="rgba(0, 255, 136, 0.5)" fontSize="11" fontFamily="JetBrains Mono, monospace" letterSpacing="3" fontWeight="300">MEM</text>
 
-        {/* Ring 3 - Temperature */}
-        <circle
-          cx="1000"
-          cy="1000"
-          r="425"
-          fill="none"
-          stroke="rgba(0, 255, 242, 0.2)"
-          strokeWidth="6"
-          opacity="0.3"
-        />
-        <circle
-          cx="1000"
-          cy="1000"
-          r="425"
-          fill="none"
-          stroke={getMetricColor(temperature, 'temp')}
-          strokeWidth="6"
-          opacity="0.8"
-          filter="url(#ringGlow)"
-          strokeDasharray={getStrokeDasharray(425, temperature)}
-          strokeDashoffset={2 * Math.PI * 425 * 0.25}
-          strokeLinecap="round"
-          transform="rotate(-90 1000 1000)"
-          style={{ transition: 'stroke-dasharray 0.5s ease' }}
-        />
+        {/* Ring 3 - GPU Utilization */}
+        <circle cx="1000" cy="1000" r="350" fill="none" stroke="rgba(255, 184, 0, 0.08)" strokeWidth="50" />
+        <path d={createRingPath(350, 50, gpuUtilization)} fill={getMetricColor(gpuUtilization, 'cpu', 0.5)} filter="url(#ringGlow)" style={{ transition: 'all 0.8s ease' }} />
+        <text x="1000" y="635" textAnchor="middle" fill="rgba(255, 184, 0, 0.5)" fontSize="11" fontFamily="JetBrains Mono, monospace" letterSpacing="3" fontWeight="300">GPU</text>
 
-        {/* Ring 4 - Voice Activity (reserved for voice integration) */}
+        {/* Ring 4 - GPU Memory */}
+        <circle cx="1000" cy="1000" r="430" fill="none" stroke="rgba(255, 100, 200, 0.08)" strokeWidth="50" />
+        <path d={createRingPath(430, 50, gpuMemory)} fill={getMetricColor(gpuMemory, 'memory', 0.5)} filter="url(#ringGlow)" style={{ transition: 'all 0.8s ease' }} />
+        <text x="1000" y="555" textAnchor="middle" fill="rgba(255, 100, 200, 0.5)" fontSize="11" fontFamily="JetBrains Mono, monospace" letterSpacing="3" fontWeight="300">VRAM</text>
+
+        {/* Ring 5 - Temperature */}
+        <circle cx="1000" cy="1000" r="510" fill="none" stroke="rgba(0, 255, 242, 0.08)" strokeWidth="50" />
+        <path d={createRingPath(510, 50, temperature)} fill={getMetricColor(temperature, 'temp', 0.5)} filter="url(#ringGlow)" style={{ transition: 'all 0.8s ease' }} />
+        <text x="1000" y="475" textAnchor="middle" fill="rgba(0, 255, 242, 0.5)" fontSize="11" fontFamily="JetBrains Mono, monospace" letterSpacing="3" fontWeight="300">TEMP</text>
+
+        {/* Ring 6 - Voice Activity (reserved for voice integration) */}
         <circle
           cx="1000"
           cy="1000"
-          r="550"
+          r="590"
           fill="none"
           stroke="#EBFA1D"
           strokeWidth="4"

@@ -11,6 +11,12 @@
     "title": "ARCHIVE ACCESS REQUIRED",
     "serviceName": "Archive"
   },
+  "jarvis": {
+    "port": 3002,
+    "targetUrl": "http://localhost:3001",
+    "title": "ACCESS REQUIRED",
+    "serviceName": "Jarvis"
+  },
   "accessCodes": [
     "UNDERGROWTH",
     "TERR4R1UM",

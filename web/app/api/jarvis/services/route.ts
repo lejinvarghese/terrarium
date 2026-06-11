@@ -28,7 +28,6 @@ export async function GET() {
     // Check various Terrarium services
     const services: ServiceStatus[] = [
       { name: 'Open WebUI', port: 8080 },
-      { name: 'ComfyUI', port: 8188 },
       { name: 'Ollama', port: 11434 },
     ];
 
