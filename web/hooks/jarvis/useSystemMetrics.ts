@@ -4,6 +4,8 @@ interface SystemMetrics {
   cpu: number;
   memory: number;
   temperature: number;
+  gpuUtilization: number;
+  gpuMemory: number;
   timestamp: number;
 }
 
@@ -12,13 +14,15 @@ export function useSystemMetrics(isActive: boolean, pollInterval = 2000) {
     cpu: 0,
     memory: 0,
     temperature: 0,
+    gpuUtilization: 0,
+    gpuMemory: 0,
     timestamp: 0,
   });
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isActive) {
-      setMetrics({ cpu: 0, memory: 0, temperature: 0, timestamp: 0 });
+      setMetrics({ cpu: 0, memory: 0, temperature: 0, gpuUtilization: 0, gpuMemory: 0, timestamp: 0 });
       return;
     }
 

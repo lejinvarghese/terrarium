@@ -68,6 +68,8 @@ export default function JarvisInterface() {
           isActive={isActive}
           cpuUsage={metrics.cpu}
           memoryUsage={metrics.memory}
+          gpuUtilization={metrics.gpuUtilization}
+          gpuMemory={metrics.gpuMemory}
           temperature={metrics.temperature}
         />
 
@@ -112,16 +114,6 @@ export default function JarvisInterface() {
         {/* Data Panels */}
         <DataPanel title="SYSTEM STATUS" position="left" isActive={isActive} />
         <DataPanel title="DIAGNOSTICS" position="right" isActive={isActive} />
-
-        {/* Status Display */}
-        <div className={styles.statusDisplay}>
-          <div className={styles.statusText}>
-            {state === 'idle' && 'STANDBY'}
-            {state === 'listening' && 'LISTENING'}
-            {state === 'processing' && 'PROCESSING'}
-            {state === 'responding' && 'ONLINE'}
-          </div>
-        </div>
 
         {/* Activation Button (temporary until voice is added) */}
         <button
