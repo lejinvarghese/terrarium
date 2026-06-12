@@ -13,7 +13,7 @@
   },
   "jarvis": {
     "port": 3002,
-    "targetUrl": "http://localhost:3001",
+    "targetUrl": "http://localhost:3000",
     "title": "ACCESS REQUIRED",
     "serviceName": "Jarvis"
   },

@@ -519,7 +519,7 @@ app.use((req, res, next) => {
   }
 
   // Authenticated - proxy to service
-  createProxyMiddleware({
+  const proxyOptions = {
     target: serviceConfig.targetUrl,
     changeOrigin: true,
     ws: true,
@@ -527,7 +527,31 @@ app.use((req, res, next) => {
       console.error('Proxy error:', err);
       res.status(502).send('Service temporarily unavailable');
     }
-  })(req, res, next);
+  };
+
+  // For Jarvis, rewrite all paths to /jarvis route (except Next.js assets)
+  if (SERVICE === 'jarvis') {
+    proxyOptions.pathRewrite = (path) => {
+      // Don't rewrite Next.js assets, API routes, or other system paths
+      if (path.startsWith('/_next/') ||
+          path.startsWith('/api/') ||
+          path.startsWith('/assets/') ||
+          path.startsWith('/favicon')) {
+        return path;  // Keep as-is
+      }
+      // Rewrite root to /jarvis
+      if (path === '/') {
+        return '/jarvis';
+      }
+      // Rewrite everything else to /jarvis/*
+      return `/jarvis${path}`;
+    };
+    proxyOptions.onProxyReq = (proxyReq, req) => {
+      console.log(`[Jarvis Proxy] ${req.method} ${req.path} → ${proxyReq.path}`);
+    };
+  }
+
+  createProxyMiddleware(proxyOptions)(req, res, next);
 });
 
 const PORT = serviceConfig.port;
