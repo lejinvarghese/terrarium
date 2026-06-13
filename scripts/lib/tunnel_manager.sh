@@ -32,6 +32,7 @@ start_named_tunnel() {
         echo "    📚 https://archive.${TUNNEL_DOMAIN}"
         echo "    🔌 https://api.${TUNNEL_DOMAIN}"
         echo "    🤖💫 https://jarvis.${TUNNEL_DOMAIN}"
+        echo "    🌿 https://fern.${TUNNEL_DOMAIN}"
         return 0
     else
         echo_warning "Tunnel failed to start, falling back to quick tunnels"
