@@ -42,7 +42,7 @@ export function LiveTerminal({
         foreground: '#ffffff',
         cursor: '#EBFA1D',
         selectionBackground: 'rgba(235, 250, 29, 0.3)',
-        // ANSI colors for btop/nvtop
+        // ANSI colors for terminal output
         black: '#000000',
         red: '#ff5555',
         green: '#50fa7b',
