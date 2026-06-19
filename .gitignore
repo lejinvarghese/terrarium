@@ -242,3 +242,25 @@ tmp*/
 *.db
 *.sqlite
 *.sqlite3
+
+# Personal and sensitive files
+TERRARIUM_MEMORY.md
+.claude/agents/
+.claude/settings.local.json
+src/landscapes/undergrowth/bots/
+
+# Canopy - ignore all except infrastructure code
+src/landscapes/canopy/*
+!src/landscapes/canopy/__init__.py
+!src/landscapes/canopy/config.py
+!src/landscapes/canopy/AGENTS.md
+!src/landscapes/canopy/TOOLS.md
+!src/landscapes/canopy/bots/
+src/landscapes/canopy/bots/*
+!src/landscapes/canopy/bots/__init__.py
+!src/landscapes/canopy/bots/base.py
+!src/landscapes/canopy/bots/oracle.py
+!src/landscapes/canopy/memory/
+src/landscapes/canopy/memory/*
+!src/landscapes/canopy/memory/__init__.py
+!src/landscapes/canopy/memory/tier_manager.py
