@@ -80,9 +80,9 @@ Create `src/configs/users.json`:
 {
   "users": [
     {
-      "id": "902949428",
-      "name": "You",
-      "telegram_chat_id": "902949428",
+      "id": "user_1_id",
+      "name": "User 1",
+      "telegram_chat_id": "user_1_telegram_id",
       "bots": ["cassia", "nyx", "sage", "anya", "nigella", "freya"],
       "active": true,
       "timezone": "America/Toronto",
@@ -92,9 +92,9 @@ Create `src/configs/users.json`:
       }
     },
     {
-      "id": "6134286153",
-      "name": "Danielle",
-      "telegram_chat_id": "6134286153",
+      "id": "user_2_id",
+      "name": "User 2",
+      "telegram_chat_id": "user_2_telegram_id",
       "bots": ["pepper"],
       "active": true,
       "timezone": "America/Toronto",
@@ -135,8 +135,8 @@ def load_users():
 USERS = load_users()
 
 # Backward compatibility: keep env vars as fallback
-USER_ID = os.getenv("TELEGRAM_CHAT_ID", "902949428")
-DANIELLE_USER_ID = os.getenv("DANIELLE_TELEGRAM_CHAT_ID", "6134286153")
+USER_ID = os.getenv("TELEGRAM_CHAT_ID", "user_1_id")
+DANIELLE_USER_ID = os.getenv("DANIELLE_TELEGRAM_CHAT_ID", "user_2_id")
 
 # Memory configuration
 MEMORY_VECTOR_PATH = os.getenv("MEMORY_VECTOR_PATH", "data/memory_vectors")
@@ -249,7 +249,7 @@ class ClaudeEngine:
 ```
 
 **Testing**:
-- [ ] Verify Pepper only shows for Danielle's user_id
+- [ ] Verify Pepper only shows for User 2's user_id
 - [ ] Verify other bots show for main user
 - [ ] Add test user with single bot, verify isolation
 - [ ] Verify scheduler routes memory to correct user
@@ -271,17 +271,17 @@ Update `src/configs/schedule.json` schema:
   "tasks": [
     {
       "name": "🌅 Cassia - Morning Briefing",
-      "user_id": "902949428",
+      "user_id": "user_1_id",
       "command": "cat src/landscapes/undergrowth/bots/cassia.md | claude -p ...",
       "schedule": "every day at 07:00",
       "description": "Daily morning briefing with calendar + weather integration"
     },
     {
       "name": "🌶️ Pepper - Morning Motivation",
-      "user_id": "6134286153",
+      "user_id": "user_2_id",
       "command": "cat src/landscapes/undergrowth/bots/pepper.md | claude -p ...",
       "schedule": "every day at 07:00",
-      "description": "Daily ADHD-friendly morning motivation for Danielle"
+      "description": "Daily ADHD-friendly morning motivation for User 2"
     }
   ]
 }
@@ -361,7 +361,7 @@ TELEGRAM_CHAT_ID=your_chat_id  # DEPRECATED: Use users.json instead
 # === User-Specific (DEPRECATED) ===
 # These are kept for backward compatibility only.
 # New installations should configure users in src/configs/users.json
-DANIELLE_TELEGRAM_CHAT_ID=6134286153  # DEPRECATED: Use users.json
+DANIELLE_TELEGRAM_CHAT_ID=user_2_id  # DEPRECATED: Use users.json
 
 # === Memory & Storage ===
 MEMORY_VECTOR_PATH=data/memory_vectors
@@ -551,19 +551,19 @@ from src.engine.memory_config import load_users, get_user_for_bot, get_bots_for_
 def test_load_users():
     """Test user registry loading."""
     users = load_users()
-    assert "902949428" in users
-    assert "6134286153" in users
-    assert users["6134286153"]["name"] == "Danielle"
+    assert "user_1_id" in users
+    assert "user_2_id" in users
+    assert users["user_2_id"]["name"] == "User 2"
 
 def test_get_user_for_bot():
     """Test bot to user mapping."""
-    assert get_user_for_bot("pepper") == "6134286153"
-    assert get_user_for_bot("cassia") == "902949428"
-    assert get_user_for_bot("nonexistent") == "902949428"  # fallback
+    assert get_user_for_bot("pepper") == "user_2_id"
+    assert get_user_for_bot("cassia") == "user_1_id"
+    assert get_user_for_bot("nonexistent") == "user_1_id"  # fallback
 
 def test_get_bots_for_user():
     """Test user to bots mapping."""
-    bots = get_bots_for_user("6134286153")
+    bots = get_bots_for_user("user_2_id")
     assert "pepper" in bots
     assert "cassia" not in bots
 
@@ -572,13 +572,13 @@ def test_bot_isolation():
     from src.portals.telegram.claude_engine import ClaudeEngine
     engine = ClaudeEngine()
 
-    # Danielle should only see pepper
-    danielle_bots = engine.list_bots(user_id=6134286153)
+    # User 2 should only see pepper
+    danielle_bots = engine.list_bots(user_id=user_2_id)
     assert "pepper" in danielle_bots
     assert "cassia" not in danielle_bots
 
     # Main user should see all except pepper
-    main_bots = engine.list_bots(user_id=902949428)
+    main_bots = engine.list_bots(user_id=user_1_id)
     assert "pepper" not in main_bots
     assert "cassia" in main_bots
 ```
