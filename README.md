@@ -178,7 +178,7 @@ python3 src/engine/scheduler.py
 Generate art using local or remote models.
 
 ```bash
-cd /home/starscream/_projects/ComfyUI
+cd $COMFYUI_PATH
 source .venv/bin/activate
 python3 main.py
 ```

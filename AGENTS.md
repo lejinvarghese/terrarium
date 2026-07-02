@@ -13,7 +13,7 @@
   pip install -r requirements.txt
   ```
   Update `requirements.txt` when new dependencies are introduced.
-- Follow the service launch flows in `README.md` when validating integrations (e.g., start ComfyUI via `python main.py` in `/home/starscream/_projects/ComfyUI`).
+- Follow the service launch flows in `README.md` when validating integrations (e.g., start ComfyUI via `python main.py` in `$COMFYUI_PATH`).
 - Run smoke checks for network exposure with:
   ```bash
   hostname -I

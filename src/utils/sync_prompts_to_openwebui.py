@@ -116,7 +116,7 @@ def sync_prompts_to_db(prompts_dir, db_path, dry_run=False, skip_confirm=False):
 )
 @click.option(
     "--db-path",
-    default="/home/starscream/.open-webui/webui.db",
+    default=str(Path.home() / ".open-webui" / "webui.db"),
     type=click.Path(exists=True),
     help="Path to Open WebUI database",
 )

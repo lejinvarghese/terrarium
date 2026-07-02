@@ -8,7 +8,7 @@ Terrarium is a meta-project for orchestrating a local ecosystem of AI/ML service
 
 **Core Services:**
 - **Open WebUI**: Human-friendly interface for language models
-- **ComfyUI**: Art generation using local or remote AI models (located at `/home/starscream/_projects/ComfyUI`)
+- **ComfyUI**: Art generation using local or remote AI models (path configured via `COMFYUI_PATH` env var)
 - **Ollama**: Local language model runtime
 
 ## Accessible Memories
@@ -32,13 +32,13 @@ This is primarily an orchestration project. The `src/` directory is currently em
 
 ### Service Locations
 
-ComfyUI runs externally at `/home/starscream/_projects/ComfyUI`. **Note**: This path is hardcoded and may need adjustment for different environments.
+ComfyUI runs externally at a configurable location. Set `COMFYUI_PATH` environment variable to your ComfyUI installation directory (defaults to `~/projects/ComfyUI`).
 
 ## Development Commands
 
 ### Running ComfyUI
 ```bash
-cd /home/starscream/_projects/ComfyUI
+cd $COMFYUI_PATH  # or your ComfyUI installation directory
 source .venv/bin/activate
 python main.py
 ```

@@ -156,7 +156,7 @@ def import_to_openwebui(db_path, input_file, skip_confirm=False):
 )
 @click.option(
     "--db-path",
-    default="/home/starscream/.open-webui/webui.db",
+    default=str(Path.home() / ".open-webui" / "webui.db"),
     type=click.Path(exists=True),
     help="Path to Open WebUI database",
 )

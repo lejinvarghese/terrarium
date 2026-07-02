@@ -21,7 +21,7 @@ The `README.md` file contains instructions for running the services.
 To run ComfyUI, execute the following commands. **Note:** The path to the ComfyUI directory is hardcoded and may need to be adjusted to your environment.
 
 ```bash
-cd /home/starscream/_projects/ComfyUI
+cd $COMFYUI_PATH
 source .venv/bin/activate
 python main.py
 ```

@@ -1,9 +1,10 @@
+import os
 from agno.db.sqlite import SqliteDb
 from pathlib import Path
 from textwrap import dedent
 
 ROOT_DIRECTORY = Path(__file__).parent.parent.parent
-NPM_DIRECTORY = "/home/starscream/.npm-global/bin"
+NPM_DIRECTORY = os.getenv("NPM_BIN_PATH", os.path.expanduser("~/.npm-global/bin"))
 DATABASE_PATH = "data/incubator.db"
 MEMORY_TABLE = "memories"
 SESSION_TABLE = "sessions"
