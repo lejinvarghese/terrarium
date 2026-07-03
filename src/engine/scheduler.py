@@ -148,7 +148,7 @@ def run_command(name, command, description=""):
 
 @click.command()
 @click.argument(
-    "config_file", default="src/configs/schedule.json", type=click.Path(exists=True)
+    "config_file", default="configs/schedule.json", type=click.Path(exists=True)
 )
 def main(config_file):
     """Run scheduled commands from CONFIG_FILE (JSON format)."""
