@@ -1,0 +1,110 @@
+.hexagonGroup {
+  cursor: pointer;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: all; /* Ensure all hexagons are hoverable */
+}
+
+.hexagonGroup:hover {
+  transform: scale(1.05);
+}
+
+.hexagon {
+  stroke-width: 0.5;
+  fill: transparent;
+  transition: all 0.3s ease;
+}
+
+.hexagon.active {
+  stroke-width: 0.8;
+  /* filter: drop-shadow(0 0 8px currentColor); — Disabled for GPU performance */
+}
+
+.hexagon.dead {
+  stroke-width: 0.5;
+  stroke: #4A4A4A;
+  opacity: 0.6;
+  stroke-dasharray: 5, 5;
+}
+
+.hexagon.dormant {
+  stroke-width: 0.5;
+  stroke: #3A3A3A;
+  opacity: 0.5;
+}
+
+.hexagonGlow {
+  stroke-width: 2;
+  opacity: 0.3;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.dot {
+  transition: all 0.3s ease;
+}
+
+.dot.active {
+  animation: dotFloat 3s ease-in-out infinite;
+  /* filter: drop-shadow(0 0 2px currentColor); — Disabled for GPU performance */
+}
+
+.dot.dead {
+  opacity: 0.3;
+  animation: none;
+}
+
+.dot.dormant {
+  opacity: 0.2;
+  animation: none;
+}
+
+.label {
+  font-family: 'Space Mono', 'Courier New', monospace;
+  font-size: 8px;
+  font-weight: 600;
+  text-anchor: middle;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  pointer-events: none;
+}
+
+.count {
+  font-family: 'Space Mono', 'Courier New', monospace;
+  font-size: 6px;
+  text-anchor: middle;
+  pointer-events: none;
+}
+
+/* Animations */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 0.2;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+
+/* Vertical floating animation for dots */
+@keyframes dotFloat {
+  0%, 100% {
+    opacity: 0.6;
+    transform: translateY(0);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(calc(var(--float-distance, -5px)));
+  }
+}
+
+/* Hover effects */
+.hexagonGroup:hover .hexagon {
+  stroke-width: 1;
+}
+
+.hexagonGroup:hover .label {
+  font-size: 9px;
+}
+
+.hexagonGroup:hover .dot.active {
+  animation-duration: 2s;
+}

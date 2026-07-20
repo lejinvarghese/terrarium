@@ -91,6 +91,13 @@
   transform: scale(0.98);
 }
 
+/* Landscape Visualization Section */
+.landscapes {
+  padding: 8rem 0;
+  background: #000000;
+  position: relative;
+}
+
 /* ServicesSection - Matching NCC grid */
 .services {
   padding: 10rem 0;
@@ -245,13 +252,13 @@
 /* About Section - NCC Style */
 .about {
   padding: 10rem 0;
-  text-align: center;
+  text-align: left;
   background: #000000;
 }
 
 .aboutText {
   max-width: 900px;
-  margin: 0 auto;
+  margin: 0;
   font-size: 1.25rem;
   line-height: 1.8;
   color: rgba(255, 255, 255, 0.7);

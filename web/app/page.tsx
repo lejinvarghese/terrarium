@@ -10,6 +10,12 @@ const GridTrail = dynamic(() => import('@/components/effects/GridTrail'), {
   ssr: false,
 });
 
+// Multiplex Network visualization - can be easily removed by commenting out
+// Shows Layer 0 (physical/carbon beings) and Layer 1 (digital/silicon agents)
+const MultiplexNetwork = dynamic(() => import('@/components/visualizations/MultiplexNetwork'), {
+  ssr: false,
+});
+
 export default function Home() {
   return (
     <main className={styles.main}>
@@ -49,12 +55,25 @@ export default function Home() {
       {/* About Section */}
       <section className={styles.about}>
         <div className="container">
-          <h2 className={styles.sectionTitle}>the swarm</h2>
+          <h2 className={styles.sectionTitle}>
+            <span className={styles.titlePrefix}>{'//'}</span>the swarm
+          </h2>
           <p className={styles.aboutText}>
             The terrarium is a living ecosystem, home to a mosaic of cybernetic and physical minds, each a distinct node in the swarm, together shaping unique landscapes of thought, culture, and experience within this sprawling cyberpunk-organic domain. Subcultures and intelligences flourish in its interconnected strata, co-evolving as a distributed swarm.
           </p>
         </div>
       </section>
+
+      {/* ========================================
+          Multiplex Network Visualization
+          Layer 0: Physical beings (humans, dog, plants)
+          Layer 1: Digital beings (AI landscapes)
+          Comment out this entire section to remove
+          ======================================== */}
+      <section className={styles.landscapes}>
+        <MultiplexNetwork />
+      </section>
+      {/* ======================================== */}
 
       {/* Footer */}
       <footer className={styles.footer}>

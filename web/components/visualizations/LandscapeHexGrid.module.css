@@ -1,0 +1,110 @@
+.container {
+  width: 100%;
+  padding: 4rem 0;
+  background: linear-gradient(180deg, transparent 0%, rgba(235, 250, 29, 0.02) 50%, transparent 100%);
+  position: relative;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.title {
+  font-family: 'Space Mono', 'Courier New', monospace;
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 700;
+  color: #EBFA1D;
+  margin: 0 0 1rem 0;
+  letter-spacing: -0.02em;
+}
+
+.titlePrefix {
+  color: rgba(235, 250, 29, 0.4);
+  margin-right: 0.5rem;
+}
+
+.subtitle {
+  font-family: 'Space Mono', 'Courier New', monospace;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.6);
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+.svg {
+  width: 100%;
+  max-width: 600px;
+  height: auto;
+  margin: 0 auto;
+  display: block;
+  /* filter: drop-shadow(0 0 20px rgba(235, 250, 29, 0.1)); — Disabled for GPU performance */
+}
+
+.legend {
+  display: flex;
+  gap: 2rem;
+  justify-content: center;
+  margin-top: 2rem;
+  padding: 1rem;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: 'Space Mono', 'Courier New', monospace;
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.6);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.legendDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  box-shadow: 0 0 4px currentColor;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .container {
+    padding: 3rem 0;
+  }
+
+  .header {
+    margin-bottom: 2rem;
+  }
+
+  .title {
+    font-size: 2rem;
+  }
+
+  .subtitle {
+    font-size: 0.8rem;
+    padding: 0 1rem;
+  }
+
+  .legend {
+    gap: 1rem;
+    font-size: 0.7rem;
+  }
+}
+
+/* Animation on scroll */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.container {
+  animation: fadeInUp 0.8s ease-out;
+}
