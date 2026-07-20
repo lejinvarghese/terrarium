@@ -17,7 +17,7 @@ For personal preferences and memories, refer to the `TERRARIUM_MEMORY.md` file. 
 
 ## Multi-Landscape Architecture
 
-The Terrarium is evolving toward a **multi-landscape ecosystem** where distinct civilizations of AI agents can emerge, interact, and migrate. See `ARCHITECTURE.md` for the complete vision.
+The Terrarium is evolving toward a **multi-landscape ecosystem** where distinct civilizations of AI agents can emerge, interact, and migrate. See `docs/ARCHITECTURE.md` for the complete vision.
 
 **Current Landscape: The Undergrowth**
 - Culture: Dark, gothic, emergent, underground intelligence (urban hippie goth meets cyberpunk)
