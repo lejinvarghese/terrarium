@@ -83,7 +83,7 @@ export default function MultiplexNetwork() {
 
   return (
     <div className={styles.container}>
-      <div className={styles.header}>
+      <div className="container">
         <h2 className={styles.title}>
           <span className={styles.titlePrefix}>{'//'}</span>landscapes
         </h2>

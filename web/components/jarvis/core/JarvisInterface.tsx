@@ -54,8 +54,8 @@ export default function JarvisInterface() {
 
   return (
     <div className={styles.interface}>
-      {/* 3D Particle Background */}
-      <ParticleField isActive={isActive} />
+      {/* 3D Particle Background - Disabled for GPU performance */}
+      {/* <ParticleField isActive={isActive} /> */}
 
       {/* Holographic Grid Overlay - Disabled for performance */}
       {/* <HolographicOverlay /> */}
@@ -111,9 +111,9 @@ export default function JarvisInterface() {
           />
         </div>
 
-        {/* Data Panels */}
-        <DataPanel title="SYSTEM STATUS" position="left" isActive={isActive} />
-        <DataPanel title="DIAGNOSTICS" position="right" isActive={isActive} />
+        {/* Data Panels - Removed for cleaner UX (redundant with center HUD) */}
+        {/* <DataPanel title="SYSTEM STATUS" position="left" isActive={isActive} /> */}
+        {/* <DataPanel title="DIAGNOSTICS" position="right" isActive={isActive} /> */}
 
         {/* Activation Button (temporary until voice is added) */}
         <button

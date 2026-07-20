@@ -11,7 +11,7 @@ interface ServiceCardProps {
 }
 
 // Services that require secure access
-const SECURE_SERVICES = ['dome', 'archive'];
+const SECURE_SERVICES = ['dome', 'archive', 'incubator'];
 
 // Single access title for all secured services
 const ACCESS_TITLE = 'ACCESS';

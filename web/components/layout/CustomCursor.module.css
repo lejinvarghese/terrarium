@@ -1,10 +1,11 @@
 .cursor {
   position: fixed;
+  top: 0;
+  left: 0;
   pointer-events: none;
   z-index: 9999;
-  transform: translate(-50%, -50%);
-  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
-  will-change: transform;
+  /* Transform is handled by JS for optimal performance */
+  /* will-change: transform; — Disabled for GPU performance */
 }
 
 @media (prefers-reduced-motion: reduce) {
