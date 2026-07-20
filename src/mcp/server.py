@@ -96,7 +96,7 @@ async def send_telegram_message(
     Args:
         message: The message text to send
         persona: Optional persona name (anya, cassia, freya, nigella, nyx, sage, system)
-        chat_id: Optional chat ID to send to. Defaults to your personal chat (902949428)
+        chat_id: Optional chat ID to send to. Defaults to TELEGRAM_CHAT_ID from environment
     """
     if not TELEGRAM_TOKEN:
         return "Error: TELEGRAM_TOKEN not found in environment"
@@ -283,7 +283,7 @@ async def get_stock_recommendations(
             response.raise_for_status()
             return response.json()
     except httpx.ConnectError:
-        return {"error": "Stock screener API is not running. Start it with: cd /media/starscream/wheeljack1/projects/stock-screener && source .venv/bin/activate && python app.py --port 5004"}
+        return {"error": "Stock screener API is not running. Start it with: cd $STOCK_SCREENER_PATH && source .venv/bin/activate && python app.py --port 5004"}
     except Exception as e:
         return {"error": f"Failed to get recommendations: {str(e)}"}
 
@@ -318,7 +318,7 @@ async def check_sell_signals(holdings: Optional[List[Dict]] = None) -> Dict:
             response.raise_for_status()
             return response.json()
     except httpx.ConnectError:
-        return {"error": "Stock screener API is not running. Start it with: cd /media/starscream/wheeljack1/projects/stock-screener && source .venv/bin/activate && python app.py --port 5004"}
+        return {"error": "Stock screener API is not running. Start it with: cd $STOCK_SCREENER_PATH && source .venv/bin/activate && python app.py --port 5004"}
     except Exception as e:
         return {"error": f"Failed to check sell signals: {str(e)}"}
 
@@ -337,7 +337,7 @@ async def get_watchlist() -> Dict:
             response.raise_for_status()
             return response.json()
     except httpx.ConnectError:
-        return {"error": "Stock screener API is not running. Start it with: cd /media/starscream/wheeljack1/projects/stock-screener && source .venv/bin/activate && python app.py --port 5004"}
+        return {"error": "Stock screener API is not running. Start it with: cd $STOCK_SCREENER_PATH && source .venv/bin/activate && python app.py --port 5004"}
     except Exception as e:
         return {"error": f"Failed to get watchlist: {str(e)}"}
 

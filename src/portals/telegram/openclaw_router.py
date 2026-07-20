@@ -3,6 +3,7 @@
 
 import asyncio
 import click
+from pathlib import Path
 from typing import Tuple
 
 
@@ -11,10 +12,13 @@ class OpenClawRouter:
 
     def __init__(self):
         """Initialize router with available landscapes."""
+        # Compute terrarium root dynamically
+        terrarium_root = Path(__file__).parent.parent.parent.parent
+
         self.agents = {
             "canopy": {
                 "agent_name": "canopy",
-                "working_dir": "/media/starscream/bumblebee1/blaze/terrarium/src/landscapes/canopy",
+                "working_dir": str(terrarium_root / "src" / "landscapes" / "canopy"),
             }
             # Future landscapes: "mycelium", "reef", etc.
         }

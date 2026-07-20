@@ -14,7 +14,7 @@ This guide covers secure methods to SSH from your Mac to your home Linux PC (Ter
 
 **From your Mac:**
 ```bash
-ssh starscream@10.88.111.17
+ssh $USER@10.88.111.17
 ```
 
 That's it. You're in.
@@ -99,14 +99,14 @@ You have several secure options for remote SSH access:
 
 3. **Connect:**
    ```bash
-   ssh starscream@ssh-secure.mutatedterrarium.com
+   ssh $USER@ssh-secure.mutatedterrarium.com
    ```
 
    Or add to `~/.ssh/config`:
    ```
    Host terrarium-secure
        HostName ssh-secure.mutatedterrarium.com
-       User starscream
+       User $USER
        ProxyCommand cloudflared access ssh --hostname %h
    ```
 
@@ -152,7 +152,7 @@ Both will show you the current SSH command. Copy and run it on your Mac.
 
 2. **Get connection command** (from home PC terminal):
    ```bash
-   ssh -o ProxyCommand="cloudflared access tcp --hostname https://casino-oclc-queen-else.trycloudflare.com" starscream@10.88.111.17
+   ssh -o ProxyCommand="cloudflared access tcp --hostname https://casino-oclc-queen-else.trycloudflare.com" $USER@10.88.111.17
    ```
 
 3. **Run it:**
@@ -211,14 +211,14 @@ Both will show you the current SSH command. Copy and run it on your Mac.
 ### Usage from Mac:
 
 ```bash
-ssh starscream@100.101.102.103
+ssh $USER@100.101.102.103
 ```
 
 Or add to `~/.ssh/config`:
 ```
 Host terrarium-tail
     HostName 100.101.102.103
-    User starscream
+    User $USER
 ```
 
 Then:
@@ -304,14 +304,14 @@ ssh terrarium-tail
 ### Usage from Mac:
 
 ```bash
-ssh -p 2222 starscream@your-subdomain.duckdns.org
+ssh -p 2222 $USER@your-subdomain.duckdns.org
 ```
 
 Or add to `~/.ssh/config`:
 ```
 Host terrarium-direct
     HostName your-subdomain.duckdns.org
-    User starscream
+    User $USER
     Port 2222
 ```
 
@@ -343,23 +343,23 @@ ssh-keygen -t ed25519 -C "your_email@example.com"
 
 **Local network:**
 ```bash
-ssh-copy-id starscream@10.88.111.17
+ssh-copy-id $USER@10.88.111.17
 ```
 
 **Tailscale:**
 ```bash
-ssh-copy-id starscream@100.101.102.103
+ssh-copy-id $USER@100.101.102.103
 ```
 
 **Cloudflare or other remote:**
 Connect once with password, then:
 ```bash
-ssh-copy-id -o ProxyCommand="cloudflared access ssh --hostname ssh-secure.mutatedterrarium.com" starscream@ssh-secure.mutatedterrarium.com
+ssh-copy-id -o ProxyCommand="cloudflared access ssh --hostname ssh-secure.mutatedterrarium.com" $USER@ssh-secure.mutatedterrarium.com
 ```
 
 ### 3. Test passwordless login:
 ```bash
-ssh starscream@10.88.111.17
+ssh $USER@10.88.111.17
 # Should log in without password
 ```
 
@@ -373,23 +373,23 @@ Add to `~/.ssh/config` on your Mac:
 # Local network
 Host terrarium
     HostName 10.88.111.17
-    User starscream
+    User $USER
 
 # Tailscale (recommended for remote)
 Host terrarium-remote
     HostName 100.101.102.103
-    User starscream
+    User $USER
 
 # Cloudflare Access (authenticated)
 Host terrarium-secure
     HostName ssh-secure.mutatedterrarium.com
-    User starscream
+    User $USER
     ProxyCommand cloudflared access ssh --hostname %h
 
 # Fallback: Quick tunnel (temporary)
 Host terrarium-quick
     HostName 10.88.111.17
-    User starscream
+    User $USER
     ProxyCommand cloudflared access tcp --hostname PASTE_TUNNEL_URL_HERE
 ```
 

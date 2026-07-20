@@ -1,6 +1,10 @@
 # Terrarium 🌿
 
+[![Live Demo](https://img.shields.io/badge/🌐_Live_Demo-mutatedterrarium.com-EBFA1D?style=for-the-badge)](https://mutatedterrarium.com)
+
 ![x](/assets/main.png)
+
+> **🌐 Live Demo:** [mutatedterrarium.com](https://mutatedterrarium.com)
 
 A digital home where cybernetic minds live, grow, and tend to your life ecosystem. Within this cyberpunk-organic space, specialized minds inhabit architectural zones—the Dome for observation, the Library for learning, the Portal for communication—each working in harmony as a collective swarm to blur the boundaries between physical and digital existence.
 
@@ -27,15 +31,21 @@ The communication gateway. The swarm reaches you through this bridge between dig
 **⚙️ The Engine (Scheduler)**
 The heartbeat. Automated routines run like circadian rhythms, ensuring the swarm's minds wake at the right times to tend their tasks.
 
-### 🎨 [3D Visualization](./VISUALIZATION.md)
+### 🎨 Multi-Landscape Visualization
 
-Experience your AI ecosystem in an interactive 3D environment! The Terrarium Visualization displays all your bots and services in a stunning cyberpunk-organic glass dome with real-time status updates.
+Experience your AI ecosystem as a living, breathing multiplex network. The visualization shows Layer 0 (physical beings: human, dog, plants) connected to Layer 1 (digital landscapes) in a rotating 3D hexagonal cylinder.
 
-```bash
-cd terrarium-viz && ./start.sh
-```
+![Landscapes Visualization](/assets/screenshots/landscapes-viz.png)
 
-See [VISUALIZATION.md](./VISUALIZATION.md) for details.
+*The Undergrowth landscape (yellow) - home to 11 agents including Anya, Nyx, Sage, Pepper, and the swarm*
+
+---
+
+## Service Architecture
+
+![Services](/assets/screenshots/services.png)
+
+*The Dome, Portal, and other substations that power the terrarium ecosystem*
 
 
 ## Quick Start
