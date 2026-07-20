@@ -264,3 +264,5 @@ src/landscapes/canopy/bots/*
 src/landscapes/canopy/memory/*
 !src/landscapes/canopy/memory/__init__.py
 !src/landscapes/canopy/memory/tier_manager.py
+package.json
+package-lock.json
