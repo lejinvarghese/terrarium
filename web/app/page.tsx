@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { services } from '@/data/services';
 import dynamic from 'next/dynamic';
 import ServiceCard from '@/components/sections/ServiceCard';
+import Navigation from '@/components/navigation/Navigation';
 import styles from './page.module.css';
 
 const GridTrail = dynamic(() => import('@/components/effects/GridTrail'), {
@@ -18,6 +19,7 @@ const PointCloudAnimation = dynamic(() => import('@/components/visualizations/Po
 export default function Home() {
   return (
     <main className={styles.main}>
+      <Navigation />
       <GridTrail cellSize={50} trailColor="#EBFA1D" fadeSpeed={0.05} trailRadius={3} />
       {/* Hero Section */}
       <section className={styles.hero}>
@@ -72,6 +74,7 @@ export default function Home() {
       <footer className={styles.footer}>
         <div className="container">
           <p>site by starscream · powered by open source</p>
+          <p className={styles.credits}>parametric animation inspired by @yuruyurau</p>
         </div>
       </footer>
     </main>

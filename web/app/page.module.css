@@ -96,6 +96,10 @@
   padding: 0;
   background: #000000;
   position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
 }
 
 /* ServicesSection - Matching NCC grid */
@@ -257,7 +261,7 @@
 }
 
 .aboutText {
-  max-width: 900px;
+  max-width: 100%;
   margin: 0;
   font-size: 1.25rem;
   line-height: 1.8;
@@ -279,6 +283,12 @@
   font-size: 0.875rem;
   font-weight: 300;
   letter-spacing: 0.05em;
+}
+
+.credits {
+  margin-top: 0.5rem;
+  font-size: 0.75rem !important;
+  color: rgba(235, 250, 29, 0.6) !important;
 }
 
 /* Responsive */

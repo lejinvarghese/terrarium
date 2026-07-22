@@ -14,11 +14,26 @@ export default function PointCloudAnimation() {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    // Set canvas size
-    const width = 550;
-    const height = 350;
-    canvas.width = width;
-    canvas.height = height;
+    // Set canvas size responsively
+    const updateCanvasSize = () => {
+      const container = canvas.parentElement;
+      if (!container) return;
+
+      const containerWidth = container.clientWidth;
+      // Maintain aspect ratio, but make it taller on mobile
+      const aspectRatio = window.innerWidth < 768 ? 1.2 : 0.64;
+      const width = Math.min(containerWidth, 1200);
+      const height = width * aspectRatio;
+
+      canvas.width = width;
+      canvas.height = height;
+
+      return { width, height };
+    };
+
+    const size = updateCanvasSize();
+    if (!size) return;
+    let { width, height } = size;
 
     // Generate 10,000 points following the parametric equations from Wolfram code
     const numPoints = 10000;
@@ -44,8 +59,13 @@ export default function PointCloudAnimation() {
         const c = d - t;
         const q = 3 * Math.sin(2 * k) + 0.3 / k + Math.sin(y[i] / 25.0) * k * (9 + 4 * Math.sin(9 * e - 3 * d + 2 * t));
 
-        const px = q + 30 * Math.cos(c) + 200.0;
-        const py = 400 - (q * Math.sin(c) + 39 * d - 220.0);
+        // Scale points to canvas size and center properly
+        const scaleX = width / 550;
+        const scaleY = height / 350;
+        // Center the x-coordinate: original was offset by 200 in a 550px canvas
+        // Now center it relative to current canvas width
+        const px = (q + 30 * Math.cos(c)) * scaleX + width / 2;
+        const py = (400 - (q * Math.sin(c) + 39 * d - 220.0)) * scaleY;
 
         // Determine if point is in the scanning wave
         const distanceFromWave = Math.abs(((y[i] - yFirst) - wavePosition + ySpan / 2) % ySpan - ySpan / 2);
@@ -108,8 +128,20 @@ export default function PointCloudAnimation() {
 
     animate();
 
+    // Handle window resize
+    const handleResize = () => {
+      const size = updateCanvasSize();
+      if (size) {
+        width = size.width;
+        height = size.height;
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+
     // Cleanup
     return () => {
+      window.removeEventListener('resize', handleResize);
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
       }

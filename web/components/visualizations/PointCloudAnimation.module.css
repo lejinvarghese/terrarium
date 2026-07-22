@@ -1,5 +1,6 @@
 .container {
   width: 100%;
+  max-width: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -8,19 +9,22 @@
 }
 
 .canvas {
-  max-width: 100%;
+  width: 100%;
+  max-width: 1200px;
   height: auto;
+  display: block;
   border-radius: 8px;
   box-shadow: 0 0 20px rgba(235, 250, 29, 0.15);
 }
 
 @media (max-width: 768px) {
   .container {
-    padding: 2rem 0;
+    padding: 3rem 1rem;
   }
 
   .canvas {
     width: 100%;
-    height: auto;
+    max-width: 100%;
+    border-radius: 4px;
   }
 }
