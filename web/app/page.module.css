@@ -91,9 +91,9 @@
   transform: scale(0.98);
 }
 
-/* Landscape Visualization Section */
-.landscapes {
-  padding: 8rem 0;
+/* Point Cloud Animation Section */
+.pointCloud {
+  padding: 0;
   background: #000000;
   position: relative;
 }

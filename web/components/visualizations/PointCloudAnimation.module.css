@@ -1,0 +1,26 @@
+.container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 4rem 0;
+  background: #000;
+}
+
+.canvas {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 0 20px rgba(235, 250, 29, 0.15);
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 2rem 0;
+  }
+
+  .canvas {
+    width: 100%;
+    height: auto;
+  }
+}

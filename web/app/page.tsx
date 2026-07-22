@@ -10,9 +10,8 @@ const GridTrail = dynamic(() => import('@/components/effects/GridTrail'), {
   ssr: false,
 });
 
-// Multiplex Network visualization - can be easily removed by commenting out
-// Shows Layer 0 (physical/carbon beings) and Layer 1 (digital/silicon agents)
-const MultiplexNetwork = dynamic(() => import('@/components/visualizations/MultiplexNetwork'), {
+// Point Cloud Animation - parametric visualization with yellow scanning wave
+const PointCloudAnimation = dynamic(() => import('@/components/visualizations/PointCloudAnimation'), {
   ssr: false,
 });
 
@@ -32,6 +31,11 @@ export default function Home() {
             Explore
           </Link>
         </div>
+      </section>
+
+      {/* Point Cloud Animation - Shimmering yellow wave */}
+      <section className={styles.pointCloud}>
+        <PointCloudAnimation />
       </section>
 
       {/* Services Grid Section */}
@@ -63,17 +67,6 @@ export default function Home() {
           </p>
         </div>
       </section>
-
-      {/* ========================================
-          Multiplex Network Visualization
-          Layer 0: Physical beings (humans, dog, plants)
-          Layer 1: Digital beings (AI landscapes)
-          Comment out this entire section to remove
-          ======================================== */}
-      <section className={styles.landscapes}>
-        <MultiplexNetwork />
-      </section>
-      {/* ======================================== */}
 
       {/* Footer */}
       <footer className={styles.footer}>
