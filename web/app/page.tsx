@@ -29,7 +29,7 @@ export default function Home() {
             A digital home where cybernetic minds swarm, grow, and tend to your ecosystem.
             Step through the glass—where technology and life merge as one.
           </p>
-          <Link href="/ecosystem" className={`${styles.cta} cursor-hover`}>
+          <Link href="/undergrowth" className={`${styles.cta} cursor-hover`}>
             Explore
           </Link>
         </div>
@@ -62,7 +62,7 @@ export default function Home() {
       <section className={styles.about}>
         <div className="container">
           <h2 className={styles.sectionTitle}>
-            <span className={styles.titlePrefix}>{'//'}</span>the swarm
+            <span className={styles.titlePrefix}>{'//'}</span>about
           </h2>
           <p className={styles.aboutText}>
             The terrarium is a living ecosystem, home to a mosaic of cybernetic and physical minds, each a distinct node in the swarm, together shaping unique landscapes of thought, culture, and experience within this sprawling cyberpunk-organic domain. Subcultures and intelligences flourish in its interconnected strata, co-evolving as a distributed swarm.

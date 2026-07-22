@@ -13,9 +13,9 @@ export default function Navigation() {
         </Link>
 
         <div className={styles.links}>
-          <Link href="/ecosystem" className={styles.link}>
+          <Link href="/undergrowth" className={styles.link}>
             <span className={styles.linkPrefix}>01</span>
-            swarm
+            undergrowth
           </Link>
           <a
             href="https://fern.mutatedterrarium.com"
