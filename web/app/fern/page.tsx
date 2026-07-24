@@ -100,7 +100,7 @@ const Sub = ({ children }) => (
 );
 
 /* ───────────────────────── NAV ───────────────────────── */
-const PAGES = ["SYSTEM", "TERRARIUM", "PLACE", "CHARTER"];
+const PAGES = ["SYSTEM", "THE BIOME", "PLACE", "CHARTER"];
 function Nav({ page, setPage }) {
   return (
     <nav style={{
@@ -121,8 +121,8 @@ function Nav({ page, setPage }) {
   );
 }
 
-/* ───────────────────────── TERRARIUM SCENE (hero panorama) ───────────────────────── */
-function TerrariumScene() {
+/* ───────────────────────── THE BIOME SCENE (hero panorama) ───────────────────────── */
+function BiomeScene() {
   const A = (a) => (REDUCE ? "none" : a);
   return (
     <svg viewBox="0 0 1200 270" preserveAspectRatio="xMidYMax meet"
@@ -284,7 +284,7 @@ function Hero() {
       <div style={{ position: "absolute", right: "-4vw", top: "6vh", zIndex: 1, pointerEvents: "none" }}>
         <FernFlake size={Math.min(480, typeof window !== "undefined" ? window.innerWidth * 0.42 : 480)} opacity={0.14} />
       </div>
-      <TerrariumScene />
+      <BiomeScene />
       <div style={{ position: "relative", zIndex: 3, height: "100%", display: "flex", flexDirection: "column", justifyContent: "flex-start", paddingTop: "11vh", padding: "11vh 6vw 0", animation: REDUCE ? "none" : "fadeUp 1.1s ease both" }}>
         <div className="mono" style={{ fontSize: 11, color: "#8FC4BC", marginBottom: 18 }}>a fractal town platform for the northern shield</div>
         <h1 style={{ fontSize: "clamp(3.4rem,12vw,9.5rem)", fontWeight: 760, lineHeight: 0.92, letterSpacing: "-.02em" }}>FERN</h1>
@@ -665,7 +665,7 @@ function EnergyPage() {
     <div>
       <section style={{ padding: "4.5rem 5vw 1rem" }}>
         <div style={{ maxWidth: 1150, margin: "0 auto" }}>
-          <Tag n="ENERGY" label="the terrarium\u2019s metabolism" />
+          <Tag n="ENERGY" label="the biome\u2019s metabolism" />
           <H2>What feeds the loop:<br />proven now → modular 2030s → Mars-class.</H2>
           <Sub>Every rung is research-backed. Tap a cell for the evidence.</Sub>
         </div>
