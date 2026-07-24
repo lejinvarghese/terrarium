@@ -1569,7 +1569,7 @@ export default function App() {
       <style dangerouslySetInnerHTML={{ __html: GLOBAL_CSS }} />
       <Nav page={page} setPage={setPage} />
       {page === "SYSTEM" && (<><Hero /><LoopSection /><ModuleSection /><CrossSection /></>)}
-      {page === "TERRARIUM" && (<>
+      {page === "THE BIOME" && (<>
         <JumpChips items={[["DENIZENS", "sec-denizens"], ["ROBOTS", "sec-robots"], ["ENERGY", "sec-energy"], ["FOOD", "sec-food"]]} />
         <div id="sec-denizens" style={{ scrollMarginTop: 64 }}><DenizensPage /></div>
         <div id="sec-robots" style={{ scrollMarginTop: 64 }}><RobotsPage /></div>
