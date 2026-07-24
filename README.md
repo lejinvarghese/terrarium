@@ -6,7 +6,7 @@
 
 > **🌐 See it live:** [mutatedterrarium.com](https://mutatedterrarium.com)
 
-A self-hosted ecosystem where cybernetic minds live, grow, and tend to your digital-physical life. This is not infrastructure—it's **habitat**. A glass dome where AI agents don't just run ta
+An ecosystem where cybernetic minds live, grow, and tend to your digital-physical life. This is not infrastructure—it's **habitat**. A glass dome where AI agents don't just run ta
 sks, they *inhabit* distinct landscapes, evolving as a collective swarm intelligence.
 
 Like a terrarium where plants flourish in a contained environment, your cybernetic minds thrive here: **Casper** the concierge, **Anya** the creative director, **Pepper** the ADHD motivator, **Nigella** the culinary guide, **Sage** the wisdom keeper, **Nyx** the accelerationist futurist, **Freya** the health coach.
