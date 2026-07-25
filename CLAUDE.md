@@ -34,6 +34,52 @@ This is primarily an orchestration project. The `src/` directory is currently em
 
 ComfyUI runs externally at a configurable location. Set `COMFYUI_PATH` environment variable to your ComfyUI installation directory (defaults to `~/projects/ComfyUI`).
 
+**Ollama** models are stored on the fast SSD at `/media/starscream/bumblebee1/ollama/.ollama/models` (configured via systemd service environment variable).
+
+## Storage Organization
+
+To prevent root partition (`/`) from filling up, follow this storage strategy:
+
+### Drive Allocation (as of 2026-07-24)
+
+| Drive | Mount | Capacity | Free | Type | Purpose |
+|-------|-------|----------|------|------|---------|
+| nvme0n1p7 | `/media/starscream/bumblebee1` | 268GB | 237GB | NVMe SSD | **Primary workspace** - Active projects, Ollama models, fast I/O |
+| sda6 | `/home` | 183GB | 78GB | HDD | User files, configs, small projects |
+| sda5 | `/media/starscream/ironhide` | 319GB | 174GB | HDD | Large datasets, archives, media |
+| nvme0n1p3 | `/media/starscream/megatron` | 187GB | 88GB | NVMe SSD | Fast scratch space, builds |
+| sda2 | `/media/starscream/wheeljack1` | 280GB | 93GB | HDD | General storage |
+| sda4 | `/` (root) | 144GB | 55GB | HDD | **System only** - keep minimal |
+
+### Storage Guidelines
+
+**Root partition (/)** - Keep under 70% usage:
+- System files only - no user data or large applications
+- Auto-cleanup runs weekly (Sundays 3am) via `/usr/local/bin/system-cleanup`
+- Keeps journal logs for 7 days, temp files cleaned, old kernels removed
+
+**bumblebee1 (primary SSD)** - Use for:
+- Active development projects (like this Terrarium project)
+- Ollama models (16GB currently, configured via `OLLAMA_MODELS=/media/starscream/bumblebee1/ollama/.ollama/models`)
+- Anything needing fast I/O
+
+**ironhide (large HDD)** - Use for:
+- Large datasets, training data
+- Video/media files
+- Long-term archives
+- Docker volumes for data-heavy services
+
+**megatron (fast SSD)** - Use for:
+- Build artifacts, compilation outputs
+- Temporary ML model training
+- Cache directories for development tools
+
+**DO NOT store on root (/)**:
+- Ollama models (moved to bumblebee1)
+- Large Python virtual environments
+- Docker images/containers (move to ironhide if needed)
+- Media files, datasets, archives
+
 ## Development Commands
 
 ### Running ComfyUI

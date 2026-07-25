@@ -1,0 +1,6 @@
+#!/bin/bash
+# Manual trigger for meanwhile screensaver
+# Run this anytime to instantly launch the screensaver
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+exec "$SCRIPT_DIR/meanwhile-screensaver.sh"
