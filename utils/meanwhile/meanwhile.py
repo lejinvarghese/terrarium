@@ -1239,9 +1239,10 @@ class App:
             self.tick_wake(t, dt)
             return
         quiet = not (self.picker or self.editor or self.show_help)
-        if quiet and random.random() < dt / 3600:  # about once an hour, the rain speaks
-            self.trigger_wake(t)
-            return
+        # Disabled: Matrix "Wake up, Neo" screen
+        # if quiet and random.random() < dt / 3600:
+        #     self.trigger_wake(t)
+        #     return
         mult = self.cfg["speed"]
         target = max(8, int(self.h * self.cfg["density"] * 1.8))
         while len(self.streams) < target and random.random() < 0.4:
@@ -1567,10 +1568,11 @@ class App:
                     if not val:
                         self.close_panel()
                         continue
-                    if val.casefold() in ("neo", "wake up", "follow the white rabbit"):
-                        self.close_panel()
-                        self.trigger_wake(t)
-                        continue
+                    # Disabled: Easter egg trigger for Matrix screen
+                    # if val.casefold() in ("neo", "wake up", "follow the white rabbit"):
+                    #     self.close_panel()
+                    #     self.trigger_wake(t)
+                    #     continue
                     if val.casefold() not in (str(x).casefold() for x in entries):
                         entries.append(val)
                         save_config(self.cfg)
