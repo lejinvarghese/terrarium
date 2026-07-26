@@ -1,213 +1,204 @@
 #!/usr/bin/env python3
-"""Simple exploration runner for incubator agents"""
+"""Lean exploration runner for incubator agents.
 
-import asyncio
+One `run_episode` == one agent's exploration for one day:
+
+  1. Load carry-over: yesterday's journal entry + unread notes from peers.
+  2. Pick a goal (persona interests, with epsilon-random tangents).
+  3. Loop `steps` model turns; each turn the model may call tools
+     (web_search / web_fetch / read_message / write_message), resolved over
+     up to MAX_TOOL_ROUNDS rounds.
+  4. Write a private journal entry — the ONE thing tomorrow's self remembers.
+
+Everything is logged to SQLite + JSONL via Store. Pure-sync, no MCP, no asyncio.
+"""
+
+import json
 import random
+import time
+
 import click
-from datetime import datetime
+import ollama
 
 from src.core.goals import GoalGenerator
-from src.landscapes.core.agent import BaseAgent
-from src.landscapes.undergrowth.incubator.config import (
-    LANDSCAPE_NAME,
-    LANDSCAPE_DISPLAY_NAME,
-    MODEL_NAME,
-    TEACHER_MODEL,
-    DEFAULT_EPISODE_STEPS,
-)
 from src.landscapes.undergrowth.incubator.agents import agent_registry
+from src.landscapes.undergrowth.incubator.config import (
+    DEFAULT_EPISODE_STEPS,
+    DEFAULT_EPSILON,
+    FOLLOWUP_PROMPTS,
+    LANDSCAPE_DISPLAY_NAME,
+    MAX_TOOL_ROUNDS,
+    MODEL_NAME,
+    MODEL_OPTIONS,
+    REFLECTION_PROMPT,
+)
+from src.landscapes.undergrowth.incubator.store import Store
+from src.landscapes.undergrowth.incubator.tools import Toolbox
 
 
-def generate_dynamic_objective(agent_id: str, model=None, epsilon: float = 0.2) -> str:
-    """Generate a dynamic exploration objective for an agent.
-
-    Args:
-        agent_id: Agent identifier
-        model: Unused (kept for compatibility)
-        epsilon: Exploration rate (0.0-1.0)
-
-    Returns:
-        Goal string for the agent
-    """
-    agent_config = agent_registry.get_config(agent_id)
-    goal_gen = GoalGenerator(epsilon=epsilon)
-    return goal_gen.generate(agent_config)
+def _peer_roster(agent_id: str) -> str:
+    peers = []
+    for pid in agent_registry.list_agents():
+        if pid == agent_id:
+            continue
+        c = agent_registry.get_config(pid)
+        peers.append(f"  - {c['name']} ({pid}): {c.get('archetype', 'explorer')}")
+    return "\n".join(peers) if peers else "  (you are the only agent so far)"
 
 
-async def run_episode(
-    agent_id: str,
-    objective: str = None,
-    steps: int = DEFAULT_EPISODE_STEPS,
-    timeout: int = 60,
-    epsilon: float = 0.2,
-    model_type: str = "openrouter",
-    model_name: str = None,
-):
-    """Run an exploration episode for an agent.
-
-    Args:
-        agent_id: Agent identifier (e.g., "A001")
-        objective: Exploration goal (auto-generated if None)
-        steps: Number of exploration steps
-        timeout: Timeout per step in seconds
-        epsilon: Exploration rate for goal generation
-        model_type: "openrouter" (teacher/Grok) or "ollama" (student/local)
-        model_name: Override default model name
-
-    Returns:
-        Episode summary dict
-    """
-    agent_config = agent_registry.get_config(agent_id)
-
-    # Generate objective if not provided
-    if objective is None:
-        objective = generate_dynamic_objective(agent_id, epsilon=epsilon)
-
-    # Determine model name based on type
-    if model_name is None:
-        if model_type == "openrouter":
-            model_name = TEACHER_MODEL  # Teacher model (Claude)
-        else:
-            model_name = MODEL_NAME  # Local student model
-
-    # Display episode info
-    model_display = f"{model_type}:{model_name}"
-    click.secho(f"\n{'=' * 60}", fg="cyan")
-    click.secho(f"Agent: {agent_config['name']} ({agent_id})", fg="green", bold=True)
-    click.secho(f"Model: {model_display}", fg="blue")
-    click.secho(f"Goal: {objective}", fg="yellow")
-    click.secho(f"{'=' * 60}\n", fg="cyan")
-
-    # Create agent
-    agent = await BaseAgent.create(
-        id=agent_id,
-        name=agent_config["name"],
-        user_id=agent_id,  # Use agent_id as user_id for separate memories
-        instructions=agent_config["persona_template"],
-        model_name=model_name,
-        model_type=model_type,
-        debug=False,
-        skip_logging=False,  # Enable logging to database
+def _build_system_prompt(agent_config: dict) -> str:
+    return (
+        agent_config["persona_template"]
+        + "\n\nOTHER AGENTS IN THE UNDERGROWTH (leave them notes with write_message):\n"
+        + _peer_roster(agent_config["id"])
     )
 
+
+def _build_kickoff(objective: str, carry: dict | None, inbox: list[dict]) -> str:
+    parts = [f"Today's exploration goal: {objective}"]
+    if carry:
+        parts.append(f"\nYesterday ({carry['day']}) you wrote in your journal:\n\"{carry['summary']}\"\n"
+                     "Continue from there — build on it, don't start over.")
+    if inbox:
+        notes = "\n".join(f"  - {m['from_name']} ({m['from_agent']}): {m['content']}" for m in inbox)
+        parts.append(f"\nNotes waiting for you from other agents:\n{notes}")
+    parts.append("\nBegin exploring now. Reach for a tool on your very first move.")
+    return "\n".join(parts)
+
+
+def _as_message_dict(msg) -> dict:
+    """Normalise an Ollama response message into a plain dict for history."""
+    d = {"role": "assistant", "content": msg.get("content") or ""}
+    tcs = msg.get("tool_calls")
+    if tcs:
+        d["tool_calls"] = tcs
+    return d
+
+
+def run_episode(
+    agent_id: str,
+    objective: str | None = None,
+    steps: int = DEFAULT_EPISODE_STEPS,
+    epsilon: float = DEFAULT_EPSILON,
+    model_name: str = MODEL_NAME,
+    store: Store | None = None,
+    verbose: bool = True,
+) -> dict:
+    """Run one daily exploration episode for an agent. Returns a summary dict."""
+    cfg = agent_registry.get_config(agent_id)
+    owns_store = store is None
+    store = store or Store()
+    from datetime import date
+    day = date.today().isoformat()
+
+    if objective is None:
+        objective = GoalGenerator(epsilon).generate(cfg)
+
+    carry = store.last_journal(agent_id, before_day=day) or store.last_journal(agent_id)
+    inbox = store.read_messages(agent_id, mark_read=True)
+    toolbox = Toolbox(store, agent_id, cfg["name"])
+
+    if verbose:
+        click.secho(f"\n{'=' * 62}", fg="cyan")
+        click.secho(f"{cfg['name']} ({agent_id})  ·  {model_name}", fg="green", bold=True)
+        click.secho(f"Goal: {objective}", fg="yellow")
+        if carry:
+            click.secho(f"Carrying over from {carry['day']}", fg="magenta")
+        if inbox:
+            click.secho(f"{len(inbox)} note(s) from peers", fg="magenta")
+        click.secho(f"{'=' * 62}\n", fg="cyan")
+
+    ep_id = store.start_episode(agent_id, cfg["name"], objective, day)
+    history = [
+        {"role": "system", "content": _build_system_prompt(cfg)},
+        {"role": "user", "content": _build_kickoff(objective, carry, inbox)},
+    ]
+
+    idx = 0
+    tool_calls = 0
+    start = time.time()
+
+    for step in range(1, steps + 1):
+        if verbose:
+            click.secho(f"[step {step}/{steps}]", fg="cyan")
+        for _ in range(MAX_TOOL_ROUNDS):
+            try:
+                resp = ollama.chat(model=model_name, messages=history,
+                                   tools=Toolbox.schemas, options=MODEL_OPTIONS)
+            except Exception as e:
+                click.secho(f"  model error: {e}", fg="red")
+                store.log_step(ep_id, agent_id, idx, "thought", content=f"[model error] {e}")
+                idx += 1
+                break
+            msg = resp["message"]
+            history.append(_as_message_dict(msg))
+
+            if msg.get("content"):
+                store.log_step(ep_id, agent_id, idx, "thought", content=msg["content"])
+                idx += 1
+                if verbose:
+                    click.secho(f"  💭 {msg['content'].strip()[:200]}", fg="white")
+
+            tcs = msg.get("tool_calls")
+            if not tcs:
+                break
+            for tc in tcs:
+                name = tc.function.name
+                args = dict(tc.function.arguments or {})
+                result = toolbox.call(name, args)
+                tool_calls += 1
+                store.log_step(ep_id, agent_id, idx, "tool",
+                               tool_name=name, tool_args=json.dumps(args),
+                               tool_result=result)
+                idx += 1
+                if verbose:
+                    click.secho(f"  🔧 {name}({args}) → {result[:120].strip()}…", fg="blue")
+                history.append({"role": "tool", "content": result, "tool_name": name})
+
+        if step < steps:
+            history.append({"role": "user", "content": random.choice(FOLLOWUP_PROMPTS)})
+
+    # Reflection → journal (no tools; we want prose)
+    if verbose:
+        click.secho("[reflection] writing journal entry…", fg="cyan")
+    history.append({"role": "user", "content": REFLECTION_PROMPT})
     try:
-        # Step 1: Initial exploration with objective
-        click.secho(f"[Step 1/{steps}] Starting exploration...", fg="cyan")
-        response = await agent.run(objective)
-        click.secho(f"\n{response.content}\n", fg="white")
+        resp = ollama.chat(model=model_name, messages=history, options=MODEL_OPTIONS)
+        summary = (resp["message"].get("content") or "").strip()
+    except Exception as e:
+        summary = f"[reflection failed: {e}]"
+    store.set_journal(agent_id, day, summary)
+    store.log_step(ep_id, agent_id, idx, "summary", content=summary)
+    store.end_episode(ep_id, steps, tool_calls, summary)
 
-        # Subsequent steps: natural continuation
-        for step_num in range(2, steps + 1):
-            click.secho(f"[Step {step_num}/{steps}] Continuing...", fg="cyan")
+    duration = time.time() - start
+    if verbose:
+        click.secho(f"\n📔 {summary}\n", fg="bright_yellow")
+        click.secho(f"done in {duration:.0f}s · {tool_calls} tool calls · episode {ep_id}\n",
+                    fg="green", bold=True)
 
-            # Natural follow-up prompts
-            prompts = [
-                "Based on what you found, what else would you like to explore?",
-                "What did you learn? What are you curious about next?",
-                "Reflect on what you discovered. What patterns or connections do you notice?",
-                "What questions arose from your exploration? Pick one to investigate.",
-            ]
-            followup = random.choice(prompts)
+    if owns_store:
+        store.close()
 
-            response = await agent.run(followup)
-            click.secho(f"\n{response.content}\n", fg="white")
-
-        # Final reflection
-        click.secho(f"[Reflection] Summarizing episode...", fg="cyan")
-        reflection_prompt = (
-            "Reflect on this exploration episode. What did you learn? "
-            "What was most interesting or surprising? What would you explore next time?"
-        )
-        response = await agent.run(reflection_prompt)
-        click.secho(f"\n{response.content}\n", fg="white")
-
-        click.secho(f"\n{'=' * 60}", fg="cyan")
-        click.secho(f"Episode complete!", fg="green", bold=True)
-        click.secho(f"{'=' * 60}\n", fg="cyan")
-
-        return {
-            "agent_id": agent_id,
-            "agent_name": agent_config["name"],
-            "objective": objective,
-            "steps": steps,
-            "model_type": model_type,
-            "model_name": model_name,
-            "timestamp": datetime.now().isoformat(),
-        }
-
-    finally:
-        # Clean up MCP connections
-        await agent.close()
+    return {
+        "agent_id": agent_id, "agent_name": cfg["name"], "episode_id": ep_id,
+        "objective": objective, "steps": steps, "tool_calls": tool_calls,
+        "duration_s": round(duration, 1), "summary": summary,
+    }
 
 
 @click.command()
-@click.option(
-    "--agent",
-    "-a",
-    type=click.Choice(list(agent_registry.agents.keys())),
-    required=True,
-    help="Agent to run",
-)
-@click.option(
-    "--objective",
-    "-o",
-    default=None,
-    help="What to explore (auto-generated if not provided)",
-)
-@click.option(
-    "--steps",
-    "-s",
-    default=DEFAULT_EPISODE_STEPS,
-    help="Number of exploration steps",
-)
-@click.option(
-    "--model",
-    "-m",
-    type=click.Choice(["teacher", "student", "openrouter", "ollama"]),
-    default="teacher",
-    help="Model to use: teacher (Grok via OpenRouter) or student (local)",
-)
-@click.option(
-    "--epsilon",
-    "-e",
-    default=0.2,
-    type=float,
-    help="Exploration rate for goal generation (0.0-1.0)",
-)
-def explore(agent: str, objective: str, steps: int, model: str, epsilon: float):
-    """Run agent exploration episode
-
-    Examples:
-        # Run Nyx with auto-generated goal using Grok (teacher)
-        uv run python -m src.landscapes.undergrowth.incubator.explore -a A001
-
-        # Run Anya with specific goal using local model (student)
-        uv run python -m src.landscapes.undergrowth.incubator.explore -a A002 -m student -o "Find ambient electronic music"
-
-        # Run Sage with high exploration rate
-        uv run python -m src.landscapes.undergrowth.incubator.explore -a A003 -e 0.5
-    """
-    click.secho("\n" + "=" * 60, fg="cyan")
-    click.secho(f"{LANDSCAPE_DISPLAY_NAME} - Exploration", fg="cyan", bold=True)
-    click.secho("=" * 60 + "\n", fg="cyan")
-
-    # Map friendly names to model types
-    model_type_map = {
-        "teacher": "openrouter",
-        "student": "ollama",
-        "openrouter": "openrouter",
-        "ollama": "ollama",
-    }
-    model_type = model_type_map[model]
-
-    # Run episode
-    asyncio.run(run_episode(
-        agent_id=agent,
-        objective=objective,
-        steps=steps,
-        model_type=model_type,
-        epsilon=epsilon,
-    ))
+@click.option("--agent", "-a", type=click.Choice(agent_registry.list_agents()),
+              required=True, help="Agent to run (e.g. A001)")
+@click.option("--objective", "-o", default=None, help="Explicit goal (auto-generated if omitted)")
+@click.option("--steps", "-s", default=DEFAULT_EPISODE_STEPS, help="Model turns this episode")
+@click.option("--epsilon", "-e", default=DEFAULT_EPSILON, type=float, help="Exploration rate 0-1")
+@click.option("--model", "-m", default=MODEL_NAME, help="Ollama model id")
+def explore(agent, objective, steps, epsilon, model):
+    """Run a single agent's daily exploration episode."""
+    click.secho(f"\n{LANDSCAPE_DISPLAY_NAME} · incubator", fg="cyan", bold=True)
+    run_episode(agent_id=agent, objective=objective, steps=steps,
+                epsilon=epsilon, model_name=model)
 
 
 if __name__ == "__main__":
