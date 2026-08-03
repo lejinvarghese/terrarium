@@ -97,9 +97,9 @@ in the environment, so cron works without an interactive shell.
 
 Defined in `agents.py` (personas) — add one and it's automatically scheduled:
 
-- **A001 Nyx** — accelerationist; AI, fusion, space, transhumanism
-- **A002 Anya** — creative; electronic/experimental music, dark aesthetics
-- **A003 Sage** — philosopher; systems thinking, complexity, synthesis
+- **A001 Atlas** — accelerationist; AI, fusion, space, transhumanism
+- **A002 Aria** — creative; electronic/experimental music, dark aesthetics
+- **A003 Aris** — philosopher; systems thinking, complexity, synthesis
 
 ## Files
 
