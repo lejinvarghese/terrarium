@@ -1,9 +1,10 @@
-"""The four tools an incubator agent has. Stdlib-only, no MCP subprocesses.
+"""The five tools an incubator agent has. Stdlib-only, no MCP subprocesses.
 
   web_search(query)            Tavily if a key is set, else DuckDuckGo (keyless).
   web_fetch(url)               Fetch a page and return cleaned, truncated text.
   read_message()               Read notes peers left for this agent.
   write_message(to, content)   Leave a note for another agent (id, or "all").
+  send_telegram_message(text)  Send a message to the user via Telegram (when warranted).
 
 `Toolbox` binds the tools to one agent + the shared Store and exposes:
   .schemas    OpenAI-format tool definitions for the Ollama `tools=` param
@@ -169,6 +170,31 @@ def web_fetch(url: str, max_chars: int = WEB_FETCH_MAX_CHARS) -> str:
     return f"Fetched {url}:\n{text}"
 
 
+def _send_telegram_via_api(chat_id: int, text: str, agent_name: str) -> bool:
+    """Send a message via Telegram Bot API (synchronous, no bot instance needed)."""
+    token = os.environ.get("TELEGRAM_TOKEN")
+    if not token:
+        return False
+    # Prefix message with agent name so user knows who's talking
+    formatted_text = f"🌱 *{agent_name}*\n\n{text}"
+    url = f"https://api.telegram.org/bot{token}/sendMessage"
+    body = {
+        "chat_id": chat_id,
+        "text": formatted_text,
+        "parse_mode": "Markdown",
+    }
+    try:
+        req = urllib.request.Request(
+            url,
+            data=json.dumps(body).encode(),
+            headers={"Content-Type": "application/json"},
+        )
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            return resp.status == 200
+    except Exception:
+        return False
+
+
 # --------------------------------------------------------------------------- #
 # Tool schemas (OpenAI function-calling format, what Ollama expects)
 # --------------------------------------------------------------------------- #
@@ -196,6 +222,23 @@ TOOL_SCHEMAS = [
             "to": {"type": "string", "description": "recipient agent id (e.g. 'A002') or 'all'"},
             "content": {"type": "string", "description": "the message"}},
             "required": ["to", "content"]}}},
+    {"type": "function", "function": {
+        "name": "send_telegram_message",
+        "description": (
+            "Send a message to the user via Telegram. Use ONLY when you have something "
+            "important to communicate:\n"
+            "- You found significant information they explicitly asked for\n"
+            "- You discovered something surprising or urgent\n"
+            "- You need clarification on their request\n\n"
+            "DO NOT use for:\n"
+            "- Routine exploration updates (those go in your journal)\n"
+            "- Internal thoughts or planning\n"
+            "- Information that can wait until they check your journal\n\n"
+            "Be concise and actionable. The user will receive this as a notification."
+        ),
+        "parameters": {"type": "object", "properties": {
+            "text": {"type": "string", "description": "the message to send (keep it concise and valuable)"}},
+            "required": ["text"]}}},
 ]
 
 
@@ -220,6 +263,8 @@ class Toolbox:
                 return self._read_message()
             if name == "write_message":
                 return self._write_message(args.get("to", ""), args.get("content", ""))
+            if name == "send_telegram_message":
+                return self._send_telegram_message(args.get("text", ""))
             return f"Unknown tool: {name}"
         except Exception as e:
             return f"Tool {name} error: {e}"
@@ -239,3 +284,42 @@ class Toolbox:
             return "write_message error: empty content."
         self.store.write_message(self.agent_id, self.agent_name, to, content)
         return f"Message left for {to}."
+
+    def _send_telegram_message(self, text: str) -> str:
+        """Send a Telegram message to the most recent user who messaged this agent."""
+        text = (text or "").strip()
+        if not text:
+            return "send_telegram_message error: empty text."
+
+        # Find most recent TELEGRAM_* message TO this agent
+        cursor = self.store.conn.execute(
+            "SELECT from_agent, from_name FROM messages "
+            "WHERE to_agent=? AND from_agent LIKE 'TELEGRAM_%' "
+            "ORDER BY id DESC LIMIT 1",
+            (self.agent_id,)
+        )
+        row = cursor.fetchone()
+
+        if not row:
+            return (
+                "send_telegram_message: No user has messaged you yet. "
+                "Cannot send notification without a recipient."
+            )
+
+        # Extract user ID from "TELEGRAM_123456" format
+        from_agent = row[0]
+        try:
+            chat_id = int(from_agent.split("_", 1)[1])
+        except (ValueError, IndexError):
+            return f"send_telegram_message error: invalid user ID format in {from_agent}"
+
+        # Send via Telegram API
+        success = _send_telegram_via_api(chat_id, text, self.agent_name)
+
+        if success:
+            return f"Message sent to {row[1]} via Telegram."
+        else:
+            return (
+                "send_telegram_message failed: could not reach Telegram API. "
+                "Message saved in your journal instead."
+            )
