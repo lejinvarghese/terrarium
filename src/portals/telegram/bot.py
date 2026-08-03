@@ -42,6 +42,13 @@ WORKING_DIR = os.getenv("CLAUDE_WORKING_DIR", os.getcwd())
 MEMORY_VECTOR_PATH = os.getenv("MEMORY_VECTOR_PATH", "data/memory_vectors")
 SESSION_EXPIRY_HOURS = int(os.getenv("SESSION_EXPIRY_HOURS", "24"))  # Default: 24 hours
 
+# Incubator agent mapping (for message routing)
+INCUBATOR_AGENTS = {
+    "atlas": "A001",
+    "aria": "A002",
+    "aris": "A003",
+}
+
 filterwarnings("ignore")
 
 
@@ -211,6 +218,10 @@ Use @landscape to send messages to elevated intelligence layers (e.g., @canopy a
 
 **Bot Switching:**
 Use @botname to switch bots and send a message (e.g., @sage what's new in AI research?)
+
+**Incubator Agents:**
+Send async messages to exploration agents: @atlas, @aria, @aris, or @incubator
+They'll see your message on their next exploration (daily at 06:00)
 
 **Usage:**
 Send me any message to chat with the current bot, or use /bots to explore different bots!
@@ -495,6 +506,10 @@ async def bot_selection_callback(
         **Bot Switching:**
         Use @botname to switch bots and send a message (e.g., @sage what's new in AI research?)
 
+        **Incubator Agents:**
+        Send async messages to exploration agents: @atlas, @aria, @aris, or @incubator
+        They'll see your message on their next exploration (daily at 06:00)
+
         **Usage:**
         Send me any message to chat with the current bot, or use /bots to explore different bots!"""
         await query.edit_message_text(help_text, parse_mode=ParseMode.MARKDOWN)
@@ -691,6 +706,40 @@ async def chat_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
             await update.message.reply_text(response)
             click.secho(f"🌿 Routed to landscape: {target}", fg="green")
             return  # Exit early - landscape handled via OpenClaw
+
+    # Check for @incubator agent syntax (async message queue to exploration agents)
+    incubator_match = re.match(r"@(atlas|aria|aris|incubator)\s+(.*)", user_message, re.DOTALL | re.IGNORECASE)
+    if incubator_match:
+        target = incubator_match.group(1).lower()
+        message_text = incubator_match.group(2).strip()
+
+        # Determine recipient
+        if target == "incubator":
+            agent_id = "all"  # Broadcast to all incubator agents
+            display_name = "all incubator agents (Atlas, Aria, Aris)"
+        else:
+            agent_id = INCUBATOR_AGENTS[target]
+            display_name = target.title()
+
+        # Write to incubator message queue
+        from src.landscapes.undergrowth.incubator.store import Store
+        store = Store()
+        try:
+            store.write_message(
+                from_agent=f"TELEGRAM_{user.id}",
+                from_name=user.first_name,
+                to_agent=agent_id,
+                content=message_text
+            )
+            await update.message.reply_text(
+                f"📨 Message queued for **{display_name}**.\n"
+                f"They'll see it on their next exploration (daily at 06:00).",
+                parse_mode=ParseMode.MARKDOWN
+            )
+            click.secho(f"📬 Incubator message queued: {user.first_name} → {target}", fg="green")
+        finally:
+            store.close()
+        return  # Exit early - message queued
 
     # Check for @botname syntax: @sage how are you?
     at_bot_match = re.match(r"@(\w+)\s+(.*)", user_message, re.DOTALL)
