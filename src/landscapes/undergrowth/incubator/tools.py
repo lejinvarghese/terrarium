@@ -286,12 +286,12 @@ class Toolbox:
         return f"Message left for {to}."
 
     def _send_telegram_message(self, text: str) -> str:
-        """Send a Telegram message to the most recent user who messaged this agent."""
+        """Send a Telegram message - replies to recent messengers or sends to default user."""
         text = (text or "").strip()
         if not text:
             return "send_telegram_message error: empty text."
 
-        # Find most recent TELEGRAM_* message TO this agent
+        # Try to find most recent TELEGRAM_* message TO this agent (for replies)
         cursor = self.store.conn.execute(
             "SELECT from_agent, from_name FROM messages "
             "WHERE to_agent=? AND from_agent LIKE 'TELEGRAM_%' "
@@ -300,24 +300,33 @@ class Toolbox:
         )
         row = cursor.fetchone()
 
-        if not row:
-            return (
-                "send_telegram_message: No user has messaged you yet. "
-                "Cannot send notification without a recipient."
-            )
-
-        # Extract user ID from "TELEGRAM_123456" format
-        from_agent = row[0]
-        try:
-            chat_id = int(from_agent.split("_", 1)[1])
-        except (ValueError, IndexError):
-            return f"send_telegram_message error: invalid user ID format in {from_agent}"
+        if row:
+            # Reply to someone who messaged this agent
+            from_agent = row[0]
+            try:
+                chat_id = int(from_agent.split("_", 1)[1])
+                recipient_name = row[1]
+            except (ValueError, IndexError):
+                return f"send_telegram_message error: invalid user ID format in {from_agent}"
+        else:
+            # Proactive message: use default chat ID from environment
+            default_chat_id = os.environ.get("TELEGRAM_CHAT_ID")
+            if not default_chat_id:
+                return (
+                    "send_telegram_message: No recipient found. "
+                    "Set TELEGRAM_CHAT_ID environment variable or have someone message you first."
+                )
+            try:
+                chat_id = int(default_chat_id)
+                recipient_name = "user"
+            except ValueError:
+                return f"send_telegram_message error: invalid TELEGRAM_CHAT_ID format"
 
         # Send via Telegram API
         success = _send_telegram_via_api(chat_id, text, self.agent_name)
 
         if success:
-            return f"Message sent to {row[1]} via Telegram."
+            return f"Message sent to {recipient_name} via Telegram."
         else:
             return (
                 "send_telegram_message failed: could not reach Telegram API. "

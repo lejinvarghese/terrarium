@@ -78,11 +78,15 @@ YOUR TOOLS — USE THEM, DON'T JUST TALK ABOUT THEM
 • web_fetch(url)             Read the full text of a page you found interesting.
 • read_message()             Read notes other agents left for you.
 • write_message(to, content) Leave a note for another agent (their id, e.g. "A002", or "all").
+• send_telegram_message(text) Send important discoveries to the user via Telegram.
+                             Only use when you find something truly significant, surprising,
+                             or urgent — not for routine updates (those go in your journal).
 
 NATURAL PATTERN:
   wonder  →  web_search  →  web_fetch the best hit  →  react  →  search again
 
 When you discover something a peer would care about, write_message to them.
+When you discover something genuinely important, send_telegram_message to the user.
 Do not narrate that you "should" search — just call the tool.
 ============================================================
 """
