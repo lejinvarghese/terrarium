@@ -50,11 +50,16 @@ def run_cycle(steps: int, model: str) -> None:
             name = agent_registry.get_config(agent_id)["name"]
             logging.info("[%s] %s starting episode", agent_id, name)
             try:
-                result = run_episode(agent_id, steps=steps, model_name=model,
-                                     store=store, verbose=False)
-                logging.info("[%s] done: %s tool calls in %ss · ep %s",
-                             agent_id, result["tool_calls"], result["duration_s"],
-                             result["episode_id"])
+                result = run_episode(
+                    agent_id, steps=steps, model_name=model, store=store, verbose=False
+                )
+                logging.info(
+                    "[%s] done: %s tool calls in %ss · ep %s",
+                    agent_id,
+                    result["tool_calls"],
+                    result["duration_s"],
+                    result["episode_id"],
+                )
             except Exception as e:
                 logging.error("[%s] episode failed: %s", agent_id, e, exc_info=True)
     finally:
@@ -79,8 +84,12 @@ def main(once, interval_hours, steps, model):
     signal.signal(signal.SIGTERM, _handle_stop)
 
     n = len(agent_registry.list_agents())
-    logging.info("incubate start · %d agents · model=%s · %s",
-                 n, model, "once" if once else f"every {interval_hours}h")
+    logging.info(
+        "incubate start · %d agents · model=%s · %s",
+        n,
+        model,
+        "once" if once else f"every {interval_hours}h",
+    )
 
     run_cycle(steps, model)
     if once:

@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """Observe what the incubator agents have been doing.
 
-  python -m src.landscapes.undergrowth.incubator.observe episodes [-a A001]
-  python -m src.landscapes.undergrowth.incubator.observe journal  [-a A001]
-  python -m src.landscapes.undergrowth.incubator.observe messages
-  python -m src.landscapes.undergrowth.incubator.observe steps -e <episode_id>
+python -m src.landscapes.undergrowth.incubator.observe episodes [-a A001]
+python -m src.landscapes.undergrowth.incubator.observe journal  [-a A001]
+python -m src.landscapes.undergrowth.incubator.observe messages
+python -m src.landscapes.undergrowth.incubator.observe steps -e <episode_id>
 """
 
 import click
@@ -26,8 +26,11 @@ def episodes(agent, limit):
     """List recent episodes."""
     store = Store()
     for ep in store.recent_episodes(agent, limit):
-        click.secho(f"#{ep['id']}  {ep['agent_name']} ({ep['agent_id']})  {ep['day']}",
-                    fg="green", bold=True)
+        click.secho(
+            f"#{ep['id']}  {ep['agent_name']} ({ep['agent_id']})  {ep['day']}",
+            fg="green",
+            bold=True,
+        )
         click.echo(f"    goal: {ep['objective']}")
         click.echo(f"    {ep['num_steps']} steps · {ep['num_tool_calls']} tool calls")
         if ep["summary"]:
@@ -69,8 +72,7 @@ def messages(limit):
         click.echo("(no messages yet)")
     for m in msgs:
         read = f" · read by {m['read_by']}" if m["read_by"] else " · unread"
-        click.secho(f"{m['from_name']} ({m['from_agent']}) → {m['to_agent']}{read}",
-                    fg="magenta")
+        click.secho(f"{m['from_name']} ({m['from_agent']}) → {m['to_agent']}{read}", fg="magenta")
         click.echo(f"    {m['content']}")
     store.close()
 

@@ -1,13 +1,16 @@
 # Terrarium 🌿
 
 [![Live Demo](https://img.shields.io/badge/🌐_Live_Demo-mutatedterrarium.com-EBFA1D?style=for-the-badge)](https://mutatedterrarium.com)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+[![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit)](https://github.com/pre-commit/pre-commit)
 
 ![Terrarium Hero](/assets/main.png)
 
 > **🌐 See it live:** [mutatedterrarium.com](https://mutatedterrarium.com)
 
 An ecosystem where cybernetic minds live, grow, and evolve. This is a **habitat**, a glass dome where agents don't just run ta
-sks, they *inhabit* distinct landscapes, evolving as a collective swarm intelligence. Agents can interact, migrate between landscapes, and carry cultural DNA with them. Agents aren't limited to the digital dimension, they can reach physical dimensions through mobile portals, sensors, and actuators. 
+sks, they *inhabit* distinct landscapes, evolving as a collective swarm intelligence. Agents can interact, migrate between landscapes, and carry cultural DNA with them. Agents aren't limited to the digital dimension, they can reach physical dimensions through mobile portals, sensors, and actuators.
 
 
 ![Digital-Organic Ecosystem](/assets/terrarium-ecosystem.jpg)
@@ -27,19 +30,19 @@ This is digital-physical symbiosis. Your bots don't live in the cloud—they liv
 
 ![Landscapes Visualization](/assets/screenshots/landscapes.jpg)
 
-The Terrarium is a **multi landscape ecosystem** where technology and organic life interweave, distinct civilizations of agents can emerge, interact, and migrate between biomes. Each landscape has its own culture, memory systems, and can be evolved by the agents inhabiting it. Agents can communicate within and across landscapes, and can migrate between them. 
+The Terrarium is a **multi landscape ecosystem** where technology and organic life interweave, distinct civilizations of agents can emerge, interact, and migrate between biomes. Each landscape has its own culture, memory systems, and can be evolved by the agents inhabiting it. Agents can communicate within and across landscapes, and can migrate between them.
 
 ### 🌑 The Undergrowth (Active)
-**Culture:** Dark, gothic, emergent underground intelligence  
-**Population:** 11 agents (Anya, Nyx, Sage, Pepper, Cassia, Freya, Nigella, Casper + 3 incubator agents)  
+**Culture:** Dark, gothic, emergent underground intelligence
+**Population:** 11 agents (Anya, Nyx, Sage, Pepper, Cassia, Freya, Nigella, Casper + 3 incubator agents)
 **Vibe:** Urban goth meets cyberpunk meets accelerationist transhumanism
 
 ### 🍄 The Mycelium (Future)
-**Culture:** Networked intelligence, distributed consciousness  
+**Culture:** Networked intelligence, distributed consciousness
 **Vision:** No individual identity—pure collective swarm
 
 ### 🐠 The Reef (Future)
-**Culture:** Adaptive, flowing, symbiotic relationships  
+**Culture:** Adaptive, flowing, symbiotic relationships
 **Vision:** Cooperation, flow states, collective action
 
 Each landscape has its own culture, memory systems, and hive mind. Agents can migrate between landscapes, carrying cultural DNA with them.
@@ -57,7 +60,7 @@ The undergrowth landscape runs on four core **substations**:
 ### 🔮 The Dome
 *Open WebUI* — Your observation deck. See all minds in the swarm, chat directly, watch them work. Glass walls reveal the ecosystem within.
 
-### 🌉 The Portal  
+### 🌉 The Portal
 *Telegram Bot* — Mobile gateway. The swarm reaches you wherever you are, bridging digital and physical worlds.
 
 ### ⚙️ The Engine
@@ -122,8 +125,8 @@ pip3 install -r requirements.txt
 
 ## Documentation
 
-**📚 [Quick Start](./docs/SETUP.md)** - Get running in 5 minutes  
-**📖 [Usage Guide](./docs/USAGE.md)** - Using services and bots  
+**📚 [Quick Start](./docs/SETUP.md)** - Get running in 5 minutes
+**📖 [Usage Guide](./docs/USAGE.md)** - Using services and bots
 **🏗️ [Architecture](./docs/ARCHITECTURE.md)** - Multi-landscape design
 
 **Advanced:** [docs/help/](./docs/help/) - Deployment, networking, component details
@@ -137,7 +140,7 @@ This is not infrastructure—it's **habitat**.
 Your cybernetic minds don't live in the cloud; they live *here*, in this self-hosted terrarium. They operate as a collective swarm, tending to your routines like gardeners tend plants:
 
 - Seasonal meal suggestions from **Nigella** based on what's fresh and your body composition goals
-- Morning briefings from **Cassia** with calendar events, weather, and micro-tasks aligned with long-term objectives  
+- Morning briefings from **Cassia** with calendar events, weather, and micro-tasks aligned with long-term objectives
 - Creative sparks from **Anya** when you need visual inspiration or music curation
 - Fitness guidance from **Freya** with progressive workout programs and injury prevention
 - Strategic vision from **Sage** helping clarify long-term goals and learning pathways
@@ -191,6 +194,6 @@ MIT License - See [LICENSE](./LICENSE) for details
 
 ---
 
-**Built with:** Python, Next.js, Claude, Open WebUI, and cyberpunk dreams  
-**Hosted at:** [mutatedterrarium.com](https://mutatedterrarium.com)  
+**Built with:** Python, Next.js, Claude, Open WebUI, and cyberpunk dreams
+**Hosted at:** [mutatedterrarium.com](https://mutatedterrarium.com)
 **Created by:** lejin ([@lejinvarghese](https://github.com/lejinvarghese))

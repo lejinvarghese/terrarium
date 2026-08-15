@@ -30,15 +30,15 @@ MODEL_OPTIONS = {
 # ---------------------------------------------------------------------------
 # Exploration
 # ---------------------------------------------------------------------------
-DEFAULT_EPISODE_STEPS = 4       # model turns per daily episode (each may call tools)
-DEFAULT_EPSILON = 0.2           # 20% of goals are exploratory / cross-interest
-MAX_TOOL_ROUNDS = 3             # max tool-call rounds to resolve within one step
-STEP_TIMEOUT = 120              # seconds per model turn (soft, best-effort)
+DEFAULT_EPISODE_STEPS = 4  # model turns per daily episode (each may call tools)
+DEFAULT_EPSILON = 0.2  # 20% of goals are exploratory / cross-interest
+MAX_TOOL_ROUNDS = 3  # max tool-call rounds to resolve within one step
+STEP_TIMEOUT = 120  # seconds per model turn (soft, best-effort)
 
 # ---------------------------------------------------------------------------
 # Storage (SQLite + JSONL logs) — everything is logged for observation
 # ---------------------------------------------------------------------------
-_ROOT = Path(__file__).resolve().parents[3].parent   # repo root
+_ROOT = Path(__file__).resolve().parents[3].parent  # repo root
 DATA_DIR = _ROOT / "data"
 DB_PATH = DATA_DIR / "incubator_lean.db"
 LOG_DIR = DATA_DIR / "incubator_logs"

@@ -1,13 +1,13 @@
 import os
 
-import asyncio
-from fastmcp import FastMCP
 import click
-from runware import Runware, IImageInference, IPromptEnhance
-from runware.types import ILora
+import httpx
 from dotenv import load_dotenv
+from fastmcp import FastMCP
+from recipe_scrapers import SCRAPERS, scrape_me
+from runware import IImageInference, IPromptEnhance, Runware
+from runware.types import ILora
 from telegram import Bot
-from recipe_scrapers import scrape_me, SCRAPERS
 
 load_dotenv()
 
@@ -247,12 +247,12 @@ async def scrape_recipe(url: str) -> dict:
         # Add optional fields if available
         try:
             recipe_data["nutrients"] = scraper.nutrients()
-        except:
+        except Exception:
             pass
 
         try:
             recipe_data["canonical_url"] = scraper.canonical_url()
-        except:
+        except Exception:
             pass
 
         return recipe_data
@@ -267,7 +267,7 @@ async def list_supported_recipe_sites() -> dict:
     Returns:
         Dictionary with count and list of supported domains
     """
-    supported_sites = sorted(list(SCRAPERS.keys()))
+    supported_sites = sorted(SCRAPERS.keys())
     return {
         "count": len(supported_sites),
         "sites": supported_sites,
@@ -284,18 +284,14 @@ async def list_supported_recipe_sites() -> dict:
 
 
 # Stock Screener Integration
-import httpx
-from typing import Optional, List, Dict
 
 STOCK_SCREENER_URL = os.getenv("STOCK_SCREENER_URL", "http://localhost:5004")
 
 
 @mcp.tool()
 async def get_stock_recommendations(
-    budget: int = 1000,
-    method: str = "max_sharpe",
-    threshold: float = 0.05
-) -> Dict:
+    budget: int = 1000, method: str = "max_sharpe", threshold: float = 0.05
+) -> dict:
     """
     Get optimized portfolio recommendations from watchlist.
 
@@ -312,18 +308,20 @@ async def get_stock_recommendations(
         async with httpx.AsyncClient(timeout=60.0) as client:
             response = await client.post(
                 f"{STOCK_SCREENER_URL}/recommend_stocks/",
-                json={"budget": budget, "method": method, "threshold": threshold}
+                json={"budget": budget, "method": method, "threshold": threshold},
             )
             response.raise_for_status()
             return response.json()
     except httpx.ConnectError:
-        return {"error": "Stock screener API is not running. Start it with: cd $STOCK_SCREENER_PATH && source .venv/bin/activate && python app.py --port 5004"}
+        return {
+            "error": "Stock screener API is not running. Start it with: cd $STOCK_SCREENER_PATH && source .venv/bin/activate && python app.py --port 5004"
+        }
     except Exception as e:
         return {"error": f"Failed to get recommendations: {str(e)}"}
 
 
 @mcp.tool()
-async def check_sell_signals(holdings: Optional[List[Dict]] = None) -> Dict:
+async def check_sell_signals(holdings: list[dict] | None = None) -> dict:
     """
     Check current holdings for sell signals (stop-loss, technical breakdown, fundamentals).
 
@@ -345,20 +343,19 @@ async def check_sell_signals(holdings: Optional[List[Dict]] = None) -> Dict:
     try:
         async with httpx.AsyncClient(timeout=60.0) as client:
             payload = {"holdings": holdings} if holdings else {}
-            response = await client.post(
-                f"{STOCK_SCREENER_URL}/check_sells/",
-                json=payload
-            )
+            response = await client.post(f"{STOCK_SCREENER_URL}/check_sells/", json=payload)
             response.raise_for_status()
             return response.json()
     except httpx.ConnectError:
-        return {"error": "Stock screener API is not running. Start it with: cd $STOCK_SCREENER_PATH && source .venv/bin/activate && python app.py --port 5004"}
+        return {
+            "error": "Stock screener API is not running. Start it with: cd $STOCK_SCREENER_PATH && source .venv/bin/activate && python app.py --port 5004"
+        }
     except Exception as e:
         return {"error": f"Failed to check sell signals: {str(e)}"}
 
 
 @mcp.tool()
-async def get_watchlist() -> Dict:
+async def get_watchlist() -> dict:
     """
     Get current stock watchlist symbols.
 
@@ -371,7 +368,9 @@ async def get_watchlist() -> Dict:
             response.raise_for_status()
             return response.json()
     except httpx.ConnectError:
-        return {"error": "Stock screener API is not running. Start it with: cd $STOCK_SCREENER_PATH && source .venv/bin/activate && python app.py --port 5004"}
+        return {
+            "error": "Stock screener API is not running. Start it with: cd $STOCK_SCREENER_PATH && source .venv/bin/activate && python app.py --port 5004"
+        }
     except Exception as e:
         return {"error": f"Failed to get watchlist: {str(e)}"}
 

@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Send tunnel URL notification to Telegram."""
 
-import sys
 import os
+import sys
 from pathlib import Path
+
 from dotenv import load_dotenv
 
 # Load environment variables
@@ -13,6 +14,7 @@ load_dotenv(env_path)
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 DANIELLE_TELEGRAM_CHAT_ID = os.getenv("DANIELLE_TELEGRAM_CHAT_ID")
+
 
 def send_notification(url: str, service_name: str = "Open WebUI"):
     """Send tunnel URL to Telegram (both you and Danielle)."""
@@ -40,10 +42,12 @@ def send_notification(url: str, service_name: str = "Open WebUI"):
         service_info = {
             "Dome": ("🌐✨", "Your Dome is glowing - accessible from anywhere in the world"),
             "Archive": ("📚🔍", "Your Archive awaits - knowledge flows through any connection"),
-            "SSH": ("🔐🚀", "Direct access to Cybertron - terminal awaits your command")
+            "SSH": ("🔐🚀", "Direct access to Cybertron - terminal awaits your command"),
         }
 
-        emoji, description = service_info.get(service_name, ("🌐", "Portal active - reach from anywhere"))
+        emoji, description = service_info.get(
+            service_name, ("🌐", "Portal active - reach from anywhere")
+        )
 
         message = f"{emoji} *{service_name}* is live\n\n🔗 {url}\n\n{description}"
 
@@ -61,12 +65,16 @@ def send_notification(url: str, service_name: str = "Open WebUI"):
             )
 
             if response.status_code != 200:
-                print(f"⚠️  Telegram notification failed for {chat_id}: {response.status_code}", file=sys.stderr)
+                print(
+                    f"⚠️  Telegram notification failed for {chat_id}: {response.status_code}",
+                    file=sys.stderr,
+                )
 
     except ImportError:
         print("⚠️  httpx not installed in main environment", file=sys.stderr)
     except Exception as e:
         print(f"⚠️  Error sending notification: {e}", file=sys.stderr)
+
 
 def send_combined_notification(portals: list[tuple[str, str]]):
     """Send combined tunnel URLs to Telegram (both you and Danielle).
@@ -117,12 +125,16 @@ def send_combined_notification(portals: list[tuple[str, str]]):
             )
 
             if response.status_code != 200:
-                print(f"⚠️  Telegram notification failed for {chat_id}: {response.status_code}", file=sys.stderr)
+                print(
+                    f"⚠️  Telegram notification failed for {chat_id}: {response.status_code}",
+                    file=sys.stderr,
+                )
 
     except ImportError:
         pass  # Silently fail if httpx not installed
     except Exception:
         pass  # Silently fail on any error
+
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
@@ -138,7 +150,7 @@ if __name__ == "__main__":
             print("Error: --combined requires name/url pairs", file=sys.stderr)
             sys.exit(1)
 
-        portals = [(args[i], args[i+1]) for i in range(0, len(args), 2)]
+        portals = [(args[i], args[i + 1]) for i in range(0, len(args), 2)]
         send_combined_notification(portals)
     else:
         # Single notification mode

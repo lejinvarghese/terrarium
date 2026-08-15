@@ -2,9 +2,8 @@
 
 import json
 import sqlite3
-from pathlib import Path
 from datetime import datetime
-from typing import Dict, List, Any
+from pathlib import Path
 
 
 class DistillationLogger:
@@ -27,7 +26,8 @@ class DistillationLogger:
     def _init_db(self):
         """Initialize database tables."""
         with sqlite3.connect(self.db_path) as conn:
-            conn.execute("""
+            conn.execute(
+                """
                 CREATE TABLE IF NOT EXISTS distillation_episodes (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     episode_id TEXT UNIQUE NOT NULL,
@@ -43,18 +43,19 @@ class DistillationLogger:
                     tags TEXT,
                     created_at TEXT DEFAULT CURRENT_TIMESTAMP
                 )
-            """)
+            """
+            )
             conn.commit()
 
     def log_episode(
         self,
         episode_id: str,
-        agent_config: Dict,
-        messages: List[Dict],
-        tools_used: List[str] = None,
+        agent_config: dict,
+        messages: list[dict],
+        tools_used: list[str] = None,
         quality: str = "medium",
-        tags: List[str] = None,
-        **metadata
+        tags: list[str] = None,
+        **metadata,
     ):
         """Log an episode in distillation-ready format.
 
@@ -68,32 +69,32 @@ class DistillationLogger:
             **metadata: Additional metadata (model_type, model_name, etc.)
         """
         with sqlite3.connect(self.db_path) as conn:
-            conn.execute("""
+            conn.execute(
+                """
                 INSERT OR REPLACE INTO distillation_episodes
                 (episode_id, agent_id, agent_name, timestamp, model_type, model_name,
                  objective, messages_json, tools_used, quality, tags)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """, (
-                episode_id,
-                agent_config["id"],
-                agent_config["name"],
-                datetime.now().isoformat(),
-                metadata.get("model_type", "unknown"),
-                metadata.get("model_name", "unknown"),
-                metadata.get("objective", ""),
-                json.dumps(messages),
-                json.dumps(tools_used or []),
-                quality,
-                json.dumps(tags or []),
-            ))
+            """,
+                (
+                    episode_id,
+                    agent_config["id"],
+                    agent_config["name"],
+                    datetime.now().isoformat(),
+                    metadata.get("model_type", "unknown"),
+                    metadata.get("model_name", "unknown"),
+                    metadata.get("objective", ""),
+                    json.dumps(messages),
+                    json.dumps(tools_used or []),
+                    quality,
+                    json.dumps(tags or []),
+                ),
+            )
             conn.commit()
 
     def get_episodes(
-        self,
-        agent_id: str = None,
-        quality: str = None,
-        limit: int = 100
-    ) -> List[Dict]:
+        self, agent_id: str = None, quality: str = None, limit: int = 100
+    ) -> list[dict]:
         """Retrieve episodes for export.
 
         Args:
@@ -128,7 +129,7 @@ class DistillationLogger:
         output_path: str | Path,
         agent_id: str = None,
         quality: str = "high",
-        limit: int = 1000
+        limit: int = 1000,
     ):
         """Export episodes to JSONL format for training.
 
@@ -142,24 +143,24 @@ class DistillationLogger:
         output_path = Path(output_path)
         output_path.parent.mkdir(parents=True, exist_ok=True)
 
-        with open(output_path, 'w') as f:
+        with open(output_path, "w") as f:
             for episode in episodes:
-                messages = json.loads(episode['messages_json'])
+                messages = json.loads(episode["messages_json"])
                 training_example = {
                     "messages": messages,
                     "metadata": {
-                        "episode_id": episode['episode_id'],
-                        "agent_id": episode['agent_id'],
-                        "agent_name": episode['agent_name'],
-                        "quality": episode['quality'],
-                        "tools_used": json.loads(episode['tools_used']),
-                    }
+                        "episode_id": episode["episode_id"],
+                        "agent_id": episode["agent_id"],
+                        "agent_name": episode["agent_name"],
+                        "quality": episode["quality"],
+                        "tools_used": json.loads(episode["tools_used"]),
+                    },
                 }
-                f.write(json.dumps(training_example) + '\n')
+                f.write(json.dumps(training_example) + "\n")
 
         return len(episodes)
 
-    def assess_quality(self, episode_data: Dict) -> str:
+    def assess_quality(self, episode_data: dict) -> str:
         """Assess episode quality for training.
 
         Args:

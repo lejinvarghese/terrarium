@@ -4,32 +4,33 @@
 import os
 import re
 from pathlib import Path
-from dotenv import load_dotenv
+from warnings import filterwarnings
+
 import click
+from dotenv import load_dotenv
+from mem0 import Memory
+from mem0.configs.base import EmbedderConfig, LlmConfig, MemoryConfig
+from mem0.vector_stores.configs import VectorStoreConfig
+
+from src.portals.telegram.claude_engine import ClaudeEngine
+from src.portals.telegram.session_manager import SessionManager
 from telegram import (
-    Update,
-    ReplyKeyboardRemove,
     InlineKeyboardButton,
     InlineKeyboardMarkup,
     InlineQueryResultArticle,
     InputTextMessageContent,
+    Update,
 )
 from telegram.constants import ParseMode
 from telegram.ext import (
     Application,
-    CommandHandler,
-    MessageHandler,
-    ContextTypes,
     CallbackQueryHandler,
+    CommandHandler,
+    ContextTypes,
     InlineQueryHandler,
+    MessageHandler,
     filters,
 )
-from warnings import filterwarnings
-from mem0 import Memory
-from mem0.configs.base import MemoryConfig, EmbedderConfig, LlmConfig
-from mem0.vector_stores.configs import VectorStoreConfig
-from src.portals.telegram.claude_engine import ClaudeEngine
-from src.portals.telegram.session_manager import SessionManager
 
 # Load environment variables from root .env
 load_dotenv(Path(__file__).parent.parent.parent.parent / ".env")
@@ -175,9 +176,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     row = []
     for bot in bots:
         emoji = bot_emojis.get(bot, "🤖")
-        button = InlineKeyboardButton(
-            f"{emoji} {bot.title()}", callback_data=f"bot:{bot}"
-        )
+        button = InlineKeyboardButton(f"{emoji} {bot.title()}", callback_data=f"bot:{bot}")
         row.append(button)
 
         if len(row) == 2:
@@ -232,9 +231,7 @@ async def bot_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
 
     if len(parts) < 2:
         await update.message.reply_text(
-            "Usage: /bot <name>\n"
-            "Example: /bot anya\n\n"
-            "Use /bots to see available bots."
+            "Usage: /bot <name>\n" "Example: /bot anya\n\n" "Use /bots to see available bots."
         )
         return
 
@@ -321,9 +318,7 @@ async def bots_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         keyboard.append(row)
 
     reply_markup = InlineKeyboardMarkup(keyboard)
-    await update.message.reply_text(
-        msg, parse_mode=ParseMode.MARKDOWN, reply_markup=reply_markup
-    )
+    await update.message.reply_text(msg, parse_mode=ParseMode.MARKDOWN, reply_markup=reply_markup)
 
 
 async def clear_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -434,9 +429,7 @@ async def compact_command(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
     session_id = session_manager.get_session(user_id, bot, max_age_hours=SESSION_EXPIRY_HOURS)
 
     if not session_id:
-        await update.message.reply_text(
-            "No active session to compact. Start chatting first!"
-        )
+        await update.message.reply_text("No active session to compact. Start chatting first!")
         return
 
     try:
@@ -473,9 +466,7 @@ async def compact_command(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         click.secho(f"❌ Compact error: {e}", fg="red")
 
 
-async def bot_selection_callback(
-    update: Update, context: ContextTypes.DEFAULT_TYPE
-) -> None:
+async def bot_selection_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Handle bot selection from inline keyboard buttons."""
     query = update.callback_query
     await query.answer()  # Dismiss loading state
@@ -553,9 +544,7 @@ async def bot_selection_callback(
 # ============================================================================
 
 
-async def inline_query_handler(
-    update: Update, context: ContextTypes.DEFAULT_TYPE
-) -> None:
+async def inline_query_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Handle inline queries for direct bot access (e.g., @yourbot anya hello)."""
     query = update.inline_query.query
     user_id = update.inline_query.from_user.id
@@ -591,9 +580,7 @@ async def inline_query_handler(
         results = []
         for bot in available_bots:
             emoji = bot_emojis.get(bot, "🤖")
-            description = (
-                claude_engine.get_bot_description(bot) or f"Talk to {bot.title()}"
-            )
+            description = claude_engine.get_bot_description(bot) or f"Talk to {bot.title()}"
 
             result = InlineQueryResultArticle(
                 id=bot,
@@ -629,9 +616,7 @@ async def inline_query_handler(
         id=f"{bot_name}:{message[:50]}",
         title=f"{emoji} Ask {bot_name.title()}: {message[:50]}",
         description=f"Send this message to {bot_name.title()}",
-        input_message_content=InputTextMessageContent(
-            message_text=f"@{bot_name} {message}"
-        ),
+        input_message_content=InputTextMessageContent(message_text=f"@{bot_name} {message}"),
     )
 
     await update.inline_query.answer([result], cache_time=0)
@@ -646,9 +631,7 @@ async def inline_query_handler(
 # ============================================================================
 
 
-async def send_message_in_chunks(
-    update: Update, message: str, chunk_size: int = 4096
-) -> None:
+async def send_message_in_chunks(update: Update, message: str, chunk_size: int = 4096) -> None:
     """Send large message in chunks, with fallback for markdown parsing errors."""
     for i in range(0, len(message), chunk_size):
         chunk = message[i : i + chunk_size]
@@ -657,9 +640,7 @@ async def send_message_in_chunks(
         except Exception as e:
             # If markdown parsing fails, send as plain text
             if "can't parse entities" in str(e).lower():
-                click.secho(
-                    f"⚠️  Markdown parse error, sending as plain text", fg="yellow"
-                )
+                click.secho("⚠️  Markdown parse error, sending as plain text", fg="yellow")
                 await update.message.reply_text(chunk)
             else:
                 raise
@@ -679,7 +660,9 @@ async def chat_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     session_manager.register_user(user.id, user.username, user.first_name)
 
     # Check for @incubator agent syntax (async message queue to exploration agents)
-    incubator_match = re.match(r"@(atlas|aria|aris|incubator)\s+(.*)", user_message, re.DOTALL | re.IGNORECASE)
+    incubator_match = re.match(
+        r"@(atlas|aria|aris|incubator)\s+(.*)", user_message, re.DOTALL | re.IGNORECASE
+    )
     if incubator_match:
         target = incubator_match.group(1).lower()
         message_text = incubator_match.group(2).strip()
@@ -694,18 +677,19 @@ async def chat_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
 
         # Write to incubator message queue
         from src.landscapes.undergrowth.incubator.store import Store
+
         store = Store()
         try:
             store.write_message(
                 from_agent=f"TELEGRAM_{user.id}",
                 from_name=user.first_name,
                 to_agent=agent_id,
-                content=message_text
+                content=message_text,
             )
             await update.message.reply_text(
                 f"📨 Message queued for **{display_name}**.\n"
                 f"They'll see it on their next exploration (daily at 06:00).",
-                parse_mode=ParseMode.MARKDOWN
+                parse_mode=ParseMode.MARKDOWN,
             )
             click.secho(f"📬 Incubator message queued: {user.first_name} → {target}", fg="green")
         finally:
@@ -763,9 +747,7 @@ async def chat_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
                     "results", memories_response.get("memories", [])
                 )
             else:
-                memory_list = (
-                    memories_response if isinstance(memories_response, list) else []
-                )
+                memory_list = memories_response if isinstance(memories_response, list) else []
         except Exception as mem_error:
             click.secho(f"⚠️  Memory retrieval failed: {mem_error}", fg="yellow")
             memory_list = []
@@ -773,12 +755,8 @@ async def chat_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         # Enhance message with memory context if relevant memories found
         enhanced_message = user_message
         if memory_list:
-            context_parts = [
-                m.get("memory", m.get("text", str(m))) for m in memory_list
-            ]
-            enhanced_message = (
-                f"{user_message}\n\n[Context: {'; '.join(context_parts)}]"
-            )
+            context_parts = [m.get("memory", m.get("text", str(m))) for m in memory_list]
+            enhanced_message = f"{user_message}\n\n[Context: {'; '.join(context_parts)}]"
             click.secho(f"🧠 Added {len(memory_list)} relevant memories", fg="magenta")
 
         # Chat with Claude
@@ -791,7 +769,7 @@ async def chat_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         except RuntimeError as e:
             # Handle expired/invalid session - clear and retry with new session
             if "No conversation found with session ID" in str(e):
-                click.secho(f"⚠️  Session expired, starting fresh", fg="yellow")
+                click.secho("⚠️  Session expired, starting fresh", fg="yellow")
                 session_manager.clear_session(user.id, bot)
                 # Retry with new session
                 response, new_session_id, metadata = await claude_engine.chat(
@@ -806,9 +784,7 @@ async def chat_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         if new_session_id:
             session_manager.create_session(user.id, new_session_id, bot)
             if metadata.get("cost"):
-                session_manager.update_session_metadata(
-                    user.id, bot, cost=metadata["cost"]
-                )
+                session_manager.update_session_metadata(user.id, bot, cost=metadata["cost"])
 
         # Store conversation in memory
         if response:
@@ -838,7 +814,7 @@ async def chat_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
                     )
                 else:
                     click.secho(
-                        f"📝 No significant facts to store (filtered by extraction prompt)",
+                        "📝 No significant facts to store (filtered by extraction prompt)",
                         fg="cyan",
                     )
             except Exception as mem_error:
@@ -847,9 +823,7 @@ async def chat_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         # Send response
         await send_message_in_chunks(update, response)
 
-        click.secho(
-            f"✅ Response sent to {user.id} (length: {len(response)})", fg="green"
-        )
+        click.secho(f"✅ Response sent to {user.id} (length: {len(response)})", fg="green")
 
     except TimeoutError:
         await update.message.reply_text("⏱️ Request timed out. Please try again.")
@@ -885,8 +859,8 @@ def main() -> None:
             config={
                 "model": "text-embedding-3-small",
                 "api_key": os.getenv("OPENAI_API_KEY"),
-                "openai_base_url": "https://api.openai.com/v1"
-            }
+                "openai_base_url": "https://api.openai.com/v1",
+            },
         ),
         llm=LlmConfig(
             provider="openai",
@@ -894,8 +868,8 @@ def main() -> None:
                 "model": "gpt-4o-mini",
                 "temperature": 0,
                 "api_key": os.getenv("OPENAI_API_KEY"),
-                "openai_base_url": "https://api.openai.com/v1"
-            }
+                "openai_base_url": "https://api.openai.com/v1",
+            },
         ),
         custom_fact_extraction_prompt=CUSTOM_FACT_EXTRACTION_PROMPT,
         custom_update_memory_prompt=CUSTOM_UPDATE_MEMORY_PROMPT,
@@ -931,9 +905,7 @@ def main() -> None:
     application.add_handler(InlineQueryHandler(inline_query_handler))
 
     # Add message handler for chat
-    application.add_handler(
-        MessageHandler(filters.TEXT & ~filters.COMMAND, chat_handler)
-    )
+    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, chat_handler))
 
     # Start bot
     click.secho("✨ Bot started! Polling for messages.", fg="bright_green", bold=True)

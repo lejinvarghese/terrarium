@@ -3,10 +3,11 @@
 
 import asyncio
 import json
-import click
 import os
 from pathlib import Path
-from typing import Optional, Dict, Any, Tuple
+from typing import Any
+
+import click
 
 
 class ClaudeEngine:
@@ -17,7 +18,7 @@ class ClaudeEngine:
 
     def __init__(
         self,
-        working_dir: Optional[str] = None,
+        working_dir: str | None = None,
         timeout: int = 300,
     ):
         """
@@ -29,14 +30,12 @@ class ClaudeEngine:
         """
         self.working_dir = working_dir or str(Path.cwd())
         self.timeout = timeout
-        self.bot_prompts_dir = (
-            Path(__file__).parent.parent.parent.parent / ".claude" / "agents"
-        )
+        self.bot_prompts_dir = Path(__file__).parent.parent.parent.parent / ".claude" / "agents"
         # Get Danielle's user ID from env (chat_id is same as user_id for DMs)
         self.danielle_user_id = os.getenv("DANIELLE_TELEGRAM_CHAT_ID")
         click.secho(f"⚙️  ClaudeEngine initialized: {self.working_dir}", fg="blue")
 
-    def list_bots(self, user_id: Optional[int] = None) -> list[str]:
+    def list_bots(self, user_id: int | None = None) -> list[str]:
         """
         Get list of available bots.
 
@@ -57,7 +56,7 @@ class ClaudeEngine:
 
         return all_bots
 
-    def get_bot_file(self, bot: str) -> Optional[Path]:
+    def get_bot_file(self, bot: str) -> Path | None:
         """
         Get the file path for a bot.
 
@@ -70,7 +69,7 @@ class ClaudeEngine:
         bot_file = self.bot_prompts_dir / f"{bot.lower()}.md"
         return bot_file if bot_file.exists() else None
 
-    def get_bot_description(self, bot: str) -> Optional[str]:
+    def get_bot_description(self, bot: str) -> str | None:
         """
         Extract bot description from agent file (line 2 of frontmatter).
 
@@ -96,7 +95,7 @@ class ClaudeEngine:
             click.secho(f"⚠️  Failed to read description for {bot}: {e}", fg="yellow")
             return None
 
-    def get_all_bots_info(self, user_id: Optional[int] = None) -> Dict[str, str]:
+    def get_all_bots_info(self, user_id: int | None = None) -> dict[str, str]:
         """
         Get descriptions for all available bots.
 
@@ -116,9 +115,9 @@ class ClaudeEngine:
     async def chat(
         self,
         message: str,
-        session_id: Optional[str] = None,
-        bot: Optional[str] = None,
-    ) -> Tuple[str, str, Dict[str, Any]]:
+        session_id: str | None = None,
+        bot: str | None = None,
+    ) -> tuple[str, str, dict[str, Any]]:
         """
         Send a message to Claude Code CLI.
 
@@ -158,13 +157,13 @@ class ClaudeEngine:
                     if bot:
                         click.secho(f"🎭 Using bot: {bot}", fg="magenta")
                     else:
-                        click.secho(f"🪴 Using Casper (Concierge)", fg="cyan")
+                        click.secho("🪴 Using Casper (Concierge)", fg="cyan")
 
             # Add the message (use -- to separate from flags)
             cmd.append("--")
             cmd.append(message)
 
-            click.secho(f"🚀 Executing Claude CLI.", fg="bright_blue")
+            click.secho("🚀 Executing Claude CLI.", fg="bright_blue")
 
             # Execute claude CLI
             process = await asyncio.create_subprocess_exec(
@@ -179,14 +178,18 @@ class ClaudeEngine:
                     process.communicate(),
                     timeout=self.timeout,
                 )
-            except asyncio.TimeoutError:
+            except asyncio.TimeoutError as e:
                 process.kill()
                 await process.wait()
-                raise TimeoutError(f"Claude command timed out after {self.timeout}s")
+                raise TimeoutError(f"Claude command timed out after {self.timeout}s") from e
 
             if process.returncode != 0:
                 error_msg = stderr.decode() if stderr else "Unknown error"
-                click.secho(f"❌ Claude CLI failed with return code: {process.returncode}", fg="red", bold=True)
+                click.secho(
+                    f"❌ Claude CLI failed with return code: {process.returncode}",
+                    fg="red",
+                    bold=True,
+                )
                 click.secho(f"❌ stderr: {error_msg}", fg="red")
                 click.secho(f"❌ stdout: {stdout.decode() if stdout else 'None'}", fg="red")
                 click.secho(f"❌ Command: {' '.join(cmd)}", fg="red")
@@ -198,9 +201,7 @@ class ClaudeEngine:
                 events = json.loads(output)
 
                 if not isinstance(events, list) or not events:
-                    click.secho(
-                        f"⚠️  Unexpected JSON format from Claude CLI", fg="yellow"
-                    )
+                    click.secho("⚠️  Unexpected JSON format from Claude CLI", fg="yellow")
                     return "", session_id or "unknown", {}
 
                 # Extract data from event stream
@@ -269,7 +270,7 @@ class ClaudeEngine:
         response, _, _ = await self.chat(prompt)
         return response
 
-    def get_status(self) -> Dict[str, Any]:
+    def get_status(self) -> dict[str, Any]:
         """
         Get current engine status.
 

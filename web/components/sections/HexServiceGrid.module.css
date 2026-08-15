@@ -113,7 +113,7 @@
   background: rgba(5, 10, 18, 0.95);
   backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 
+  box-shadow:
     0 20px 50px rgba(0, 0, 0, 0.5),
     0 0 30px rgba(0, 0, 0, 0.3);
   padding: 0; /* ServiceCard has padding */
@@ -125,7 +125,7 @@
   transform: translate(-50%, -50%) scale(1);
   pointer-events: auto;
   border-color: var(--hex-color);
-  box-shadow: 
+  box-shadow:
     0 25px 60px rgba(0, 0, 0, 0.7),
     0 0 40px rgba(var(--hex-rgb), 0.2);
 }
@@ -147,12 +147,12 @@
   .grid > div:nth-child(even) {
     margin-top: 0;
   }
-  
+
   .hexWrapper {
     width: 140px;
     height: 160px;
   }
-  
+
   .infoCard {
     width: 300px;
   }

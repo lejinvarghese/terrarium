@@ -2,10 +2,11 @@
 """Session Manager - SQLite-based persistence for Claude sessions."""
 
 import sqlite3
-import click
-from pathlib import Path
-from typing import Optional, Dict, Any, List
 from contextlib import contextmanager
+from pathlib import Path
+from typing import Any
+
+import click
 
 
 class SessionManager:
@@ -70,7 +71,9 @@ class SessionManager:
         finally:
             conn.close()
 
-    def get_session(self, user_id: int, persona: Optional[str] = None, max_age_hours: int = 24) -> Optional[str]:
+    def get_session(
+        self, user_id: int, persona: str | None = None, max_age_hours: int = 24
+    ) -> str | None:
         """
         Get active session ID for user and persona, with automatic expiry.
 
@@ -104,7 +107,7 @@ class SessionManager:
             if hours_old > max_age_hours:
                 click.secho(
                     f"⏰ Session expired ({hours_old:.1f}h since last message) - user={user_id}, bot={persona or 'casper'}",
-                    fg="yellow"
+                    fg="yellow",
                 )
                 self.clear_session(user_id, persona)
                 return None
@@ -115,7 +118,7 @@ class SessionManager:
         self,
         user_id: int,
         session_id: str,
-        persona: Optional[str] = None,
+        persona: str | None = None,
     ) -> int:
         """
         Create or update a session.
@@ -150,8 +153,8 @@ class SessionManager:
     def update_session_metadata(
         self,
         user_id: int,
-        persona: Optional[str],
-        cost: Optional[float] = None,
+        persona: str | None,
+        cost: float | None = None,
     ):
         """
         Update session metadata after a message.
@@ -183,7 +186,7 @@ class SessionManager:
                 )
             conn.commit()
 
-    def clear_session(self, user_id: int, persona: Optional[str] = None):
+    def clear_session(self, user_id: int, persona: str | None = None):
         """
         Clear session for user and persona.
 
@@ -214,9 +217,7 @@ class SessionManager:
             conn.commit()
             click.secho(f"🗑️  All sessions cleared for user={user_id}", fg="red")
 
-    def get_session_info(
-        self, user_id: int, persona: Optional[str] = None
-    ) -> Optional[Dict[str, Any]]:
+    def get_session_info(self, user_id: int, persona: str | None = None) -> dict[str, Any] | None:
         """
         Get session information.
 
@@ -241,7 +242,7 @@ class SessionManager:
                 return dict(row)
             return None
 
-    def list_user_sessions(self, user_id: int) -> List[Dict[str, Any]]:
+    def list_user_sessions(self, user_id: int) -> list[dict[str, Any]]:
         """
         List all active sessions for a user.
 
@@ -287,7 +288,7 @@ class SessionManager:
             )
             conn.commit()
 
-    def get_user_stats(self, user_id: int) -> Optional[Dict[str, Any]]:
+    def get_user_stats(self, user_id: int) -> dict[str, Any] | None:
         """
         Get user statistics.
 

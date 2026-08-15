@@ -1,10 +1,12 @@
 """MCP tools configuration for Incubator agents"""
 
-import os
-import click
 import asyncio
+import os
+
+import click
 from agno.tools.mcp import MultiMCPTools
-from src.landscapes.core.constants import ROOT_DIRECTORY, NPM_DIRECTORY
+
+from src.landscapes.core.constants import NPM_DIRECTORY, ROOT_DIRECTORY
 
 CUSTOM_MCP_SERVER_PATH = f"{ROOT_DIRECTORY}/mcp/server.py"
 

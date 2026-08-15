@@ -58,7 +58,7 @@ A terminal Matrix-style "code rain" that displays live news headlines, local int
    ```bash
    export TAVILY_API_KEY="your-api-key-here"
    ```
-   
+
    Or add to `~/.env`:
    ```bash
    echo 'TAVILY_API_KEY=your-api-key-here' >> ~/.env

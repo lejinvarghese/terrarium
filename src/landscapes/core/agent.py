@@ -1,27 +1,28 @@
 import asyncio
-import click
 import re
 
+import click
 from agno.agent import Agent
 from agno.models.ollama import Ollama
 
+from src.core.models import ModelFactory
 from src.landscapes.core.constants import (
     DATABASE,
-    DEFAULT_MODEL_NAME,
-    DEFAULT_INSTRUCTIONS,
     DEFAULT_AGENT_ID,
     DEFAULT_AGENT_NAME,
-    DEFAULT_USER_ID,
     DEFAULT_COLORS,
+    DEFAULT_INSTRUCTIONS,
+    DEFAULT_MODEL_NAME,
+    DEFAULT_USER_ID,
 )
-from src.landscapes.core.tools import get_tools, display_tools
-from src.core.models import ModelFactory
+from src.landscapes.core.tools import display_tools, get_tools
+
 
 def remove_thinking_tags(
     run_output,
 ) -> str:
     """Remove thinking tags."""
-    return re.sub(r'^.*</think>\s*', '', run_output.content, flags=re.DOTALL)
+    return re.sub(r"^.*</think>\s*", "", run_output.content, flags=re.DOTALL)
 
 
 class BaseAgent:
@@ -96,8 +97,7 @@ class BaseAgent:
             )
         else:
             raise ValueError(
-                f"Unknown model_type: {self._model_type}. "
-                "Supported: ollama, openrouter"
+                f"Unknown model_type: {self._model_type}. " "Supported: ollama, openrouter"
             )
 
     def _create_agent(self):
@@ -192,9 +192,7 @@ async def run_agent(task: str, debug: bool, skip_logging: bool):
     default="What is the best value of humanity, and why?",
 )
 @click.option("-d", "--debug", type=bool, required=False, is_flag=True, default=False)
-@click.option(
-    "-s", "--skip-logging", type=bool, required=False, is_flag=True, default=False
-)
+@click.option("-s", "--skip-logging", type=bool, required=False, is_flag=True, default=False)
 def main(task: str, debug: bool, skip_logging: bool):
     asyncio.run(run_agent(task, debug, skip_logging))
 

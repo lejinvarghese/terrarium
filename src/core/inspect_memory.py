@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """Inspect agent memories and session data"""
 
-import click
 import sqlite3
 from pathlib import Path
-from datetime import datetime
+
+import click
 
 
 def get_db_path():
@@ -94,7 +94,7 @@ def sessions(agent, limit):
             click.secho(f"[{row['id']}] Agent: {row['user_id']}", fg="green")
             click.secho(f"  Created: {row['created_at']}", fg="blue")
             click.secho(f"  Updated: {row['updated_at']}", fg="blue")
-            if row.get('summary'):
+            if row.get("summary"):
                 click.secho(f"  Summary: {row['summary'][:100]}...", fg="white")
             click.secho("")
 
@@ -110,21 +110,25 @@ def stats():
 
     with sqlite3.connect(db_path) as conn:
         # Count memories per agent
-        cursor = conn.execute("""
+        cursor = conn.execute(
+            """
             SELECT user_id, COUNT(*) as count
             FROM memories
             GROUP BY user_id
             ORDER BY count DESC
-        """)
+        """
+        )
         memory_counts = cursor.fetchall()
 
         # Count sessions per agent
-        cursor = conn.execute("""
+        cursor = conn.execute(
+            """
             SELECT user_id, COUNT(*) as count
             FROM sessions
             GROUP BY user_id
             ORDER BY count DESC
-        """)
+        """
+        )
         session_counts = cursor.fetchall()
 
         # Total counts

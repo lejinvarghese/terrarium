@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """Quick script to get your Telegram chat ID"""
 
-import os
 import asyncio
-from telegram import Bot
+import os
+
 from dotenv import load_dotenv
+from telegram import Bot
 
 load_dotenv()
 

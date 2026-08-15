@@ -3,6 +3,7 @@
 import os
 from pathlib import Path
 from typing import Any
+
 from dotenv import load_dotenv
 
 # Load environment variables from .env
@@ -43,11 +44,7 @@ class ModelFactory:
         )
 
     @staticmethod
-    def create_openrouter(
-        model_id: str,
-        api_key: str | None = None,
-        **kwargs
-    ) -> Any:
+    def create_openrouter(model_id: str, api_key: str | None = None, **kwargs) -> Any:
         """Create an OpenRouter model instance (via OpenAI-compatible API).
 
         Args:
@@ -70,19 +67,11 @@ class ModelFactory:
                 )
 
         return OpenAIChat(
-            id=model_id,
-            api_key=api_key,
-            base_url="https://openrouter.ai/api/v1",
-            **kwargs
+            id=model_id, api_key=api_key, base_url="https://openrouter.ai/api/v1", **kwargs
         )
 
     @staticmethod
-    def create(
-        model_type: str,
-        model_id: str,
-        api_key: str | None = None,
-        **kwargs
-    ) -> Any:
+    def create(model_type: str, model_id: str, api_key: str | None = None, **kwargs) -> Any:
         """Create a model instance based on type.
 
         Args:
@@ -103,6 +92,5 @@ class ModelFactory:
             return ModelFactory.create_openrouter(model_id, api_key, **kwargs)
         else:
             raise ValueError(
-                f"Unknown model type: {model_type}. "
-                "Supported types: ollama, openrouter"
+                f"Unknown model type: {model_type}. " "Supported types: ollama, openrouter"
             )

@@ -45,7 +45,14 @@ UPDATE_PAGE_URL = "https://github.com/tomdavenport/meanwhile/releases/latest"
 UPDATE_CHECK_SECONDS = 24 * 60 * 60
 
 DEFAULT_CONFIG = {
-    "topics": ["artificial intelligence", "machine learning", "quantum computing", "biotechnology", "neuroscience", "space exploration"],
+    "topics": [
+        "artificial intelligence",
+        "machine learning",
+        "quantum computing",
+        "biotechnology",
+        "neuroscience",
+        "space exploration",
+    ],
     "places": ["Toronto", "Ontario"],
     "refresh_minutes": 60,  # Refresh web searches once per hour
     "hours_back": 36,
@@ -54,10 +61,10 @@ DEFAULT_CONFIG = {
     "density": 0.75,
     "speed": 1.0,
     "focus": False,
-    "theme": "auto",        # "auto": Omarchy theme, else the terminal's own colors,
-                            # else matrix green; "terminal"/"matrix" force one source
-    "region": "ca",         # RSS fallback region (set to Canada for Toronto)
-    "show_source": False,   # append the domain after each headline
+    "theme": "auto",  # "auto": Omarchy theme, else the terminal's own colors,
+    # else matrix green; "terminal"/"matrix" force one source
+    "region": "ca",  # RSS fallback region (set to Canada for Toronto)
+    "show_source": False,  # append the domain after each headline
     "ascii_only": False,
     "check_updates": True,  # one cached GitHub release check; false means no request
     "env_files": ["~/.env", "~/dev/.env"],
@@ -162,13 +169,31 @@ SEASONAL = {
 
 # (city, rough UTC offset in July) — for "the sun is rising over ..." lines
 CITIES = [
-    ("Apia", 13), ("Auckland", 12), ("Sydney", 10), ("Tokyo", 9),
-    ("Shanghai", 8), ("Bangkok", 7), ("Dhaka", 6), ("Delhi", 5.5),
-    ("Dubai", 4), ("Nairobi", 3), ("Istanbul", 3), ("Cairo", 3),
-    ("Lagos", 1), ("London", 1), ("Reykjavik", 0), ("Praia", -1),
-    ("Rio de Janeiro", -3), ("Buenos Aires", -3), ("Santiago", -4),
-    ("New York", -4), ("Chicago", -5), ("Denver", -6),
-    ("Los Angeles", -7), ("Anchorage", -8), ("Honolulu", -10),
+    ("Apia", 13),
+    ("Auckland", 12),
+    ("Sydney", 10),
+    ("Tokyo", 9),
+    ("Shanghai", 8),
+    ("Bangkok", 7),
+    ("Dhaka", 6),
+    ("Delhi", 5.5),
+    ("Dubai", 4),
+    ("Nairobi", 3),
+    ("Istanbul", 3),
+    ("Cairo", 3),
+    ("Lagos", 1),
+    ("London", 1),
+    ("Reykjavik", 0),
+    ("Praia", -1),
+    ("Rio de Janeiro", -3),
+    ("Buenos Aires", -3),
+    ("Santiago", -4),
+    ("New York", -4),
+    ("Chicago", -5),
+    ("Denver", -6),
+    ("Los Angeles", -7),
+    ("Anchorage", -8),
+    ("Honolulu", -10),
 ]
 
 
@@ -390,51 +415,51 @@ SCIENCE_FEEDS = [
     "https://www.sciencedaily.com/rss/all.xml",
     "https://www.technologyreview.com/feed/",
     "https://www.quantamagazine.org/feed/",
-
     # AI/ML specific
     "https://www.artificialintelligence-news.com/feed/",
     "https://venturebeat.com/category/ai/feed/",
-
     # arXiv (research papers)
     "https://arxiv.org/rss/cs.AI",  # AI
     "https://arxiv.org/rss/cs.LG",  # Machine Learning
     "https://arxiv.org/rss/cs.CL",  # Computation and Language
     "https://arxiv.org/rss/physics",  # Physics
     "https://arxiv.org/rss/q-bio",  # Quantitative Biology
-
     # Space & astronomy
     "https://www.space.com/feeds/all",
     "https://phys.org/rss-feed/space-news/",
-
     # Tech/science overlap
     "https://arstechnica.com/feed/",
     "https://www.wired.com/feed/category/science/latest/rss",
 ]
 
 REGION_FEEDS = {
-    "gb": ["https://feeds.bbci.co.uk/news/uk/rss.xml",
-           "https://www.theguardian.com/uk-news/rss"],
-    "ie": ["https://feeds.bbci.co.uk/news/northern_ireland/rss.xml",
-           "https://www.theguardian.com/world/ireland/rss"],
-    "us": ["https://feeds.npr.org/1001/rss.xml",
-           "https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml"],
+    "gb": ["https://feeds.bbci.co.uk/news/uk/rss.xml", "https://www.theguardian.com/uk-news/rss"],
+    "ie": [
+        "https://feeds.bbci.co.uk/news/northern_ireland/rss.xml",
+        "https://www.theguardian.com/world/ireland/rss",
+    ],
+    "us": [
+        "https://feeds.npr.org/1001/rss.xml",
+        "https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml",
+    ],
     "ca": ["https://moxie.foxnews.com/google-publisher/latest.xml"],
-    "au": ["https://www.abc.net.au/news/feed/51120/rss.xml",
-           "https://www.smh.com.au/rss/feed.xml"],
+    "au": ["https://www.abc.net.au/news/feed/51120/rss.xml", "https://www.smh.com.au/rss/feed.xml"],
     "nz": ["https://www.rnz.co.nz/rss/national.xml"],
-    "in": ["https://timesofindia.indiatimes.com/rssfeedstopstories.cms",
-           "https://feeds.bbci.co.uk/news/world/asia/india/rss.xml"],
-    "de": ["https://rss.dw.com/rdf/rss-en-all",
-           "https://www.theguardian.com/world/germany/rss"],
-    "fr": ["https://www.france24.com/en/france/rss",
-           "https://www.france24.com/en/rss"],
+    "in": [
+        "https://timesofindia.indiatimes.com/rssfeedstopstories.cms",
+        "https://feeds.bbci.co.uk/news/world/asia/india/rss.xml",
+    ],
+    "de": ["https://rss.dw.com/rdf/rss-en-all", "https://www.theguardian.com/world/germany/rss"],
+    "fr": ["https://www.france24.com/en/france/rss", "https://www.france24.com/en/rss"],
     "es": ["https://feeds.elpais.com/mrss-s/pages/ep/site/english.elpais.com/portada"],
     "it": ["https://www.theguardian.com/world/italy/rss"],
     "jp": ["https://www3.nhk.or.jp/rss/news/cat0.xml"],
     "sg": ["https://www.channelnewsasia.com/api/v1/rss-outbound-feed?_format=xml"],
     "za": ["https://feeds.bbci.co.uk/news/world/africa/rss.xml"],
-    "br": ["https://feeds.bbci.co.uk/news/world/latin_america/rss.xml",
-           "https://www.theguardian.com/world/americas/rss"],
+    "br": [
+        "https://feeds.bbci.co.uk/news/world/latin_america/rss.xml",
+        "https://www.theguardian.com/world/americas/rss",
+    ],
 }
 REGION_FEEDS["mx"] = REGION_FEEDS["ar"] = REGION_FEEDS["br"]
 
@@ -486,14 +511,19 @@ def feed_entries(xml_bytes):
             continue
         title = child(el, "title")
         link = child(el, "link")
-        href = (link.get("href") if link is not None else "") or (
-            link.text if link is not None else "") or ""
+        href = (
+            (link.get("href") if link is not None else "")
+            or (link.text if link is not None else "")
+            or ""
+        )
         desc = child(el, "description", "summary")
         date = child(el, "pubDate", "published", "updated", "date")
-        yield ((title.text or "") if title is not None else "",
-               href.strip(),
-               (desc.text or "") if desc is not None else "",
-               (date.text or "") if date is not None else "")
+        yield (
+            (title.text or "") if title is not None else "",
+            href.strip(),
+            (desc.text or "") if desc is not None else "",
+            (date.text or "") if date is not None else "",
+        )
 
 
 class Newsfeed(threading.Thread):
@@ -507,8 +537,8 @@ class Newsfeed(threading.Thread):
         self.offline = offline
         self.lock = threading.Lock()
         self.wake = threading.Event()
-        self.items = []       # [{"text", "url", "kind": "news"|"local"}]
-        self.generation = 0   # bumped on every successful fetch
+        self.items = []  # [{"text", "url", "kind": "news"|"local"}]
+        self.generation = 0  # bumped on every successful fetch
         self.fetched_at = None
         if offline:
             self.status = "offline — poetic only"
@@ -520,8 +550,7 @@ class Newsfeed(threading.Thread):
                 same_places = self._places_key(cached.get("places", [])) == self._places_key(
                     cfg.get("places", [])
                 )
-                items = [i for i in cached["items"]
-                         if i.get("kind") != "local" or same_places]
+                items = [i for i in cached["items"] if i.get("kind") != "local" or same_places]
                 if items:
                     self.items = items
                     self.generation = 1
@@ -592,7 +621,11 @@ class Newsfeed(threading.Thread):
             seen.add(title.casefold())
             # Lowercase all titles
             title_lower = title.lower()
-            text = f"{title_lower}  ·  {domain}" if domain and self.cfg.get("show_source") else title_lower
+            text = (
+                f"{title_lower}  ·  {domain}"
+                if domain and self.cfg.get("show_source")
+                else title_lower
+            )
             item = {"text": text, "url": url, "domain": domain, "kind": kind}
             # Tavily uses "content" field instead of "summary"
             summary = strip_html(r.get("content") or r.get("summary") or "")
@@ -622,8 +655,11 @@ class Newsfeed(threading.Thread):
                         json.dumps({"at": time.time(), "places": places, "items": items})
                     )
                     # Log cache update to stderr so it's visible
-                    print(f"\n[CACHE UPDATED] {len(items)} headlines saved to {CACHE_PATH}",
-                          file=sys.stderr, flush=True)
+                    print(
+                        f"\n[CACHE UPDATED] {len(items)} headlines saved to {CACHE_PATH}",
+                        file=sys.stderr,
+                        flush=True,
+                    )
                 except OSError:
                     pass
             elif not self.items:
@@ -654,8 +690,12 @@ class Newsfeed(threading.Thread):
                 continue
             items += self._collect(results, "news", seen)
         n_local = sum(1 for i in items if i["kind"] == "local")
-        self._commit(items, places, f"{len(items)} headlines" + (
-            f" · {n_local} local ({', '.join(places)})" if places else ""))
+        self._commit(
+            items,
+            places,
+            f"{len(items)} headlines"
+            + (f" · {n_local} local ({', '.join(places)})" if places else ""),
+        )
 
     def fetch_rss(self):
         region = detect_region(self.cfg)
@@ -669,9 +709,13 @@ class Newsfeed(threading.Thread):
         cutoff = datetime.now(timezone.utc) - timedelta(hours=max(6.0, hours))
         for feed_url in feeds:
             try:
-                req = urllib.request.Request(feed_url, headers={
-                    "User-Agent": f"meanwhile/{VERSION} "
-                                  "(+https://github.com/tomdavenport/meanwhile)"})
+                req = urllib.request.Request(
+                    feed_url,
+                    headers={
+                        "User-Agent": f"meanwhile/{VERSION} "
+                        "(+https://github.com/tomdavenport/meanwhile)"
+                    },
+                )
                 with urllib.request.urlopen(req, timeout=15) as resp:
                     data = resp.read()
                 pseudo = []
@@ -680,14 +724,17 @@ class Newsfeed(threading.Thread):
                     if when and when < cutoff:
                         continue
                     if title and link:
-                        pseudo.append({"title": title, "url": link,
-                                       "summary": strip_html(desc)})
+                        pseudo.append({"title": title, "url": link, "summary": strip_html(desc)})
                 # cap per feed, never break early: every feed gets its say
                 items += self._collect(pseudo[:25], "news", seen)
             except Exception:
                 continue
-        self._commit(items, [], f"{len(items)} headlines · rss"
-                     + (f" ({region})" if region in REGION_FEEDS else " (world)"))
+        self._commit(
+            items,
+            [],
+            f"{len(items)} headlines · rss"
+            + (f" ({region})" if region in REGION_FEEDS else " (world)"),
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -718,6 +765,7 @@ def load_omarchy_colors():
     """Colors of the active Omarchy theme (from its alacritty.toml), or None."""
     try:
         import tomllib
+
         data = tomllib.loads((OMARCHY_THEME / "alacritty.toml").read_text())
         c = data["colors"]
         bright = c.get("bright", {})
@@ -750,8 +798,9 @@ def query_terminal_colors():
     buf = b""
     try:
         tty.setcbreak(fd)
-        sys.stdout.write("\x1b]10;?\x07\x1b]11;?\x07"
-                         + "".join(f"\x1b]4;{n};?\x07" for n in ansi.values()))
+        sys.stdout.write(
+            "\x1b]10;?\x07\x1b]11;?\x07" + "".join(f"\x1b]4;{n};?\x07" for n in ansi.values())
+        )
         sys.stdout.flush()
         deadline = time.monotonic() + 0.3
         while time.monotonic() < deadline and buf.count(b"rgb:") < 2 + len(ansi):
@@ -765,7 +814,8 @@ def query_terminal_colors():
         termios.tcsetattr(fd, termios.TCSADRAIN, saved)
     found = {}
     for code, idx, rr, gg, bb in re.findall(
-            rb"\x1b\](\d+);(?:(\d+);)?rgb:([0-9a-fA-F]+)/([0-9a-fA-F]+)/([0-9a-fA-F]+)", buf):
+        rb"\x1b\](\d+);(?:(\d+);)?rgb:([0-9a-fA-F]+)/([0-9a-fA-F]+)/([0-9a-fA-F]+)", buf
+    ):
         rgb = tuple(int(h[:2].ljust(2, h[:1]), 16) for h in (rr, gg, bb))
         if code == b"10":
             found["fg"] = rgb
@@ -802,11 +852,19 @@ def build_theme_palette(t, focus=False):
         "blank": sgr(0),
     }
     if focus:
-        pal.update(news=_fg(t["bwhite"], 1), local=_fg(t["red"], 1),
-                   poetic=_fg(t["yellow"], 1), scramble=_fg(t["bwhite"], 1))
+        pal.update(
+            news=_fg(t["bwhite"], 1),
+            local=_fg(t["red"], 1),
+            poetic=_fg(t["yellow"], 1),
+            scramble=_fg(t["bwhite"], 1),
+        )
     else:
-        pal.update(news=_fg(_mix(fgc, bg, 0.45)), local=_fg(_mix(t["red"], bg, 0.2)),
-                   poetic=_fg(_mix(t["yellow"], bg, 0.45)), scramble=_fg(t["bgreen"], 1))
+        pal.update(
+            news=_fg(_mix(fgc, bg, 0.45)),
+            local=_fg(_mix(t["red"], bg, 0.2)),
+            poetic=_fg(_mix(t["yellow"], bg, 0.45)),
+            scramble=_fg(t["bgreen"], 1),
+        )
     return pal
 
 
@@ -818,20 +876,38 @@ def build_palette(basic=False, focus=False, theme=None):
     if not basic:
         pal = {
             "head": sgr(0, 1, 38, 5, 48),
-            "trail": [sgr(0, 38, 5, 46), sgr(0, 38, 5, 40), sgr(0, 38, 5, 34),
-                      sgr(0, 38, 5, 28), sgr(0, 38, 5, 22), sgr(0, 2, 38, 5, 22)],
-            "residue": [sgr(0, 38, 5, 22), sgr(0, 2, 38, 5, 28),
-                        sgr(0, 2, 38, 5, 22), sgr(0, 2, 38, 5, 235)],
+            "trail": [
+                sgr(0, 38, 5, 46),
+                sgr(0, 38, 5, 40),
+                sgr(0, 38, 5, 34),
+                sgr(0, 38, 5, 28),
+                sgr(0, 38, 5, 22),
+                sgr(0, 2, 38, 5, 22),
+            ],
+            "residue": [
+                sgr(0, 38, 5, 22),
+                sgr(0, 2, 38, 5, 28),
+                sgr(0, 2, 38, 5, 22),
+                sgr(0, 2, 38, 5, 235),
+            ],
             "reader": sgr(0, 38, 5, 250),
             "dim": sgr(0, 38, 5, 241),
             "blank": sgr(0),
         }
         if focus:
-            pal.update(news=sgr(0, 1, 38, 5, 255), local=sgr(0, 1, 38, 5, 87),
-                       poetic=sgr(0, 38, 5, 222), scramble=sgr(0, 1, 38, 5, 231))
+            pal.update(
+                news=sgr(0, 1, 38, 5, 255),
+                local=sgr(0, 1, 38, 5, 87),
+                poetic=sgr(0, 38, 5, 222),
+                scramble=sgr(0, 1, 38, 5, 231),
+            )
         else:
-            pal.update(news=sgr(0, 38, 5, 120), local=sgr(0, 38, 5, 80),
-                       poetic=sgr(0, 38, 5, 137), scramble=sgr(0, 1, 38, 5, 83))
+            pal.update(
+                news=sgr(0, 38, 5, 120),
+                local=sgr(0, 38, 5, 80),
+                poetic=sgr(0, 38, 5, 137),
+                scramble=sgr(0, 1, 38, 5, 83),
+            )
         return pal
     g, gd = sgr(0, 32), sgr(0, 2, 32)
     pal = {
@@ -843,11 +919,11 @@ def build_palette(basic=False, focus=False, theme=None):
         "blank": sgr(0),
     }
     if focus:
-        pal.update(news=sgr(0, 1, 37), local=sgr(0, 1, 36),
-                   poetic=sgr(0, 33), scramble=sgr(0, 1, 37))
+        pal.update(
+            news=sgr(0, 1, 37), local=sgr(0, 1, 36), poetic=sgr(0, 33), scramble=sgr(0, 1, 37)
+        )
     else:
-        pal.update(news=sgr(0, 1, 32), local=sgr(0, 36),
-                   poetic=sgr(0, 33), scramble=sgr(0, 1, 32))
+        pal.update(news=sgr(0, 1, 32), local=sgr(0, 36), poetic=sgr(0, 33), scramble=sgr(0, 1, 32))
     return pal
 
 
@@ -1012,8 +1088,9 @@ class Message:
                 self.done = True
 
     def draw(self, term, t, pal, glyphs):
-        attr = {"news": pal["news"], "local": pal["local"],
-                "summary": pal["reader"]}.get(self.kind, pal["poetic"])
+        attr = {"news": pal["news"], "local": pal["local"], "summary": pal["reader"]}.get(
+            self.kind, pal["poetic"]
+        )
         n = len(self.text)
         if self.phase == "reveal":
             locked = min(n, int(self.head - SCRAMBLE))
@@ -1093,12 +1170,12 @@ class App:
         self.show_status = False
         self.show_help = False
         self.editor = None  # {"kind": "topics"|"places", "input": str, "pending": bytes}
-        self.picker = None            # {"sel": int} while choosing a headline to decode
-        self.reader_pending = None    # (request_token, summary) set by the fetch thread
-        self.reader_req = 0           # supersedes stale in-flight fetches
-        self.block_seq = 0            # summary-block group ids
-        self.wake = None              # the rain speaking; see WAKE
-        self.shown_links = []         # recent on-screen headlines, newest first
+        self.picker = None  # {"sel": int} while choosing a headline to decode
+        self.reader_pending = None  # (request_token, summary) set by the fetch thread
+        self.reader_req = 0  # supersedes stale in-flight fetches
+        self.block_seq = 0  # summary-block group ids
+        self.wake = None  # the rain speaking; see WAKE
+        self.shown_links = []  # recent on-screen headlines, newest first
         self.panel_rect = None  # (y0, x0, y1, x1) of help/editor/picker overlay
         self.news_on = True
         self.poetic_on = True
@@ -1183,7 +1260,8 @@ class App:
             if url:
                 self.shown_links = (
                     [{"text": text, "url": url, "domain": domain, "summary": summary}]
-                    + [l for l in self.shown_links if l["url"] != url])[:9]
+                    + [l for l in self.shown_links if l["url"] != url]
+                )[:9]
         else:
             if kind == "news" and not (self.poetic_on or force):
                 return
@@ -1293,8 +1371,11 @@ class App:
                 status, at = self.feed.status, self.feed.fetched_at
             when = time.strftime(" · refreshed %H:%M", at) if at else ""
             places = [p for p in self.cfg.get("places", []) if str(p).strip()]
-            line = (f" meanwhile · {status}{when} · topics: {', '.join(self.cfg['topics'])}"
-                    + (f" · ⌖ {', '.join(places)}" if places else "") + " · q quit ? help ")
+            line = (
+                f" meanwhile · {status}{when} · topics: {', '.join(self.cfg['topics'])}"
+                + (f" · ⌖ {', '.join(places)}" if places else "")
+                + " · q quit ? help "
+            )
             term.span(self.h - 1, 0, pal["dim"], line[: self.w - 1].ljust(self.w - 1))
         if self.updates:
             update = self.updates.take_available()
@@ -1326,13 +1407,17 @@ class App:
             # no Exa key: the RSS description is the story we have
             summary = (link.get("summary") or "").strip()
             self.reader_req += 1
-            self.reader_pending = (self.reader_req, {
-                "title": link["text"].split("  ·  ")[0],  # drop show_source suffix
-                "domain": link.get("domain", ""),
-                "url": link["url"],
-                "summary": summary or "(this feed carries no summary — "
-                                      "shift-click the headline to open the story)",
-            })
+            self.reader_pending = (
+                self.reader_req,
+                {
+                    "title": link["text"].split("  ·  ")[0],  # drop show_source suffix
+                    "domain": link.get("domain", ""),
+                    "url": link["url"],
+                    "summary": summary
+                    or "(this feed carries no summary — "
+                    "shift-click the headline to open the story)",
+                },
+            )
             return
         self.flash(f"decoding {link['domain'] or 'story'}…", t)
         self.reader_req += 1
@@ -1340,29 +1425,43 @@ class App:
 
         def fetch():
             try:
-                body = {"ids": [link["url"]],
-                        "summary": {"query": "What happened, concretely? 2-4 short sentences."},
-                        "livecrawl": "fallback"}
+                body = {
+                    "ids": [link["url"]],
+                    "summary": {"query": "What happened, concretely? 2-4 short sentences."},
+                    "livecrawl": "fallback",
+                }
                 req = urllib.request.Request(
                     "https://api.exa.ai/contents",
                     data=json.dumps(body).encode(),
-                    headers={"x-api-key": self.feed.api_key or "",
-                             "content-type": "application/json"},
+                    headers={
+                        "x-api-key": self.feed.api_key or "",
+                        "content-type": "application/json",
+                    },
                 )
                 with urllib.request.urlopen(req, timeout=25) as resp:
                     results = json.loads(resp.read()).get("results", [])
                 r = results[0] if results else {}
                 text = (r.get("summary") or "").strip() or "(no summary could be decoded)"
-                self.reader_pending = (tok, {
-                    "title": clean_title(r.get("title")) or link["text"],
-                    "domain": link["domain"], "summary": text, "url": link["url"],
-                })
+                self.reader_pending = (
+                    tok,
+                    {
+                        "title": clean_title(r.get("title")) or link["text"],
+                        "domain": link["domain"],
+                        "summary": text,
+                        "url": link["url"],
+                    },
+                )
             except Exception:
-                self.reader_pending = (tok, {
-                    "title": link["text"], "domain": link["domain"], "url": link["url"],
-                    "summary": "(the summary could not be decoded — "
-                               "shift-click the headline to open the story)",
-                })
+                self.reader_pending = (
+                    tok,
+                    {
+                        "title": link["text"],
+                        "domain": link["domain"],
+                        "url": link["url"],
+                        "summary": "(the summary could not be decoded — "
+                        "shift-click the headline to open the story)",
+                    },
+                )
 
         threading.Thread(target=fetch, daemon=True).start()
 
@@ -1387,8 +1486,16 @@ class App:
         x0 = max(2, (self.w - width) // 2 + random.randint(-6, 6))
         self.block_seq += 1
         for i, (text, kind) in enumerate(block):
-            m = Message(text, kind, art["url"] if kind == "news" else None,
-                        r0 + i, self.w, t, x0=x0, delay=0.35 * i)
+            m = Message(
+                text,
+                kind,
+                art["url"] if kind == "news" else None,
+                r0 + i,
+                self.w,
+                t,
+                x0=x0,
+                delay=0.35 * i,
+            )
             m.domain = art.get("domain", "")
             m.group = self.block_seq
             m.dwell = 10.0 + 0.03 * len(art["summary"])
@@ -1406,8 +1513,9 @@ class App:
                     self.dismiss_summaries(m.group)  # click a story again to dissolve it
                     return
                 if m.url:
-                    self.open_summary({"text": m.text, "url": m.url,
-                                       "domain": m.domain, "summary": m.summary}, t)
+                    self.open_summary(
+                        {"text": m.text, "url": m.url, "domain": m.domain, "summary": m.summary}, t
+                    )
                     return
 
     def panel_lines(self):
@@ -1419,26 +1527,38 @@ class App:
             for i, l in enumerate(self.picker["links"], 1):
                 mark = "▸" if i - 1 == sel else " "
                 lines.append(f" {mark} {i}  {l['text'][:70]}")
-            lines += ["", "   ↑/↓ + enter · or just click a headline in the rain",
-                      "   its story decodes into the stream · esc closes"]
+            lines += [
+                "",
+                "   ↑/↓ + enter · or just click a headline in the rain",
+                "   its story decodes into the stream · esc closes",
+            ]
             return lines
         ed = self.editor
         kind = ed["kind"]
-        title = (" ◈ topics — what the news feed follows "
-                 if kind == "topics" else " ⌖ places — local intel ")
+        title = (
+            " ◈ topics — what the news feed follows "
+            if kind == "topics"
+            else " ⌖ places — local intel "
+        )
         lines = [title, ""]
         entries = self.cfg[kind]
         for i, v in enumerate(entries[:9], 1):
             lines.append(f"   {i}  {v}")
         if not entries:
             lines.append("   (none yet — type one below)")
-        lines += ["", f"   ▸ {ed['input']}█", "",
-                  "   type + enter adds · 1-9 removes",
-                  "   enter on empty line closes · esc closes"]
+        lines += [
+            "",
+            f"   ▸ {ed['input']}█",
+            "",
+            "   type + enter adds · 1-9 removes",
+            "   enter on empty line closes · esc closes",
+        ]
         if not self.feed.api_key:
-            lines.append("   (topics and local intel need an TAVILY_API_KEY —"
-                         if kind == "topics" else
-                         "   (local intel needs an TAVILY_API_KEY —")
+            lines.append(
+                "   (topics and local intel need an TAVILY_API_KEY —"
+                if kind == "topics"
+                else "   (local intel needs an TAVILY_API_KEY —"
+            )
             lines.append("    headlines are on the regional rss fallback)")
         return lines
 
@@ -1489,8 +1609,11 @@ class App:
         if self._osc_tail:
             # finish an OSC reply that split across reads: eat to BEL/ST.
             # a bare backslash can only be the tail of an ST here, not a key.
-            while i < n and data[i] not in (0x07, 0x5C) and not (
-                    data[i] == 27 and i + 1 < n and data[i + 1] == 0x5C):
+            while (
+                i < n
+                and data[i] not in (0x07, 0x5C)
+                and not (data[i] == 27 and i + 1 < n and data[i + 1] == 0x5C)
+            ):
                 i += 1
             if i < n:
                 i += 2 if data[i] == 27 else 1
@@ -1500,8 +1623,11 @@ class App:
             if b == 27 and i + 1 < n and data[i + 1] == 0x5D:
                 # OSC reply (e.g. a late color-query answer): swallow to BEL/ST
                 j = i + 2
-                while j < n and data[j] != 0x07 and not (
-                        data[j] == 27 and j + 1 < n and data[j + 1] == 0x5C):
+                while (
+                    j < n
+                    and data[j] != 0x07
+                    and not (data[j] == 27 and j + 1 < n and data[j + 1] == 0x5C)
+                ):
                     j += 1
                 if j >= n:
                     self._osc_tail = True  # reply continues in the next read
@@ -1513,7 +1639,7 @@ class App:
                 while j < n and not (0x40 <= data[j] <= 0x7E):
                     j += 1
                 final = data[j] if j < n else 0
-                params = bytes(data[i + 2:j])
+                params = bytes(data[i + 2 : j])
                 if final in (0x4D, 0x6D) and params.startswith(b"<"):
                     try:
                         btn, mx, my = (int(v) for v in params[1:].split(b";"))
@@ -1544,9 +1670,9 @@ class App:
             if self.picker:
                 links = self.picker["links"]  # frozen at open: the rain moves on, the list doesn't
                 if is_seq:
-                    if links and val == 0x41:      # up
+                    if links and val == 0x41:  # up
                         self.picker["sel"] = (self.picker["sel"] - 1) % len(links)
-                    elif links and val == 0x42:    # down
+                    elif links and val == 0x42:  # down
                         self.picker["sel"] = (self.picker["sel"] + 1) % len(links)
                     continue
                 if b in (13, 10) and links:
@@ -1675,8 +1801,11 @@ class App:
                     self.resized = False
                     self.term.resize()
                     self.h, self.w = self.term.h, self.term.w
-                    self.messages = [m for m in self.messages
-                                     if m.row < self.h - 1 and m.x0 + len(m.text) < self.w - 1]
+                    self.messages = [
+                        m
+                        for m in self.messages
+                        if m.row < self.h - 1 and m.x0 + len(m.text) < self.w - 1
+                    ]
                     self.streams = [s for s in self.streams if s.row < self.h]
                     self.panel_rect = None
                     self.term.out("\x1b[2J")
@@ -1701,8 +1830,9 @@ def main():
     ap.add_argument("--region", help="RSS fallback region code (e.g. gb, us), overrides config")
     ap.add_argument("--speed", type=float, help="speed multiplier")
     ap.add_argument("--theme", choices=["auto", "terminal", "matrix"], help="palette source")
-    ap.add_argument("-s", "--saver", action="store_true",
-                    help="screensaver mode — any key or click exits")
+    ap.add_argument(
+        "-s", "--saver", action="store_true", help="screensaver mode — any key or click exits"
+    )
     ap.add_argument("--version", action="version", version=f"meanwhile {VERSION}")
     args = ap.parse_args()
 

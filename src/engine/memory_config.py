@@ -2,9 +2,10 @@
 
 import os
 from pathlib import Path
+
 from dotenv import load_dotenv
 from mem0 import Memory
-from mem0.configs.base import MemoryConfig, EmbedderConfig
+from mem0.configs.base import EmbedderConfig, MemoryConfig
 from mem0.vector_stores.configs import VectorStoreConfig
 
 # Load environment variables
@@ -12,9 +13,7 @@ load_dotenv(Path(__file__).parent.parent.parent / ".env")
 
 # Memory configuration
 MEMORY_VECTOR_PATH = os.getenv("MEMORY_VECTOR_PATH", "data/memory_vectors")
-SCHEDULER_USER_ID = os.getenv(
-    "SCHEDULER_USER_ID", "terrarium_system"
-)  # Legacy, not used
+SCHEDULER_USER_ID = os.getenv("SCHEDULER_USER_ID", "terrarium_system")  # Legacy, not used
 USER_ID = os.getenv("TELEGRAM_CHAT_ID")
 DANIELLE_USER_ID = os.getenv("DANIELLE_TELEGRAM_CHAT_ID")
 
@@ -104,9 +103,7 @@ def get_memory():
                 "port": 6333,
             },
         ),
-        embedder=EmbedderConfig(
-            provider="openai", config={"model": "text-embedding-3-small"}
-        ),
+        embedder=EmbedderConfig(provider="openai", config={"model": "text-embedding-3-small"}),
         custom_fact_extraction_prompt=CUSTOM_FACT_EXTRACTION_PROMPT,
         custom_update_memory_prompt=CUSTOM_UPDATE_MEMORY_PROMPT,
     )

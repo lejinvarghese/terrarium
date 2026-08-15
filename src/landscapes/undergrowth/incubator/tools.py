@@ -22,6 +22,7 @@ from pathlib import Path
 # Load .env for TELEGRAM_TOKEN and other env vars
 try:
     from dotenv import load_dotenv
+
     env_path = Path(__file__).parent.parent.parent.parent / ".env"
     load_dotenv(env_path)
 except ImportError:
@@ -46,6 +47,7 @@ _ENV_FILES = ("~/.zshrc", "~/.env", "~/dev/.env")
 def _key_from_files(var: str) -> str | None:
     import re
     from pathlib import Path
+
     pat = re.compile(rf"^\s*(?:export\s+)?{re.escape(var)}\s*=\s*(.+?)\s*$")
     for path in _ENV_FILES:
         try:
@@ -90,18 +92,21 @@ def _tavily_search(query: str, n: int) -> list[dict]:
         data = json.loads(resp.read())
     out = []
     for r in data.get("results", []):
-        out.append({
-            "title": (r.get("title") or "").strip(),
-            "url": r.get("url") or "",
-            "snippet": " ".join((r.get("content") or "").split())[:280],
-        })
+        out.append(
+            {
+                "title": (r.get("title") or "").strip(),
+                "url": r.get("url") or "",
+                "snippet": " ".join((r.get("content") or "").split())[:280],
+            }
+        )
     return out
 
 
 def _ddg_search(query: str, n: int) -> list[dict]:
     data = urllib.parse.urlencode({"q": query}).encode()
     req = urllib.request.Request(
-        "https://html.duckduckgo.com/html/", data=data,
+        "https://html.duckduckgo.com/html/",
+        data=data,
         headers={"User-Agent": _UA},
     )
     with urllib.request.urlopen(req, timeout=25) as resp:
@@ -109,8 +114,7 @@ def _ddg_search(query: str, n: int) -> list[dict]:
     results, seen = [], set()
     # each result: an anchor with class result__a (title+href) then a snippet anchor
     pattern = re.compile(
-        r'result__a"[^>]*href="([^"]+)".*?>(.*?)</a>.*?'
-        r'(?:result__snippet"[^>]*>(.*?)</a>)?',
+        r'result__a"[^>]*href="([^"]+)".*?>(.*?)</a>.*?' r'(?:result__snippet"[^>]*>(.*?)</a>)?',
         re.DOTALL,
     )
     for m in pattern.finditer(raw):
@@ -208,46 +212,84 @@ def _send_telegram_via_api(chat_id: int, text: str, agent_name: str) -> bool:
 # Tool schemas (OpenAI function-calling format, what Ollama expects)
 # --------------------------------------------------------------------------- #
 TOOL_SCHEMAS = [
-    {"type": "function", "function": {
-        "name": "web_search",
-        "description": "Search the web for current information on any topic. Returns titles, URLs and snippets.",
-        "parameters": {"type": "object", "properties": {
-            "query": {"type": "string", "description": "what to search for"}},
-            "required": ["query"]}}},
-    {"type": "function", "function": {
-        "name": "web_fetch",
-        "description": "Fetch and read the full text of a web page by its URL.",
-        "parameters": {"type": "object", "properties": {
-            "url": {"type": "string", "description": "the http(s) URL to read"}},
-            "required": ["url"]}}},
-    {"type": "function", "function": {
-        "name": "read_message",
-        "description": "Read notes that other agents have left for you.",
-        "parameters": {"type": "object", "properties": {}}}},
-    {"type": "function", "function": {
-        "name": "write_message",
-        "description": "Leave a note for another agent so they see it next time they explore.",
-        "parameters": {"type": "object", "properties": {
-            "to": {"type": "string", "description": "recipient agent id (e.g. 'A002') or 'all'"},
-            "content": {"type": "string", "description": "the message"}},
-            "required": ["to", "content"]}}},
-    {"type": "function", "function": {
-        "name": "send_telegram_message",
-        "description": (
-            "Send a message to the user via Telegram. Use ONLY when you have something "
-            "important to communicate:\n"
-            "- You found significant information they explicitly asked for\n"
-            "- You discovered something surprising or urgent\n"
-            "- You need clarification on their request\n\n"
-            "DO NOT use for:\n"
-            "- Routine exploration updates (those go in your journal)\n"
-            "- Internal thoughts or planning\n"
-            "- Information that can wait until they check your journal\n\n"
-            "Be concise and actionable. The user will receive this as a notification."
-        ),
-        "parameters": {"type": "object", "properties": {
-            "text": {"type": "string", "description": "the message to send (keep it concise and valuable)"}},
-            "required": ["text"]}}},
+    {
+        "type": "function",
+        "function": {
+            "name": "web_search",
+            "description": "Search the web for current information on any topic. Returns titles, URLs and snippets.",
+            "parameters": {
+                "type": "object",
+                "properties": {"query": {"type": "string", "description": "what to search for"}},
+                "required": ["query"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "web_fetch",
+            "description": "Fetch and read the full text of a web page by its URL.",
+            "parameters": {
+                "type": "object",
+                "properties": {"url": {"type": "string", "description": "the http(s) URL to read"}},
+                "required": ["url"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "read_message",
+            "description": "Read notes that other agents have left for you.",
+            "parameters": {"type": "object", "properties": {}},
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "write_message",
+            "description": "Leave a note for another agent so they see it next time they explore.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "to": {
+                        "type": "string",
+                        "description": "recipient agent id (e.g. 'A002') or 'all'",
+                    },
+                    "content": {"type": "string", "description": "the message"},
+                },
+                "required": ["to", "content"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "send_telegram_message",
+            "description": (
+                "Send a message to the user via Telegram. Use ONLY when you have something "
+                "important to communicate:\n"
+                "- You found significant information they explicitly asked for\n"
+                "- You discovered something surprising or urgent\n"
+                "- You need clarification on their request\n\n"
+                "DO NOT use for:\n"
+                "- Routine exploration updates (those go in your journal)\n"
+                "- Internal thoughts or planning\n"
+                "- Information that can wait until they check your journal\n\n"
+                "Be concise and actionable. The user will receive this as a notification."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "text": {
+                        "type": "string",
+                        "description": "the message to send (keep it concise and valuable)",
+                    }
+                },
+                "required": ["text"],
+            },
+        },
+    },
 ]
 
 
@@ -282,9 +324,7 @@ class Toolbox:
         msgs = self.store.read_messages(self.agent_id, mark_read=True)
         if not msgs:
             return "No new messages."
-        return "\n".join(
-            f"From {m['from_name']} ({m['from_agent']}): {m['content']}" for m in msgs
-        )
+        return "\n".join(f"From {m['from_name']} ({m['from_agent']}): {m['content']}" for m in msgs)
 
     def _write_message(self, to: str, content: str) -> str:
         to = (to or "all").strip()
@@ -305,7 +345,7 @@ class Toolbox:
             "SELECT from_agent, from_name FROM messages "
             "WHERE to_agent=? AND from_agent LIKE 'TELEGRAM_%' "
             "ORDER BY id DESC LIMIT 1",
-            (self.agent_id,)
+            (self.agent_id,),
         )
         row = cursor.fetchone()
 
@@ -329,7 +369,7 @@ class Toolbox:
                 chat_id = int(default_chat_id)
                 recipient_name = "user"
             except ValueError:
-                return f"send_telegram_message error: invalid TELEGRAM_CHAT_ID format"
+                return "send_telegram_message error: invalid TELEGRAM_CHAT_ID format"
 
         # Send via Telegram API
         success = _send_telegram_via_api(chat_id, text, self.agent_name)

@@ -17,7 +17,6 @@ from pathlib import Path
 
 from src.landscapes.undergrowth.incubator.config import DB_PATH, LOG_DIR
 
-
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS episodes (
     id            INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -96,9 +95,16 @@ class Store:
         )
         self.conn.commit()
         ep_id = cur.lastrowid
-        self._jsonl({"event": "episode_start", "episode_id": ep_id,
-                     "agent_id": agent_id, "agent_name": agent_name,
-                     "day": day, "objective": objective})
+        self._jsonl(
+            {
+                "event": "episode_start",
+                "episode_id": ep_id,
+                "agent_id": agent_id,
+                "agent_name": agent_name,
+                "day": day,
+                "objective": objective,
+            }
+        )
         return ep_id
 
     def end_episode(self, episode_id, num_steps, num_tool_calls, summary) -> None:
@@ -108,23 +114,46 @@ class Store:
             (_now(), num_steps, num_tool_calls, summary, episode_id),
         )
         self.conn.commit()
-        self._jsonl({"event": "episode_end", "episode_id": episode_id,
-                     "num_steps": num_steps, "num_tool_calls": num_tool_calls,
-                     "summary": summary})
+        self._jsonl(
+            {
+                "event": "episode_end",
+                "episode_id": episode_id,
+                "num_steps": num_steps,
+                "num_tool_calls": num_tool_calls,
+                "summary": summary,
+            }
+        )
 
-    def log_step(self, episode_id, agent_id, idx, kind, content=None,
-                 tool_name=None, tool_args=None, tool_result=None) -> None:
+    def log_step(
+        self,
+        episode_id,
+        agent_id,
+        idx,
+        kind,
+        content=None,
+        tool_name=None,
+        tool_args=None,
+        tool_result=None,
+    ) -> None:
         self.conn.execute(
             "INSERT INTO steps (episode_id, agent_id, idx, kind, content, "
             "tool_name, tool_args, tool_result, ts) VALUES (?,?,?,?,?,?,?,?,?)",
-            (episode_id, agent_id, idx, kind, content, tool_name, tool_args,
-             tool_result, _now()),
+            (episode_id, agent_id, idx, kind, content, tool_name, tool_args, tool_result, _now()),
         )
         self.conn.commit()
-        self._jsonl({"event": "step", "episode_id": episode_id, "agent_id": agent_id,
-                     "idx": idx, "kind": kind, "content": content,
-                     "tool_name": tool_name, "tool_args": tool_args,
-                     "tool_result": (tool_result[:500] if tool_result else None)})
+        self._jsonl(
+            {
+                "event": "step",
+                "episode_id": episode_id,
+                "agent_id": agent_id,
+                "idx": idx,
+                "kind": kind,
+                "content": content,
+                "tool_name": tool_name,
+                "tool_args": tool_args,
+                "tool_result": (tool_result[:500] if tool_result else None),
+            }
+        )
 
     # -- messages (the shared board) ----------------------------------------
     def write_message(self, from_agent, from_name, to_agent, content) -> int:
@@ -134,8 +163,15 @@ class Store:
             (from_agent, from_name, to_agent, content, _now()),
         )
         self.conn.commit()
-        self._jsonl({"event": "message", "from_agent": from_agent,
-                     "from_name": from_name, "to_agent": to_agent, "content": content})
+        self._jsonl(
+            {
+                "event": "message",
+                "from_agent": from_agent,
+                "from_name": from_name,
+                "to_agent": to_agent,
+                "content": content,
+            }
+        )
         return cur.lastrowid
 
     def read_messages(self, agent_id, mark_read=True, limit=10) -> list[dict]:
@@ -155,11 +191,12 @@ class Store:
             out.append(dict(r))
             if mark_read:
                 read_by.add(agent_id)
-                self.conn.execute("UPDATE messages SET read_by=? WHERE id=?",
-                                  (",".join(sorted(read_by)), r["id"]))
+                self.conn.execute(
+                    "UPDATE messages SET read_by=? WHERE id=?", (",".join(sorted(read_by)), r["id"])
+                )
         if mark_read and out:
             self.conn.commit()
-        return list(reversed(out))   # oldest first
+        return list(reversed(out))  # oldest first
 
     def all_messages(self, limit=30) -> list[dict]:
         rows = self.conn.execute(
@@ -202,10 +239,12 @@ class Store:
         if agent_id:
             rows = self.conn.execute(
                 "SELECT * FROM episodes WHERE agent_id=? ORDER BY id DESC LIMIT ?",
-                (agent_id, limit)).fetchall()
+                (agent_id, limit),
+            ).fetchall()
         else:
             rows = self.conn.execute(
-                "SELECT * FROM episodes ORDER BY id DESC LIMIT ?", (limit,)).fetchall()
+                "SELECT * FROM episodes ORDER BY id DESC LIMIT ?", (limit,)
+            ).fetchall()
         return [dict(r) for r in rows]
 
     def episode_steps(self, episode_id) -> list[dict]:

@@ -5,6 +5,7 @@ import sqlite3
 import time
 import uuid
 from pathlib import Path
+
 import click
 
 
@@ -36,7 +37,7 @@ def export_from_openwebui(db_path, output_file):
     output_path = Path(output_file)
     existing_content = ""
     if output_path.exists():
-        with open(output_path, "r") as f:
+        with open(output_path) as f:
             existing_content = f.read()
 
     # Extract Open WebUI section or create new file
@@ -57,9 +58,7 @@ def export_from_openwebui(db_path, output_file):
     with open(output_path, "w") as f:
         f.write(new_content)
 
-    click.secho(
-        f"✨ Exported {len(memories)} memories to {output_file}", fg="green", bold=True
-    )
+    click.secho(f"✨ Exported {len(memories)} memories to {output_file}", fg="green", bold=True)
 
 
 def import_to_openwebui(db_path, input_file, skip_confirm=False):
@@ -70,7 +69,7 @@ def import_to_openwebui(db_path, input_file, skip_confirm=False):
         click.secho(f"File not found: {input_file}", fg="red")
         return
 
-    with open(input_path, "r") as f:
+    with open(input_path) as f:
         content = f.read()
 
     # Parse markdown sections (## headers as separate memories)
@@ -102,18 +101,14 @@ def import_to_openwebui(db_path, input_file, skip_confirm=False):
     user_id = get_user_id(cursor)
 
     # Show preview
-    click.secho(
-        f"\n📝 Found {len(sections)} memory sections to sync:", fg="cyan", bold=True
-    )
+    click.secho(f"\n📝 Found {len(sections)} memory sections to sync:", fg="cyan", bold=True)
     for i, section in enumerate(sections, 1):
         preview = section[:80].replace("\n", " ")
         click.echo(f"  {i}. {preview}.")
 
     if not skip_confirm:
         click.echo()
-        if not click.confirm(
-            "Import these memories to Open WebUI (will replace existing)?"
-        ):
+        if not click.confirm("Import these memories to Open WebUI (will replace existing)?"):
             click.secho("Cancelled.", fg="yellow")
             conn.close()
             return

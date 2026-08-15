@@ -3,6 +3,7 @@
 
 import sys
 from pathlib import Path
+
 import httpx
 
 ARCHIVE_DATA_DIR = Path(__file__).parent.parent / "data" / "archive_data" / "uploads"
@@ -84,7 +85,7 @@ def main():
             else:
                 failed += 1
 
-    print(f"\n✨ Import complete:")
+    print("\n✨ Import complete:")
     print(f"  • Imported: {imported}")
     print(f"  • Skipped: {skipped}")
     print(f"  • Failed: {failed}")

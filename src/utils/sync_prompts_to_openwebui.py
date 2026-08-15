@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """Sync prompt files back to Open WebUI database."""
 
-import sqlite3
 import json
+import sqlite3
 import time
 from pathlib import Path
+
 import click
 
 
@@ -29,7 +30,7 @@ def sync_prompts_to_db(prompts_dir, db_path, dry_run=False, skip_confirm=False):
         model_name = get_model_name_from_filename(prompt_file)
 
         # Read the new prompt content
-        with open(prompt_file, "r") as f:
+        with open(prompt_file) as f:
             new_prompt = f.read()
 
         # Find the model in the database (case-insensitive search)
@@ -40,9 +41,7 @@ def sync_prompts_to_db(prompts_dir, db_path, dry_run=False, skip_confirm=False):
         result = cursor.fetchone()
 
         if not result:
-            click.secho(
-                f"⚠️  No model found for {model_name} ({prompt_file.name})", fg="yellow"
-            )
+            click.secho(f"⚠️  No model found for {model_name} ({prompt_file.name})", fg="yellow")
             continue
 
         model_id, db_name, params_json = result
@@ -73,9 +72,7 @@ def sync_prompts_to_db(prompts_dir, db_path, dry_run=False, skip_confirm=False):
     for update in updates:
         click.echo(f"  • {update['name']}")
         click.echo(f"    File: {update['file']}")
-        click.echo(
-            f"    Prompt length: {update['old_length']} → {update['new_length']} chars"
-        )
+        click.echo(f"    Prompt length: {update['old_length']} → {update['new_length']} chars")
 
     if dry_run:
         click.secho("\n🔍 Dry run - no changes made.", fg="blue", bold=True)
@@ -101,9 +98,7 @@ def sync_prompts_to_db(prompts_dir, db_path, dry_run=False, skip_confirm=False):
     conn.commit()
     conn.close()
 
-    click.secho(
-        f"\n✨ Successfully updated {len(updates)} models!", fg="green", bold=True
-    )
+    click.secho(f"\n✨ Successfully updated {len(updates)} models!", fg="green", bold=True)
     click.secho("Refresh Open WebUI to see the changes.", fg="cyan")
 
 
@@ -120,9 +115,7 @@ def sync_prompts_to_db(prompts_dir, db_path, dry_run=False, skip_confirm=False):
     type=click.Path(exists=True),
     help="Path to Open WebUI database",
 )
-@click.option(
-    "--dry-run", is_flag=True, help="Show what would be updated without making changes"
-)
+@click.option("--dry-run", is_flag=True, help="Show what would be updated without making changes")
 @click.option("--yes", "-y", is_flag=True, help="Skip confirmation prompt")
 def main(prompts_dir, db_path, dry_run, yes):
     """Sync prompt files back to Open WebUI database."""

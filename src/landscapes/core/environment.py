@@ -1,4 +1,4 @@
-from typing import Any, Dict, Tuple
+from typing import Any
 
 
 class BaseEnvironment:
@@ -10,7 +10,7 @@ class BaseEnvironment:
         """Resets the environment and returns the initial observation."""
         pass
 
-    async def step(self, action: Any) -> Tuple[Any, float, bool, Dict[str, Any]]:
+    async def step(self, action: Any) -> tuple[Any, float, bool, dict[str, Any]]:
         """
         Run one timestep of the environment's dynamics.
         Returns: (observation, reward, done, info)

@@ -56,7 +56,7 @@ Open WebUI (localhost:8080)
    ```
 
 3. **Keep configs in sync:** When updating service ports, also update:
-   - `web/config/services.config.ts` - Frontend service configuration  
+   - `web/config/services.config.ts` - Frontend service configuration
    Both files must match for proper service routing.
 
 ## Running

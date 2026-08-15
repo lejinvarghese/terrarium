@@ -1,16 +1,17 @@
 #!/usr/bin/env python3
 """Simple CLI command scheduler using schedule library."""
 
-import schedule
-import time
-import subprocess
-import json
-import click
-import sys
 import itertools
+import json
 import re
+import subprocess
+import sys
+import time
 import uuid
-from memory_config import get_memory, USER_ID, DANIELLE_USER_ID
+
+import click
+import schedule
+from memory_config import DANIELLE_USER_ID, USER_ID, get_memory
 
 
 def run_command(name, command, description=""):
@@ -51,16 +52,12 @@ def run_command(name, command, description=""):
                     "results", memories_response.get("memories", [])
                 )
             else:
-                memory_list = (
-                    memories_response if isinstance(memories_response, list) else []
-                )
+                memory_list = memories_response if isinstance(memories_response, list) else []
 
             if memory_list:
                 # Build memory context string with character limit
                 MAX_CONTEXT_CHARS = 500  # Limit to prevent context inflation
-                context_parts = [
-                    m.get("memory", m.get("text", str(m))) for m in memory_list
-                ]
+                context_parts = [m.get("memory", m.get("text", str(m))) for m in memory_list]
 
                 # Truncate each memory snippet to reasonable length
                 truncated_parts = []
@@ -82,7 +79,9 @@ def run_command(name, command, description=""):
                 )
                 if prompt_match:
                     original_prompt = prompt_match.group(1)
-                    enhanced_prompt = f"Previous context (avoid repeating): {memory_context}\n\n{original_prompt}"
+                    enhanced_prompt = (
+                        f"Previous context (avoid repeating): {memory_context}\n\n{original_prompt}"
+                    )
                     enhanced_command = command.replace(
                         f"'{original_prompt}'", f"'{enhanced_prompt}'"
                     )
@@ -91,11 +90,9 @@ def run_command(name, command, description=""):
                         fg="magenta",
                         dim=True,
                     )
-        except Exception as e:
+        except Exception:
             # Gracefully degrade if memory fails (e.g., Qdrant already locked by bot)
-            click.secho(
-                f"  💤 Memory unavailable (bot may be using it)", fg="cyan", dim=True
-            )
+            click.secho("  💤 Memory unavailable (bot may be using it)", fg="cyan", dim=True)
             memory = None
 
     # Add fresh session ID to prevent Claude context accumulation
@@ -105,17 +102,15 @@ def run_command(name, command, description=""):
         enhanced_command = enhanced_command.replace(
             "claude -p --dangerously-skip-permissions",
             f"claude -p --dangerously-skip-permissions --session-id {session_id}",
-            1  # Only replace first occurrence
+            1,  # Only replace first occurrence
         )
         click.secho(f"  🆔 Session: {session_id[:8]}...", fg="cyan", dim=True)
 
     # Execute command
-    result = subprocess.run(
-        enhanced_command, shell=True, capture_output=True, text=True
-    )
+    result = subprocess.run(enhanced_command, shell=True, capture_output=True, text=True)
 
     if result.returncode == 0:
-        click.secho(f"  ✨ Done", fg="green")
+        click.secho("  ✨ Done", fg="green")
 
         # Store output in memory
         if bot_name and memory and result.stdout:
@@ -135,7 +130,7 @@ def run_command(name, command, description=""):
                         user_id=target_user_id,
                         agent_id=bot_name,
                     )
-                    click.secho(f"  💾 Stored in memory", fg="green", dim=True)
+                    click.secho("  💾 Stored in memory", fg="green", dim=True)
             except Exception as e:
                 click.secho(f"  ⚠️  Memory storage failed: {e}", fg="yellow", dim=True)
     else:
@@ -147,9 +142,7 @@ def run_command(name, command, description=""):
 
 
 @click.command()
-@click.argument(
-    "config_file", default="configs/schedule.json", type=click.Path(exists=True)
-)
+@click.argument("config_file", default="configs/schedule.json", type=click.Path(exists=True))
 def main(config_file):
     """Run scheduled commands from CONFIG_FILE (JSON format)."""
 
@@ -160,9 +153,7 @@ def main(config_file):
     with open(config_file) as f:
         config = json.load(f)
 
-    click.secho(
-        f"\n📋 Loading {len(config['tasks'])} tasks from {config_file}", fg="blue"
-    )
+    click.secho(f"\n📋 Loading {len(config['tasks'])} tasks from {config_file}", fg="blue")
     click.echo()
 
     # Schedule each task
@@ -180,16 +171,12 @@ def main(config_file):
             if len(parts) >= 3 and parts[1].isdigit():
                 n = int(parts[1])
                 unit = parts[2]
-                schedule.every(n).__getattribute__(unit).do(
-                    run_command, name, command, description
-                )
+                schedule.every(n).__getattribute__(unit).do(run_command, name, command, description)
 
             # Handle: every day at 10:30
             elif "day" in parts and "at" in parts:
                 time_str = parts[-1]
-                schedule.every().day.at(time_str).do(
-                    run_command, name, command, description
-                )
+                schedule.every().day.at(time_str).do(run_command, name, command, description)
 
             # Handle: every monday at 10:30
             elif "at" in parts:
@@ -202,9 +189,7 @@ def main(config_file):
             # Handle: every hour
             elif len(parts) == 2:
                 unit = parts[1]
-                schedule.every().__getattribute__(unit).do(
-                    run_command, name, command, description
-                )
+                schedule.every().__getattribute__(unit).do(run_command, name, command, description)
 
         # Display scheduled task
         click.secho(f"  ✓ {name}", fg="green", bold=True)
@@ -214,9 +199,7 @@ def main(config_file):
         click.echo()
 
     click.secho("=" * 50, fg="green")
-    click.secho(
-        "✨ Scheduler is running. Press Ctrl+C to stop.", fg="magenta", bold=True
-    )
+    click.secho("✨ Scheduler is running. Press Ctrl+C to stop.", fg="magenta", bold=True)
     click.secho("=" * 50 + "\n", fg="green")
 
     # Run scheduler loop with spinner

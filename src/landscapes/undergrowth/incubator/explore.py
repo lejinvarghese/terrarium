@@ -57,10 +57,14 @@ def _build_system_prompt(agent_config: dict) -> str:
 def _build_kickoff(objective: str, carry: dict | None, inbox: list[dict]) -> str:
     parts = [f"Today's exploration goal: {objective}"]
     if carry:
-        parts.append(f"\nYesterday ({carry['day']}) you wrote in your journal:\n\"{carry['summary']}\"\n"
-                     "Continue from there — build on it, don't start over.")
+        parts.append(
+            f"\nYesterday ({carry['day']}) you wrote in your journal:\n\"{carry['summary']}\"\n"
+            "Continue from there — build on it, don't start over."
+        )
     if inbox:
-        notes = "\n".join(f"  - {m['from_name']} ({m['from_agent']}): {m['content']}" for m in inbox)
+        notes = "\n".join(
+            f"  - {m['from_name']} ({m['from_agent']}): {m['content']}" for m in inbox
+        )
         parts.append(f"\nNotes waiting for you from other agents:\n{notes}")
     parts.append("\nBegin exploring now. Reach for a tool on your very first move.")
     return "\n".join(parts)
@@ -89,6 +93,7 @@ def run_episode(
     owns_store = store is None
     store = store or Store()
     from datetime import date
+
     day = date.today().isoformat()
 
     if objective is None:
@@ -123,8 +128,9 @@ def run_episode(
             click.secho(f"[step {step}/{steps}]", fg="cyan")
         for _ in range(MAX_TOOL_ROUNDS):
             try:
-                resp = ollama.chat(model=model_name, messages=history,
-                                   tools=Toolbox.schemas, options=MODEL_OPTIONS)
+                resp = ollama.chat(
+                    model=model_name, messages=history, tools=Toolbox.schemas, options=MODEL_OPTIONS
+                )
             except Exception as e:
                 click.secho(f"  model error: {e}", fg="red")
                 store.log_step(ep_id, agent_id, idx, "thought", content=f"[model error] {e}")
@@ -147,9 +153,15 @@ def run_episode(
                 args = dict(tc.function.arguments or {})
                 result = toolbox.call(name, args)
                 tool_calls += 1
-                store.log_step(ep_id, agent_id, idx, "tool",
-                               tool_name=name, tool_args=json.dumps(args),
-                               tool_result=result)
+                store.log_step(
+                    ep_id,
+                    agent_id,
+                    idx,
+                    "tool",
+                    tool_name=name,
+                    tool_args=json.dumps(args),
+                    tool_result=result,
+                )
                 idx += 1
                 if verbose:
                     click.secho(f"  🔧 {name}({args}) → {result[:120].strip()}…", fg="blue")
@@ -174,22 +186,35 @@ def run_episode(
     duration = time.time() - start
     if verbose:
         click.secho(f"\n📔 {summary}\n", fg="bright_yellow")
-        click.secho(f"done in {duration:.0f}s · {tool_calls} tool calls · episode {ep_id}\n",
-                    fg="green", bold=True)
+        click.secho(
+            f"done in {duration:.0f}s · {tool_calls} tool calls · episode {ep_id}\n",
+            fg="green",
+            bold=True,
+        )
 
     if owns_store:
         store.close()
 
     return {
-        "agent_id": agent_id, "agent_name": cfg["name"], "episode_id": ep_id,
-        "objective": objective, "steps": steps, "tool_calls": tool_calls,
-        "duration_s": round(duration, 1), "summary": summary,
+        "agent_id": agent_id,
+        "agent_name": cfg["name"],
+        "episode_id": ep_id,
+        "objective": objective,
+        "steps": steps,
+        "tool_calls": tool_calls,
+        "duration_s": round(duration, 1),
+        "summary": summary,
     }
 
 
 @click.command()
-@click.option("--agent", "-a", type=click.Choice(agent_registry.list_agents()),
-              required=True, help="Agent to run (e.g. A001)")
+@click.option(
+    "--agent",
+    "-a",
+    type=click.Choice(agent_registry.list_agents()),
+    required=True,
+    help="Agent to run (e.g. A001)",
+)
 @click.option("--objective", "-o", default=None, help="Explicit goal (auto-generated if omitted)")
 @click.option("--steps", "-s", default=DEFAULT_EPISODE_STEPS, help="Model turns this episode")
 @click.option("--epsilon", "-e", default=DEFAULT_EPSILON, type=float, help="Exploration rate 0-1")
@@ -197,8 +222,7 @@ def run_episode(
 def explore(agent, objective, steps, epsilon, model):
     """Run a single agent's daily exploration episode."""
     click.secho(f"\n{LANDSCAPE_DISPLAY_NAME} · incubator", fg="cyan", bold=True)
-    run_episode(agent_id=agent, objective=objective, steps=steps,
-                epsilon=epsilon, model_name=model)
+    run_episode(agent_id=agent, objective=objective, steps=steps, epsilon=epsilon, model_name=model)
 
 
 if __name__ == "__main__":

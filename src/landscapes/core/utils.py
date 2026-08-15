@@ -1,6 +1,6 @@
 import asyncio
-import click
 
+import click
 from agno.memory import MemoryManager
 from agno.models.ollama import Ollama
 
@@ -28,9 +28,7 @@ async def optimize_user_memory(user_id: str, preview: bool = False):
 
 
 @click.command()
-@click.option(
-    "--user-id", type=str, default="1", help="User ID to optimize memories for"
-)
+@click.option("--user-id", type=str, default="1", help="User ID to optimize memories for")
 @click.option("--preview", is_flag=True, help="Preview optimization without saving")
 def main(user_id: str, preview: bool):
     """Optimize and deduplicate user memories."""

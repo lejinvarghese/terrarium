@@ -8,9 +8,9 @@ Three distinct agents with unique personalities and exploration styles:
 
 from src.core.agents import AgentRegistry
 from src.landscapes.undergrowth.incubator.config import (
+    LANDSCAPE_INSTRUCTIONS,
     LANDSCAPE_NAME,
     TOOL_INSTRUCTIONS,
-    LANDSCAPE_INSTRUCTIONS,
 )
 
 AGENT_PERSONAS = {

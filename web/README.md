@@ -29,7 +29,7 @@ This is the web frontend for Terrarium, showcasing your self-hosted AI services 
 
 ### Prerequisites
 
-- Node.js 18+ 
+- Node.js 18+
 - npm or yarn
 
 ### Installation
@@ -78,7 +78,7 @@ web/
 The site showcases these Terrarium services:
 
 - **[001] Open WebUI** - Chat Interface Portal
-- **[002] ComfyUI** - Creative Studio  
+- **[002] ComfyUI** - Creative Studio
 - **[003] Ollama** - Model Runtime
 - **[004] Letta AI** - Memory Engine
 - **[005] SurrealDB** - Data Nexus

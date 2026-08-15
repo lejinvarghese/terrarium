@@ -1,7 +1,6 @@
 """Dynamic goal generation for agent exploration based on persona and interests"""
 
 import random
-from typing import Dict, List
 
 
 class GoalGenerator:
@@ -49,10 +48,7 @@ class GoalGenerator:
         self.epsilon = epsilon
 
     def generate(
-        self,
-        agent_config: Dict,
-        recent_memories: List = None,
-        epsilon: float = None
+        self, agent_config: dict, recent_memories: list = None, epsilon: float = None
     ) -> str:
         """Generate a goal for the agent based on persona and memories.
 
@@ -79,11 +75,7 @@ class GoalGenerator:
 
         return goal
 
-    def _generate_focused_goal(
-        self,
-        archetype: str,
-        interests: List[str]
-    ) -> str:
+    def _generate_focused_goal(self, archetype: str, interests: list[str]) -> str:
         """Generate goal focused on known interests.
 
         Args:
@@ -97,20 +89,13 @@ class GoalGenerator:
         topic = random.choice(interests)
 
         # Get templates for this archetype
-        templates = self.ARCHETYPE_TEMPLATES.get(
-            archetype,
-            self.ARCHETYPE_TEMPLATES["researcher"]
-        )
+        templates = self.ARCHETYPE_TEMPLATES.get(archetype, self.ARCHETYPE_TEMPLATES["researcher"])
 
         # Pick a random template and fill in the topic
         template = random.choice(templates)
         return template.format(topic=topic)
 
-    def _generate_exploratory_goal(
-        self,
-        archetype: str,
-        interests: List[str]
-    ) -> str:
+    def _generate_exploratory_goal(self, archetype: str, interests: list[str]) -> str:
         """Generate goal that explores new territory.
 
         For now, this is similar to focused goals but could later:
@@ -133,10 +118,7 @@ class GoalGenerator:
         else:
             topic = random.choice(interests)
 
-        templates = self.ARCHETYPE_TEMPLATES.get(
-            archetype,
-            self.ARCHETYPE_TEMPLATES["researcher"]
-        )
+        templates = self.ARCHETYPE_TEMPLATES.get(archetype, self.ARCHETYPE_TEMPLATES["researcher"])
 
         template = random.choice(templates)
         return template.format(topic=topic)
