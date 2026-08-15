@@ -17,7 +17,6 @@ A Telegram bot that integrates directly with Claude Code CLI, supporting multipl
 src/portals/telegram/
 ├── bot.py              # Main bot application
 ├── claude_engine.py    # Claude Code CLI wrapper (Undergrowth bots)
-├── openclaw_router.py  # OpenClaw landscape router (Canopy, etc.)
 ├── session_manager.py  # SQLite session persistence
 └── README.md          # This file
 ```
@@ -93,16 +92,9 @@ Press `Ctrl+C` to gracefully shut down the bot.
 4. Each bot has unique capabilities - use `/bots` to discover them
 5. Use `/clear` to start fresh with the current bot
 
-### Multi-Landscape Routing
+### Bot Switching
 
-Use `@landscape` syntax to route messages to elevated intelligence layers (OpenClaw agents):
-
-```
-@canopy what events do I have next week?
-@canopy analyze calendar patterns
-```
-
-Use `@botname` syntax for Undergrowth bots (existing behavior):
+Use `@botname` syntax to switch between Undergrowth bots:
 
 ```
 @sage what's new in AI research?
@@ -110,7 +102,6 @@ Use `@botname` syntax for Undergrowth bots (existing behavior):
 ```
 
 **Architecture:**
-- `@canopy` → OpenClawRouter → OpenClaw CLI → Canopy agent (self-improving memory)
 - `@sage/@anya/etc` → ClaudeEngine → Claude CLI → Undergrowth bot (mem0 memory)
 
 ## How It Works

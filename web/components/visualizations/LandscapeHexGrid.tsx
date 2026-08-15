@@ -29,12 +29,11 @@ export default function LandscapeHexGrid() {
 
   // Calculate hexagon centers in a honeycomb pattern
   const hexPositions = useMemo(() => {
-    // Manual layout for 4 landscapes in a compact cluster
-    // Row 0: 2 hexagons (offset)
+    // Manual layout for 3 landscapes in a compact cluster
+    // Row 0: 1 hexagon (centered)
     // Row 1: 2 hexagons
     const layout: HexPosition[] = [
       { row: 0, col: 0 }, // Undergrowth
-      { row: 0, col: 1 }, // Canopy
       { row: 1, col: 0 }, // Mycelium
       { row: 1, col: 1 }, // Reef
     ];

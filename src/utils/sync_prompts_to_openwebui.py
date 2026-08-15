@@ -110,7 +110,7 @@ def sync_prompts_to_db(prompts_dir, db_path, dry_run=False, skip_confirm=False):
 @click.command()
 @click.option(
     "--prompts-dir",
-    default="src/prompts",
+    default=".claude/agents",
     type=click.Path(exists=True),
     help="Directory containing prompt markdown files",
 )

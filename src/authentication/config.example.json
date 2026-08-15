@@ -18,11 +18,11 @@
     "serviceName": "Jarvis"
   },
   "accessCodes": [
-    "UND3RGROWTH",
-    "T3RR4R1UM",
-    "CYBERN3T1C",
-    "PUNKM3CH4",
+    "CODE1",
+    "CODE2",
+    "CODE3",
+    "CODE4"
   ],
-  "cookieSecret": "terrarium-secure-session-2025",
+  "cookieSecret": "your-secret-key-here",
   "cookieMaxAge": 86400000
 }

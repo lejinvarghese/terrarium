@@ -24,30 +24,40 @@ Open WebUI (localhost:8080)
 
 ## Configuration
 
-Edit `config.json` to customize:
+**IMPORTANT:** `config.json` is the centralized source of truth for service ports and authentication settings.
 
-```json
-{
-  "dome": {
-    "port": 8081,              // Auth proxy port
-    "targetUrl": "http://localhost:8080",  // Service URL
-    "title": "DOME ACCESS REQUIRED"
-  },
-  "archive": {
-    "port": 8503,
-    "targetUrl": "http://localhost:8502",
-    "title": "ARCHIVE ACCESS REQUIRED"
-  },
-  "accessCodes": [
-    "UNDERGROWTH",
-    "TERR4R1UM",
-    "CYB3RN3T1C",
-    "SW4RM",
-    "ECLIPSE"
-  ],
-  "cookieMaxAge": 86400000  // 24 hours
-}
-```
+### Setup
+
+1. **First time setup:**
+   ```bash
+   cd src/authentication
+   cp config.example.json config.json
+   ```
+
+2. **Edit config.json:**
+   ```json
+   {
+     "dome": {
+       "port": 8081,              // Auth proxy port
+       "targetUrl": "http://localhost:8080",  // Service URL
+       "title": "DOME ACCESS REQUIRED"
+     },
+     "archive": {
+       "port": 8503,
+       "targetUrl": "http://localhost:8502",
+       "title": "ARCHIVE ACCESS REQUIRED"
+     },
+     "accessCodes": [
+       "XXX",
+       "YYY"
+     ],
+     "cookieMaxAge": 86400000  // 24 hours
+   }
+   ```
+
+3. **Keep configs in sync:** When updating service ports, also update:
+   - `web/config/services.config.ts` - Frontend service configuration  
+   Both files must match for proper service routing.
 
 ## Running
 

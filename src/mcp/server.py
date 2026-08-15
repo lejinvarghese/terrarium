@@ -33,6 +33,13 @@ dimensions = {
     "square": "640x640",
 }
 
+# Google Nano Banana 2 supported dimensions
+google_dimensions = {
+    "portrait": "1264x1696",
+    "landscape": "2528x1696",  # 3:2 aspect ratio
+    "square": "1024x1024",
+}
+
 mcp = FastMCP(
     "Terrarium Utilities",
     instructions="A collection of utilities for image generation, messaging, and automation.",
@@ -47,13 +54,29 @@ async def generate_image(
     orientation: str = "portrait",
     enhance: bool = False,
     add_lora: bool = False,
+    reference_images: list[str] | None = None,
 ) -> list[str]:
-    """Create artwork using AI image generation"""
+    """Create artwork using AI image generation
+
+    Args:
+        prompt: Text description of the image to generate
+        model_id: Model to use (e.g., "runware:101@1" or "google:4@3" for Nano Banana 2)
+        n_results: Number of images to generate
+        orientation: Image orientation (portrait, landscape, square)
+        enhance: Whether to enhance the prompt
+        add_lora: Whether to add LoRA models
+        reference_images: Optional list of image URLs to use as references (for composition/style transfer)
+    """
     runware = Runware(api_key=RUNWARE_API_KEY)
     await runware.connect()
 
-    width, height = map(int, dimensions[orientation].split("x"))
+    # Use google dimensions for google models, standard dimensions otherwise
+    dimension_map = google_dimensions if model_id.startswith("google:") else dimensions
+    width, height = map(int, dimension_map[orientation].split("x"))
     click.secho(f"Prompt: {prompt}", fg="green")
+
+    if reference_images:
+        click.secho(f"Using {len(reference_images)} reference images", fg="cyan")
 
     if enhance:
         prompt_enhancer = IPromptEnhance(
@@ -72,14 +95,25 @@ async def generate_image(
         ]
     else:
         lora = None
-    request_image = IImageInference(
-        positivePrompt=prompt,
-        model=model_id,
-        numberResults=n_results,
-        height=height,
-        width=width,
-        lora=lora,
-    )
+
+    # Build request parameters
+    request_params = {
+        "positivePrompt": prompt,
+        "model": model_id,
+        "numberResults": n_results,
+        "height": height,
+        "width": width,
+    }
+
+    # Add optional parameters
+    if lora:
+        request_params["lora"] = lora
+
+    # Add reference images if provided (for multi-image composition)
+    if reference_images:
+        request_params["referenceImages"] = reference_images
+
+    request_image = IImageInference(**request_params)
 
     images = await runware.imageInference(requestImage=request_image)
     return images

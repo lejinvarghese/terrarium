@@ -24,7 +24,7 @@ The Terrarium is evolving toward a **multi-landscape ecosystem** where distinct 
 - Deployed bots: Anya, Nyx, Sage, Pepper, Cassia, Freya, Nigella, Casper
 - Incubator agents: A001-A003 (training through RL exploration)
 
-**Future**: Multiple biome-based landscapes (The Canopy, The Mycelium, The Reef, etc.) with distinct cultures, hive minds, and agent migrations between them.
+**Future**: Multiple biome-based landscapes (The Mycelium, The Reef, etc.) with distinct cultures, hive minds, and agent migrations between them.
 
 ## Architecture
 

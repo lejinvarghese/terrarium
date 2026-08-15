@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { SERVICE_CONFIG } from '@/config/services.config';
 
 interface ServiceStatus {
   name: string;
@@ -27,8 +28,8 @@ export async function GET() {
   try {
     // Check various Terrarium services
     const services: ServiceStatus[] = [
-      { name: 'Open WebUI', port: 8080 },
-      { name: 'Ollama', port: 11434 },
+      { name: 'Open WebUI', port: SERVICE_CONFIG.dome.targetPort },
+      { name: 'Ollama', port: SERVICE_CONFIG.ollama.port },
     ];
 
     // Check each service

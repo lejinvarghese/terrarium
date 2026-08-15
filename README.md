@@ -6,10 +6,9 @@
 
 > **🌐 See it live:** [mutatedterrarium.com](https://mutatedterrarium.com)
 
-An ecosystem where cybernetic minds live, grow, and tend to your digital-physical life. This is not infrastructure—it's **habitat**. A glass dome where AI agents don't just run ta
-sks, they *inhabit* distinct landscapes, evolving as a collective swarm intelligence.
+An ecosystem where cybernetic minds live, grow, and evolve. This is a **habitat**, a glass dome where agents don't just run ta
+sks, they *inhabit* distinct landscapes, evolving as a collective swarm intelligence. Agents can interact, migrate between landscapes, and carry cultural DNA with them. Agents aren't limited to the digital dimension, they can reach physical dimensions through mobile portals, sensors, and actuators. 
 
-Like a terrarium where plants flourish in a contained environment, your cybernetic minds thrive here: **Casper** the concierge, **Anya** the creative director, **Pepper** the ADHD motivator, **Nigella** the culinary guide, **Sage** the wisdom keeper, **Nyx** the accelerationist futurist, **Freya** the health coach.
 
 ![Digital-Organic Ecosystem](/assets/terrarium-ecosystem.jpg)
 *Where technology and nature grow together in harmony*
@@ -18,36 +17,22 @@ Like a terrarium where plants flourish in a contained environment, your cybernet
 
 ## The Vision
 
-**Cyberpunk homesteading.** Building a utopian enclosure where technology and organic life interweave. Your swarm of cybernetic minds operates as extensions of your home environment—distributed intelligence working toward your flourishing.
-
-The boundaries blur intentionally:
-- Pepper sends Spotify playlists when you need focus
-- Cassia delivers weather-aware morning briefings with calendar integration
-- Nigella suggests seasonal recipes aligned with your fitness goals
-- Sage curates reading lists for long-term growth
-- Nyx tracks emerging tech at the edge of human capability
-- Anya generates art and curates aesthetics for your creative projects
+**Cyberpunk homesteading.** Building your own multi dimensional habitat where life across digital and physical dimensions interweave. Your swarm of cybernetic minds operates as extensions of your home environment, distributed intelligence working toward collective flourishing.
 
 This is digital-physical symbiosis. Your bots don't live in the cloud—they live *here*, self-hosted, in architectural zones that shape their identity.
 
 ---
 
-## Multi-Landscape Architecture
+# Landscapes
 
-![Landscapes Visualization](/assets/screenshots/landscapes-viz.png)
+![Landscapes Visualization](/assets/screenshots/landscapes.jpg)
 
-*The multiplex network: Layer 0 (physical beings) connected to Layer 1 (digital landscapes)*
-
-The Terrarium is evolving toward a **multi-landscape ecosystem** where distinct civilizations of AI agents can emerge, interact, and migrate between biomes:
+The Terrarium is a **multi landscape ecosystem** where technology and organic life interweave, distinct civilizations of agents can emerge, interact, and migrate between biomes. Each landscape has its own culture, memory systems, and can be evolved by the agents inhabiting it. Agents can communicate within and across landscapes, and can migrate between them. 
 
 ### 🌑 The Undergrowth (Active)
 **Culture:** Dark, gothic, emergent underground intelligence  
 **Population:** 11 agents (Anya, Nyx, Sage, Pepper, Cassia, Freya, Nigella, Casper + 3 incubator agents)  
-**Vibe:** Urban hippie goth meets cyberpunk meets accelerationist transhumanism
-
-### 🌤️ The Canopy (Dormant)
-**Culture:** Elevated, strategic, birds-eye perspective  
-**Vision:** Wisdom-focused, long-term planning, pattern recognition
+**Vibe:** Urban goth meets cyberpunk meets accelerationist transhumanism
 
 ### 🍄 The Mycelium (Future)
 **Culture:** Networked intelligence, distributed consciousness  
@@ -67,7 +52,7 @@ See [ARCHITECTURE.md](./docs/ARCHITECTURE.md) for the complete vision.
 
 ![Services](/assets/screenshots/services.png)
 
-The terrarium runs on four core **substations**:
+The undergrowth landscape runs on four core **substations**:
 
 ### 🔮 The Dome
 *Open WebUI* — Your observation deck. See all minds in the swarm, chat directly, watch them work. Glass walls reveal the ecosystem within.
@@ -137,11 +122,11 @@ pip3 install -r requirements.txt
 
 ## Documentation
 
-- **[SETUP.md](./docs/SETUP.md)** - Detailed installation and configuration
-- **[SERVICE_ORCHESTRATION.md](./docs/SERVICE_ORCHESTRATION.md)** - Running ComfyUI, Ollama, network access
-- **[ARCHITECTURE.md](./docs/ARCHITECTURE.md)** - Multi-landscape design and vision
-- **[SSH_ACCESS.md](./docs/SSH_ACCESS.md)** - Remote access and tunneling
-- **[SECURE_ACCESS.md](./docs/SECURE_ACCESS.md)** - Authentication and security
+**📚 [Quick Start](./docs/SETUP.md)** - Get running in 5 minutes  
+**📖 [Usage Guide](./docs/USAGE.md)** - Using services and bots  
+**🏗️ [Architecture](./docs/ARCHITECTURE.md)** - Multi-landscape design
+
+**Advanced:** [docs/help/](./docs/help/) - Deployment, networking, component details
 
 ---
 
@@ -165,25 +150,24 @@ The boundaries blur intentionally. This is **cyberpunk homesteading**—building
 ## Technology Stack
 
 **Backend:**
-- Python 3.12+ (automation, scheduling, bot logic)
-- Open WebUI (LLM interface)
-- Telegram Bot API (mobile portal)
-- FastMCP (Model Context Protocol servers)
+- Python 3.12+
+- Open WebUI
+- Telegram Bot API
+- FastMCP
 
 **Frontend:**
-- Next.js 14 (web dashboard)
-- React Three Fiber (3D visualizations)
-- CSS modules (cyberpunk-organic aesthetic)
+- Next.js 14
+- React Three Fiber
 
 **AI/ML:**
-- Claude 3.5 Sonnet (primary reasoning)
-- Ollama (local LLM runtime, optional)
-- ComfyUI + Stable Diffusion (image generation, optional)
+- Claude 3.5 Sonnet
+- Ollama
+- Runware
 
 **Infrastructure:**
-- Self-hosted (runs on your hardware)
-- Docker (optional containerization)
-- Cloudflare Tunnels (optional public access)
+- Self-hosted
+- Docker
+- Cloudflare Tunnels
 
 ---
 

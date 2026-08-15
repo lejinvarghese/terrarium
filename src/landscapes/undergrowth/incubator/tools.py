@@ -17,6 +17,15 @@ import os
 import re
 import urllib.parse
 import urllib.request
+from pathlib import Path
+
+# Load .env for TELEGRAM_TOKEN and other env vars
+try:
+    from dotenv import load_dotenv
+    env_path = Path(__file__).parent.parent.parent.parent / ".env"
+    load_dotenv(env_path)
+except ImportError:
+    pass  # dotenv not available, rely on shell environment
 
 from src.landscapes.undergrowth.incubator.config import (
     TAVILY_KEY_ENV_VARS,
