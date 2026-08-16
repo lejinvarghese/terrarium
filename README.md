@@ -169,16 +169,7 @@ ollama pull qwen2.5:3b
 
 ## Contributing
 
-This is a personal ecosystem made public for inspiration. Fork it, adapt it, build your own terrarium with different bots, landscapes, and cultures.
-
-**Ideas for your own terrarium:**
-
-- Different bot personalities (stoic philosopher, chaos agent, minimalist)
-- New landscapes (The Desert: austere efficiency; The Jungle: rapid iteration)
-- Alternative substations (Discord instead of Telegram, Obsidian instead of library)
-- Custom integrations (home automation, quantified self, creative workflows)
-
-See something that inspires you? Build on it. The glass dome is open.
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for ideas on forking and customizing your own terrarium.
 
 ---
 
