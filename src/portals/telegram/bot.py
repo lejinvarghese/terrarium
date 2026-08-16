@@ -736,8 +736,10 @@ async def chat_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         try:
             memories_response = memory.search(
                 query=user_message,
-                user_id=str(user.id),
-                agent_id=agent_id,
+                filters={
+                    "user_id": str(user.id),
+                    "agent_id": agent_id,
+                },
                 limit=3,  # Only get top 3 most relevant memories
             )
 

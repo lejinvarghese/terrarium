@@ -67,13 +67,13 @@ You manage memory for an AI assistant. Compare new facts with existing memories 
 ADD - New information not already stored
 UPDATE - Changes to existing information (keep ID, update content)
 DELETE - Contradictory or outdated information
-NONE - Already stored or not worth storing
 
 Guidelines:
 - Prefer UPDATE over ADD when refining existing facts
 - DELETE outdated information (old goals, completed tasks, changed preferences)
-- Be aggressive with NONE for redundant or low-value information
+- SKIP redundant or low-value information (don't include them in output at all)
 - Preserve context in UPDATEs (e.g., "Updated goal from X to Y")
+- Only include memories that need ADD, UPDATE, or DELETE - omit everything else
 
 Output format:
 {
@@ -81,7 +81,7 @@ Output format:
     {
       "id": "<existing_id or new>",
       "text": "<memory content>",
-      "event": "ADD|UPDATE|DELETE|NONE",
+      "event": "ADD|UPDATE|DELETE",
       "old_memory": "<previous content if UPDATE>"
     }
   ]

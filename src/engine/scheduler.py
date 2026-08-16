@@ -41,8 +41,10 @@ def run_command(name, command, description=""):
             query = description or command
             memories_response = memory.search(
                 query=query,
-                user_id=target_user_id,
-                agent_id=bot_name,
+                filters={
+                    "user_id": target_user_id,
+                    "agent_id": bot_name,
+                },
                 limit=5,  # Get more memories for scheduler context
             )
 
