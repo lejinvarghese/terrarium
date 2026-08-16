@@ -1,6 +1,10 @@
 #!/bin/bash
 # Terrarium development environment manager
 # Thin router that delegates to modular command scripts
+#
+# TIP: Add alias to your shell for easier usage:
+#   echo 'alias dev="./dev"' >> ~/.bashrc  # or ~/.zshrc
+#   source ~/.bashrc
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 COMMANDS_DIR="$SCRIPT_DIR/scripts/commands"

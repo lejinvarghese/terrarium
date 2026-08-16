@@ -4,6 +4,32 @@ Quick guide to using your AI ecosystem.
 
 ---
 
+## Dev Commands
+
+The `dev` script manages all Terrarium services:
+
+```bash
+dev up                    # Start all services
+dev down                  # Stop all services
+dev restart <service>     # Restart specific service
+dev attach <service>      # Attach to service logs
+dev status                # Show service status
+dev setup                 # Run initial setup
+dev landscapes list       # List landscapes
+dev landscapes create     # Create new landscape
+```
+
+**Services:** `dome`, `portal`, `engine`, `web`
+
+**Tip:** Add alias to your shell:
+
+```bash
+echo 'alias dev="./dev"' >> ~/.bashrc
+source ~/.bashrc
+```
+
+---
+
 ## Services
 
 ### Dome (Web Chat)

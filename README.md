@@ -94,9 +94,14 @@ cd terrarium
 cp .env.example .env
 nano .env  # Add API keys
 
-# Install
-pip3 install -r requirements.txt
-cd web && npm install && cd ..
+# Install dependencies
+curl -LsSf https://astral.sh/uv/install.sh | sh  # Install uv
+uv sync                                           # Python deps
+cd web && npm install && cd ..                    # Node deps
+
+# Add dev alias (optional but recommended)
+echo 'alias dev="./dev"' >> ~/.bashrc  # or ~/.zshrc
+source ~/.bashrc  # or ~/.zshrc
 ```
 
 ### Required API Keys
@@ -117,7 +122,7 @@ TAVILY_API_KEY=...          # tavily.com
 
 ```bash
 # Start everything
-./dev up
+dev up  # or ./dev up if you skipped the alias
 
 # Access services
 # - Dome: http://localhost:8080
@@ -125,10 +130,10 @@ TAVILY_API_KEY=...          # tavily.com
 # - Telegram: Message your bot
 
 # Attach to logs
-./dev attach dome      # or engine, portal
+dev attach dome      # or engine, portal
 
 # Stop
-./dev down
+dev down
 ```
 
 ### Configuration
