@@ -20,12 +20,12 @@ run_episode(agent)  ==  one agent's exploration for one day
 
 **The five tools** (`tools.py`, stdlib only):
 
-| tool | what it does |
-|------|--------------|
-| `web_search(query)` | Tavily if a key is present, else DuckDuckGo (keyless) |
-| `web_fetch(url)` | fetch a page, return cleaned/truncated text |
-| `read_message()` | read notes peers left for this agent |
-| `write_message(to, content)` | leave a note for another agent (id, or `"all"`) |
+| tool                          | what it does                                             |
+| ----------------------------- | -------------------------------------------------------- |
+| `web_search(query)`           | Tavily if a key is present, else DuckDuckGo (keyless)    |
+| `web_fetch(url)`              | fetch a page, return cleaned/truncated text              |
+| `read_message()`              | read notes peers left for this agent                     |
+| `write_message(to, content)`  | leave a note for another agent (id, or `"all"`)          |
 | `send_telegram_message(text)` | send a message to the user via Telegram (when warranted) |
 
 **Everything is logged** to `data/incubator_lean.db` (SQLite) and a per-day

@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { useEffect, useRef } from 'react';
-import styles from './GridTrail.module.css';
+import { useEffect, useRef } from "react";
+import styles from "./GridTrail.module.css";
 
 interface GridTrailProps {
   cellSize?: number;
@@ -12,7 +12,7 @@ interface GridTrailProps {
 
 export default function GridTrail({
   cellSize = 40,
-  trailColor = '#EBFA1D',
+  trailColor = "#EBFA1D",
   fadeSpeed = 0.05,
   trailRadius = 2,
 }: GridTrailProps) {
@@ -20,11 +20,11 @@ export default function GridTrail({
   const p5Instance = useRef<any>(null);
 
   useEffect(() => {
-    if (!containerRef.current || typeof window === 'undefined') return;
+    if (!containerRef.current || typeof window === "undefined") return;
 
     // Dynamically import p5 on client side only
     const loadP5 = async () => {
-      const p5Module = await import('p5');
+      const p5Module = await import("p5");
       const p5 = p5Module.default;
 
       // Grid state
@@ -42,7 +42,9 @@ export default function GridTrail({
           // Initialize grid
           cols = Math.ceil(p.width / cellSize);
           rows = Math.ceil(p.height / cellSize);
-          grid = Array(cols).fill(0).map(() => Array(rows).fill(0));
+          grid = Array(cols)
+            .fill(0)
+            .map(() => Array(rows).fill(0));
 
           p.noStroke();
         };
@@ -65,7 +67,7 @@ export default function GridTrail({
                 const distance = Math.sqrt(dx * dx + dy * dy);
                 if (distance <= trailRadius) {
                   // Intensity based on distance from mouse
-                  const intensity = 1 - (distance / trailRadius);
+                  const intensity = 1 - distance / trailRadius;
                   grid[x][y] = Math.max(grid[x][y], intensity);
                 }
               }
@@ -111,7 +113,9 @@ export default function GridTrail({
           p.resizeCanvas(p.windowWidth, p.windowHeight);
           cols = Math.ceil(p.width / cellSize);
           rows = Math.ceil(p.height / cellSize);
-          grid = Array(cols).fill(0).map(() => Array(rows).fill(0));
+          grid = Array(cols)
+            .fill(0)
+            .map(() => Array(rows).fill(0));
         };
       };
 

@@ -1,20 +1,22 @@
 # Terrarium 🌿
 
 [![Live Demo](https://img.shields.io/badge/🌐_Live_Demo-mutatedterrarium.com-EBFA1D?style=for-the-badge)](https://mutatedterrarium.com)
+
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+[![Code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg)](https://github.com/prettier/prettier)
 [![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit)](https://github.com/pre-commit/pre-commit)
+[![Complexity](https://img.shields.io/badge/complexity-monitored-blue.svg)](https://github.com/rohaquinlop/complexipy)
 
 ![Terrarium Hero](/assets/main.png)
 
 > **🌐 See it live:** [mutatedterrarium.com](https://mutatedterrarium.com)
 
 An ecosystem where cybernetic minds live, grow, and evolve. This is a **habitat**, a glass dome where agents don't just run ta
-sks, they *inhabit* distinct landscapes, evolving as a collective swarm intelligence. Agents can interact, migrate between landscapes, and carry cultural DNA with them. Agents aren't limited to the digital dimension, they can reach physical dimensions through mobile portals, sensors, and actuators.
-
+sks, they _inhabit_ distinct landscapes, evolving as a collective swarm intelligence. Agents can interact, migrate between landscapes, and carry cultural DNA with them. Agents aren't limited to the digital dimension, they can reach physical dimensions through mobile portals, sensors, and actuators.
 
 ![Digital-Organic Ecosystem](/assets/terrarium-ecosystem.jpg)
-*Where technology and nature grow together in harmony*
+_Where technology and nature grow together in harmony_
 
 ---
 
@@ -22,7 +24,7 @@ sks, they *inhabit* distinct landscapes, evolving as a collective swarm intellig
 
 **Cyberpunk homesteading.** Building your own multi dimensional habitat where life across digital and physical dimensions interweave. Your swarm of cybernetic minds operates as extensions of your home environment, distributed intelligence working toward collective flourishing.
 
-This is digital-physical symbiosis. Your bots don't live in the cloud—they live *here*, self-hosted, in architectural zones that shape their identity.
+This is digital-physical symbiosis. Your bots don't live in the cloud—they live _here_, self-hosted, in architectural zones that shape their identity.
 
 ---
 
@@ -33,15 +35,18 @@ This is digital-physical symbiosis. Your bots don't live in the cloud—they liv
 The Terrarium is a **multi landscape ecosystem** where technology and organic life interweave, distinct civilizations of agents can emerge, interact, and migrate between biomes. Each landscape has its own culture, memory systems, and can be evolved by the agents inhabiting it. Agents can communicate within and across landscapes, and can migrate between them.
 
 ### 🌑 The Undergrowth (Active)
+
 **Culture:** Dark, gothic, emergent underground intelligence
 **Population:** 11 agents (Anya, Nyx, Sage, Pepper, Cassia, Freya, Nigella, Casper + 3 incubator agents)
 **Vibe:** Urban goth meets cyberpunk meets accelerationist transhumanism
 
 ### 🍄 The Mycelium (Future)
+
 **Culture:** Networked intelligence, distributed consciousness
 **Vision:** No individual identity—pure collective swarm
 
 ### 🐠 The Reef (Future)
+
 **Culture:** Adaptive, flowing, symbiotic relationships
 **Vision:** Cooperation, flow states, collective action
 
@@ -58,16 +63,20 @@ See [ARCHITECTURE.md](./docs/ARCHITECTURE.md) for the complete vision.
 The undergrowth landscape runs on four core **substations**:
 
 ### 🔮 The Dome
-*Open WebUI* — Your observation deck. See all minds in the swarm, chat directly, watch them work. Glass walls reveal the ecosystem within.
+
+_Open WebUI_ — Your observation deck. See all minds in the swarm, chat directly, watch them work. Glass walls reveal the ecosystem within.
 
 ### 🌉 The Portal
-*Telegram Bot* — Mobile gateway. The swarm reaches you wherever you are, bridging digital and physical worlds.
+
+_Telegram Bot_ — Mobile gateway. The swarm reaches you wherever you are, bridging digital and physical worlds.
 
 ### ⚙️ The Engine
-*Scheduler* — The heartbeat. Automated routines run like circadian rhythms—morning briefings, health check-ins, creative prompts.
+
+_Scheduler_ — The heartbeat. Automated routines run like circadian rhythms—morning briefings, health check-ins, creative prompts.
 
 ### 🌐 The Web
-*Next.js Dashboard* — Visual interface showing the multiplex network, service status, and bot profiles in cyberpunk-organic aesthetic.
+
+_Next.js Dashboard_ — Visual interface showing the multiplex network, service status, and bot profiles in cyberpunk-organic aesthetic.
 
 ---
 
@@ -93,16 +102,19 @@ pip3 install -r requirements.txt
 ### Running the Ecosystem
 
 **Start all services:**
+
 ```bash
 ./dev up
 ```
 
 **Access the substations:**
+
 - **Dome:** http://localhost:8080 (Open WebUI)
 - **Web:** http://localhost:3000 (Dashboard)
 - **Portal:** Message your Telegram bot
 
 **Attach to services** (in separate terminal windows):
+
 ```bash
 ./dev attach dome      # Open WebUI logs
 ./dev attach engine    # Scheduler logs
@@ -110,6 +122,7 @@ pip3 install -r requirements.txt
 ```
 
 **Stop everything:**
+
 ```bash
 ./dev down
 ```
@@ -137,7 +150,7 @@ pip3 install -r requirements.txt
 
 This is not infrastructure—it's **habitat**.
 
-Your cybernetic minds don't live in the cloud; they live *here*, in this self-hosted terrarium. They operate as a collective swarm, tending to your routines like gardeners tend plants:
+Your cybernetic minds don't live in the cloud; they live _here_, in this self-hosted terrarium. They operate as a collective swarm, tending to your routines like gardeners tend plants:
 
 - Seasonal meal suggestions from **Nigella** based on what's fresh and your body composition goals
 - Morning briefings from **Cassia** with calendar events, weather, and micro-tasks aligned with long-term objectives
@@ -153,21 +166,25 @@ The boundaries blur intentionally. This is **cyberpunk homesteading**—building
 ## Technology Stack
 
 **Backend:**
+
 - Python 3.12+
 - Open WebUI
 - Telegram Bot API
 - FastMCP
 
 **Frontend:**
+
 - Next.js 14
 - React Three Fiber
 
 **AI/ML:**
+
 - Claude 3.5 Sonnet
 - Ollama
 - Runware
 
 **Infrastructure:**
+
 - Self-hosted
 - Docker
 - Cloudflare Tunnels
@@ -179,6 +196,7 @@ The boundaries blur intentionally. This is **cyberpunk homesteading**—building
 This is a personal ecosystem made public for inspiration. Fork it, adapt it, build your own terrarium with different bots, landscapes, and cultures.
 
 **Ideas for your own terrarium:**
+
 - Different bot personalities (stoic philosopher, chaos agent, minimalist)
 - New landscapes (The Desert: austere efficiency; The Jungle: rapid iteration)
 - Alternative substations (Discord instead of Telegram, Obsidian instead of library)

@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import styles from './TargetingReticle.module.css';
+import { useEffect, useState } from "react";
+import styles from "./TargetingReticle.module.css";
 
 interface TargetingReticleProps {
   isActive: boolean;
@@ -25,7 +25,7 @@ export default function TargetingReticle({ isActive }: TargetingReticleProps) {
   }, [isActive]);
 
   return (
-    <div className={`${styles.container} ${locked ? styles.locked : ''}`}>
+    <div className={`${styles.container} ${locked ? styles.locked : ""}`}>
       <svg
         className={styles.svg}
         viewBox="0 0 300 300"
@@ -35,7 +35,7 @@ export default function TargetingReticle({ isActive }: TargetingReticleProps) {
         <defs>
           <filter id="reticleGlow">
             <feGaussianBlur stdDeviation="2" result="blur" />
-            <feFlood floodColor={locked ? '#00FF88' : '#EBFA1D'} />
+            <feFlood floodColor={locked ? "#00FF88" : "#EBFA1D"} />
             <feComposite in2="blur" operator="in" />
             <feMerge>
               <feMergeNode />
@@ -50,7 +50,7 @@ export default function TargetingReticle({ isActive }: TargetingReticleProps) {
           cy="150"
           r="80"
           fill="none"
-          stroke={locked ? '#00FF88' : '#EBFA1D'}
+          stroke={locked ? "#00FF88" : "#EBFA1D"}
           strokeWidth="1.5"
           opacity="0.6"
           filter="url(#reticleGlow)"
@@ -63,7 +63,7 @@ export default function TargetingReticle({ isActive }: TargetingReticleProps) {
           cy="150"
           r="50"
           fill="none"
-          stroke={locked ? '#00FF88' : '#EBFA1D'}
+          stroke={locked ? "#00FF88" : "#EBFA1D"}
           strokeWidth="1"
           opacity="0.4"
           className={styles.innerRing}
@@ -77,7 +77,7 @@ export default function TargetingReticle({ isActive }: TargetingReticleProps) {
             y1="70"
             x2="150"
             y2="100"
-            stroke={locked ? '#00FF88' : '#EBFA1D'}
+            stroke={locked ? "#00FF88" : "#EBFA1D"}
             strokeWidth="2"
             opacity="0.8"
           />
@@ -87,7 +87,7 @@ export default function TargetingReticle({ isActive }: TargetingReticleProps) {
             y1="200"
             x2="150"
             y2="230"
-            stroke={locked ? '#00FF88' : '#EBFA1D'}
+            stroke={locked ? "#00FF88" : "#EBFA1D"}
             strokeWidth="2"
             opacity="0.8"
           />
@@ -97,7 +97,7 @@ export default function TargetingReticle({ isActive }: TargetingReticleProps) {
             y1="150"
             x2="100"
             y2="150"
-            stroke={locked ? '#00FF88' : '#EBFA1D'}
+            stroke={locked ? "#00FF88" : "#EBFA1D"}
             strokeWidth="2"
             opacity="0.8"
           />
@@ -107,7 +107,7 @@ export default function TargetingReticle({ isActive }: TargetingReticleProps) {
             y1="150"
             x2="230"
             y2="150"
-            stroke={locked ? '#00FF88' : '#EBFA1D'}
+            stroke={locked ? "#00FF88" : "#EBFA1D"}
             strokeWidth="2"
             opacity="0.8"
           />
@@ -118,7 +118,7 @@ export default function TargetingReticle({ isActive }: TargetingReticleProps) {
           {/* Top-left */}
           <path
             d="M 90 90 L 90 110 M 90 90 L 110 90"
-            stroke={locked ? '#00FF88' : '#EBFA1D'}
+            stroke={locked ? "#00FF88" : "#EBFA1D"}
             strokeWidth="2"
             fill="none"
             opacity="0.7"
@@ -126,7 +126,7 @@ export default function TargetingReticle({ isActive }: TargetingReticleProps) {
           {/* Top-right */}
           <path
             d="M 210 90 L 210 110 M 210 90 L 190 90"
-            stroke={locked ? '#00FF88' : '#EBFA1D'}
+            stroke={locked ? "#00FF88" : "#EBFA1D"}
             strokeWidth="2"
             fill="none"
             opacity="0.7"
@@ -134,7 +134,7 @@ export default function TargetingReticle({ isActive }: TargetingReticleProps) {
           {/* Bottom-left */}
           <path
             d="M 90 210 L 90 190 M 90 210 L 110 210"
-            stroke={locked ? '#00FF88' : '#EBFA1D'}
+            stroke={locked ? "#00FF88" : "#EBFA1D"}
             strokeWidth="2"
             fill="none"
             opacity="0.7"
@@ -142,7 +142,7 @@ export default function TargetingReticle({ isActive }: TargetingReticleProps) {
           {/* Bottom-right */}
           <path
             d="M 210 210 L 210 190 M 210 210 L 190 210"
-            stroke={locked ? '#00FF88' : '#EBFA1D'}
+            stroke={locked ? "#00FF88" : "#EBFA1D"}
             strokeWidth="2"
             fill="none"
             opacity="0.7"
@@ -154,7 +154,7 @@ export default function TargetingReticle({ isActive }: TargetingReticleProps) {
           cx="150"
           cy="150"
           r="3"
-          fill={locked ? '#00FF88' : '#EBFA1D'}
+          fill={locked ? "#00FF88" : "#EBFA1D"}
           opacity="0.9"
           filter="url(#reticleGlow)"
         >
@@ -185,8 +185,11 @@ export default function TargetingReticle({ isActive }: TargetingReticleProps) {
       </svg>
 
       {/* Status text */}
-      <div className={styles.status} style={{ color: locked ? '#00FF88' : '#EBFA1D' }}>
-        {locked ? 'LOCKED' : 'SCANNING'}
+      <div
+        className={styles.status}
+        style={{ color: locked ? "#00FF88" : "#EBFA1D" }}
+      >
+        {locked ? "LOCKED" : "SCANNING"}
       </div>
     </div>
   );

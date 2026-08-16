@@ -1,9 +1,9 @@
-import { NextResponse } from 'next/server';
-import { SERVICE_CONFIG } from '@/config/services.config';
+import { NextResponse } from "next/server";
+import { SERVICE_CONFIG } from "@/config/services.config";
 
 interface ServiceStatus {
   name: string;
-  status: 'online' | 'offline' | 'unknown';
+  status: "online" | "offline" | "unknown";
   port?: number;
 }
 
@@ -13,7 +13,7 @@ async function checkService(url: string, timeout = 2000): Promise<boolean> {
     const timeoutId = setTimeout(() => controller.abort(), timeout);
 
     const response = await fetch(url, {
-      method: 'HEAD',
+      method: "HEAD",
       signal: controller.signal,
     });
 
@@ -28,8 +28,8 @@ export async function GET() {
   try {
     // Check various Terrarium services
     const services: ServiceStatus[] = [
-      { name: 'Open WebUI', port: SERVICE_CONFIG.dome.targetPort },
-      { name: 'Ollama', port: SERVICE_CONFIG.ollama.port },
+      { name: "Open WebUI", port: SERVICE_CONFIG.dome.targetPort },
+      { name: "Ollama", port: SERVICE_CONFIG.ollama.port },
     ];
 
     // Check each service
@@ -38,9 +38,9 @@ export async function GET() {
         const isOnline = await checkService(`http://localhost:${service.port}`);
         return {
           ...service,
-          status: isOnline ? 'online' : 'offline',
+          status: isOnline ? "online" : "offline",
         };
-      })
+      }),
     );
 
     return NextResponse.json({
@@ -48,10 +48,10 @@ export async function GET() {
       timestamp: Date.now(),
     });
   } catch (error) {
-    console.error('Error checking service status:', error);
+    console.error("Error checking service status:", error);
     return NextResponse.json(
-      { error: 'Failed to check service status' },
-      { status: 500 }
+      { error: "Failed to check service status" },
+      { status: 500 },
     );
   }
 }

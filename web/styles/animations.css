@@ -60,7 +60,8 @@
 
 /* Pulse Animation */
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
   }
   50% {
@@ -74,13 +75,16 @@
 
 /* Glow Pulse */
 @keyframes glowPulse {
-  0%, 100% {
-    box-shadow: 0 0 20px rgba(0, 255, 242, 0.4),
-                inset 0 0 20px rgba(0, 255, 242, 0.1);
+  0%,
+  100% {
+    box-shadow:
+      0 0 20px rgba(0, 255, 242, 0.4),
+      inset 0 0 20px rgba(0, 255, 242, 0.1);
   }
   50% {
-    box-shadow: 0 0 40px rgba(0, 255, 242, 0.8),
-                inset 0 0 30px rgba(0, 255, 242, 0.2);
+    box-shadow:
+      0 0 40px rgba(0, 255, 242, 0.8),
+      inset 0 0 30px rgba(0, 255, 242, 0.2);
   }
 }
 
@@ -90,7 +94,8 @@
 
 /* Float Animation */
 @keyframes float {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0px);
   }
   50% {

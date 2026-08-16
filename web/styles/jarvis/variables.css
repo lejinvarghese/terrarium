@@ -3,10 +3,10 @@
 
 :root {
   /* Primary Jarvis Colors - Yellow/Green Palette (matching Terrarium theme) */
-  --jarvis-primary: #EBFA1D;        /* Bright yellow/lime - main HUD color */
-  --jarvis-secondary: #00FF88;      /* Bright green - accents */
-  --jarvis-accent: #00FFF2;         /* Cyan - highlights */
-  --jarvis-core: #EBFA1D;           /* Yellow - central core */
+  --jarvis-primary: #ebfa1d; /* Bright yellow/lime - main HUD color */
+  --jarvis-secondary: #00ff88; /* Bright green - accents */
+  --jarvis-accent: #00fff2; /* Cyan - highlights */
+  --jarvis-core: #ebfa1d; /* Yellow - central core */
 
   /* Glow Effects */
   --jarvis-glow: rgba(235, 250, 29, 0.6);
@@ -14,18 +14,18 @@
   --jarvis-glow-soft: rgba(235, 250, 29, 0.3);
 
   /* Background Colors */
-  --jarvis-bg-dark: rgba(0, 0, 0, 0.98);        /* Pure black */
-  --jarvis-bg-panel: rgba(20, 20, 0, 0.7);      /* Dark panel */
-  --jarvis-bg-glass: rgba(235, 250, 29, 0.08);  /* Glass effect */
+  --jarvis-bg-dark: rgba(0, 0, 0, 0.98); /* Pure black */
+  --jarvis-bg-panel: rgba(20, 20, 0, 0.7); /* Dark panel */
+  --jarvis-bg-glass: rgba(235, 250, 29, 0.08); /* Glass effect */
 
   /* Grid & Lines */
   --jarvis-grid: rgba(235, 250, 29, 0.15);
   --jarvis-line: rgba(235, 250, 29, 0.4);
 
   /* Text Colors */
-  --jarvis-text-primary: #FFFFFF;
-  --jarvis-text-secondary: #EBFA1D;
-  --jarvis-text-dim: #6B7A3D;
+  --jarvis-text-primary: #ffffff;
+  --jarvis-text-secondary: #ebfa1d;
+  --jarvis-text-dim: #6b7a3d;
 
   /* Spacing */
   --jarvis-space-xs: 4px;
@@ -57,7 +57,7 @@
   --jarvis-shadow-sm: 0 0 10px var(--jarvis-glow-soft);
   --jarvis-shadow-md: 0 0 20px var(--jarvis-glow);
   --jarvis-shadow-lg: 0 0 40px var(--jarvis-glow-strong);
-  --jarvis-shadow-core: 0 0 60px var(--jarvis-glow-strong),
-                        0 0 100px var(--jarvis-glow),
-                        0 0 150px var(--jarvis-glow-soft);
+  --jarvis-shadow-core:
+    0 0 60px var(--jarvis-glow-strong), 0 0 100px var(--jarvis-glow),
+    0 0 150px var(--jarvis-glow-soft);
 }

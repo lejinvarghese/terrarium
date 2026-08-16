@@ -21,18 +21,18 @@
 .logo {
   font-size: 1.25rem;
   font-weight: 300;
-  color: #FFFFFF;
+  color: #ffffff;
   text-decoration: none;
   letter-spacing: -0.01em;
   transition: color 0.3s ease;
 }
 
 .logo:hover {
-  color: #EBFA1D;
+  color: #ebfa1d;
 }
 
 .logoPrefix {
-  color: #EBFA1D;
+  color: #ebfa1d;
   font-family: var(--font-mono);
   margin-right: 0.5rem;
 }
@@ -56,18 +56,18 @@
 }
 
 .link::after {
-  content: '';
+  content: "";
   position: absolute;
   bottom: 0;
   left: 0;
   width: 0;
   height: 1px;
-  background: #EBFA1D;
+  background: #ebfa1d;
   transition: width 0.3s ease;
 }
 
 .link:hover {
-  color: #EBFA1D;
+  color: #ebfa1d;
 }
 
 .link:hover::after {

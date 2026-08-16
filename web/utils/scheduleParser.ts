@@ -13,7 +13,7 @@ export function parseSchedule(schedule: string): ScheduleInfo {
   let nextRun = new Date(now);
 
   // Parse different schedule formats
-  if (schedule.includes('every day at')) {
+  if (schedule.includes("every day at")) {
     const timeMatch = schedule.match(/at (\d{2}):(\d{2})/);
     if (timeMatch) {
       const [_, hours, minutes] = timeMatch;
@@ -32,7 +32,7 @@ export function parseSchedule(schedule: string): ScheduleInfo {
     }
   }
 
-  if (schedule.includes('every monday at')) {
+  if (schedule.includes("every monday at")) {
     const timeMatch = schedule.match(/at (\d{2}):(\d{2})/);
     if (timeMatch) {
       const [_, hours, minutes] = timeMatch;
@@ -54,7 +54,7 @@ export function parseSchedule(schedule: string): ScheduleInfo {
     }
   }
 
-  if (schedule.includes('every friday at')) {
+  if (schedule.includes("every friday at")) {
     const timeMatch = schedule.match(/at (\d{2}):(\d{2})/);
     if (timeMatch) {
       const [_, hours, minutes] = timeMatch;
@@ -76,7 +76,7 @@ export function parseSchedule(schedule: string): ScheduleInfo {
     }
   }
 
-  if (schedule.includes('every saturday at')) {
+  if (schedule.includes("every saturday at")) {
     const timeMatch = schedule.match(/at (\d{2}):(\d{2})/);
     if (timeMatch) {
       const [_, hours, minutes] = timeMatch;
@@ -98,7 +98,7 @@ export function parseSchedule(schedule: string): ScheduleInfo {
     }
   }
 
-  if (schedule.includes('every sunday at')) {
+  if (schedule.includes("every sunday at")) {
     const timeMatch = schedule.match(/at (\d{2}):(\d{2})/);
     if (timeMatch) {
       const [_, hours, minutes] = timeMatch;
@@ -120,60 +120,64 @@ export function parseSchedule(schedule: string): ScheduleInfo {
     }
   }
 
-  if (schedule.includes('every 2 weeks')) {
+  if (schedule.includes("every 2 weeks")) {
     // Set to 14 days from now
     nextRun.setDate(now.getDate() + 14);
     nextRun.setHours(12, 0, 0, 0);
 
     return {
       nextRun,
-      cronExpression: '0 12 */14 * *',
-      humanReadable: 'Every 2 weeks',
+      cronExpression: "0 12 */14 * *",
+      humanReadable: "Every 2 weeks",
     };
   }
 
-  if (schedule.includes('every 4 weeks')) {
+  if (schedule.includes("every 4 weeks")) {
     // Set to 28 days from now
     nextRun.setDate(now.getDate() + 28);
     nextRun.setHours(12, 0, 0, 0);
 
     return {
       nextRun,
-      cronExpression: '0 12 */28 * *',
-      humanReadable: 'Every 4 weeks',
+      cronExpression: "0 12 */28 * *",
+      humanReadable: "Every 4 weeks",
     };
   }
 
   // Default fallback
   return {
     nextRun: new Date(now.getTime() + 60 * 60 * 1000), // 1 hour from now
-    cronExpression: '0 * * * *',
+    cronExpression: "0 * * * *",
     humanReadable: schedule,
   };
 }
 
 export function getServiceFromTaskName(taskName: string): string {
-  if (taskName.includes('Cassia')) return 'scheduler';
-  if (taskName.includes('Pepper')) return 'scheduler';
-  if (taskName.includes('Nigella')) return 'scheduler';
-  if (taskName.includes('Anya')) return 'scheduler';
-  if (taskName.includes('Nyx')) return 'scheduler';
-  if (taskName.includes('Freya')) return 'scheduler';
-  if (taskName.includes('Sage')) return 'scheduler';
-  return 'scheduler';
+  if (taskName.includes("Cassia")) return "scheduler";
+  if (taskName.includes("Pepper")) return "scheduler";
+  if (taskName.includes("Nigella")) return "scheduler";
+  if (taskName.includes("Anya")) return "scheduler";
+  if (taskName.includes("Nyx")) return "scheduler";
+  if (taskName.includes("Freya")) return "scheduler";
+  if (taskName.includes("Sage")) return "scheduler";
+  return "scheduler";
 }
 
 export function calculateLastRun(nextRun: Date, schedule: string): Date {
   const lastRun = new Date(nextRun);
 
-  if (schedule.includes('every day')) {
+  if (schedule.includes("every day")) {
     lastRun.setDate(lastRun.getDate() - 1);
-  } else if (schedule.includes('monday') || schedule.includes('friday') ||
-             schedule.includes('saturday') || schedule.includes('sunday')) {
+  } else if (
+    schedule.includes("monday") ||
+    schedule.includes("friday") ||
+    schedule.includes("saturday") ||
+    schedule.includes("sunday")
+  ) {
     lastRun.setDate(lastRun.getDate() - 7);
-  } else if (schedule.includes('every 2 weeks')) {
+  } else if (schedule.includes("every 2 weeks")) {
     lastRun.setDate(lastRun.getDate() - 14);
-  } else if (schedule.includes('every 4 weeks')) {
+  } else if (schedule.includes("every 4 weeks")) {
     lastRun.setDate(lastRun.getDate() - 28);
   } else {
     lastRun.setDate(lastRun.getDate() - 1);

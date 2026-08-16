@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import styles from './HomeButton.module.css';
+import styles from "./HomeButton.module.css";
 
 export default function HomeButton() {
   return (

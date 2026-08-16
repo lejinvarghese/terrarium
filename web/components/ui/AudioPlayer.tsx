@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { useEffect, useRef, useState } from 'react';
-import styles from './AudioPlayer.module.css';
+import { useEffect, useRef, useState } from "react";
+import styles from "./AudioPlayer.module.css";
 
 interface AudioPlayerProps {
   audioSrc?: string;
@@ -10,7 +10,7 @@ interface AudioPlayerProps {
 }
 
 export default function AudioPlayer({
-  audioSrc = '/assets/sounds/ambient.mp3?v=2',
+  audioSrc = "/assets/sounds/ambient.mp3?v=2",
   autoPlay = false,
   volume = 0.3,
 }: AudioPlayerProps) {
@@ -48,20 +48,20 @@ export default function AudioPlayer({
       if (audioRef.current && !isPlaying && autoPlay) {
         const playPromise = audioRef.current.play();
         if (playPromise !== undefined) {
-          playPromise
-            .then(() => setIsPlaying(true))
-            .catch(() => {}); // Silently fail if still blocked
+          playPromise.then(() => setIsPlaying(true)).catch(() => {}); // Silently fail if still blocked
         }
       }
     };
 
     // Try to play after any user interaction
-    document.addEventListener('click', tryPlayAfterInteraction, { once: true });
-    document.addEventListener('keydown', tryPlayAfterInteraction, { once: true });
+    document.addEventListener("click", tryPlayAfterInteraction, { once: true });
+    document.addEventListener("keydown", tryPlayAfterInteraction, {
+      once: true,
+    });
 
     return () => {
-      document.removeEventListener('click', tryPlayAfterInteraction);
-      document.removeEventListener('keydown', tryPlayAfterInteraction);
+      document.removeEventListener("click", tryPlayAfterInteraction);
+      document.removeEventListener("keydown", tryPlayAfterInteraction);
     };
   }, [autoPlay, isPlaying]);
 
@@ -90,8 +90,8 @@ export default function AudioPlayer({
 
       <button
         onClick={togglePlay}
-        className={`${styles.button} ${isPlaying ? styles.playing : ''} cursor-hover`}
-        aria-label={isPlaying ? 'Pause audio' : 'Play audio'}
+        className={`${styles.button} ${isPlaying ? styles.playing : ""} cursor-hover`}
+        aria-label={isPlaying ? "Pause audio" : "Play audio"}
       >
         {isPlaying ? (
           <div className={styles.soundWaves}>
@@ -110,15 +110,21 @@ export default function AudioPlayer({
       <button
         onClick={toggleMute}
         className={`${styles.button} cursor-hover`}
-        aria-label={isMuted ? 'Unmute audio' : 'Mute audio'}
+        aria-label={isMuted ? "Unmute audio" : "Mute audio"}
       >
         {isMuted ? (
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <path d="M8 3L5 6H2v4h3l3 3V3zm6 2l-2 2 2 2-1 1-2-2-2 2-1-1 2-2-2-2 1-1 2 2 2-2 1 1z" fill="currentColor" />
+            <path
+              d="M8 3L5 6H2v4h3l3 3V3zm6 2l-2 2 2 2-1 1-2-2-2 2-1-1 2-2-2-2 1-1 2 2 2-2 1 1z"
+              fill="currentColor"
+            />
           </svg>
         ) : (
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <path d="M8 3L5 6H2v4h3l3 3V3zm3.5 5c0-1-0.5-2-1.5-2.5v5c1-0.5 1.5-1.5 1.5-2.5zm1.5 0c0 1.5-0.7 3-2 4v1.5c2-1 3.5-3 3.5-5.5S12 3.5 10 2.5V4c1.3 1 2 2.5 2 4z" fill="currentColor" />
+            <path
+              d="M8 3L5 6H2v4h3l3 3V3zm3.5 5c0-1-0.5-2-1.5-2.5v5c1-0.5 1.5-1.5 1.5-2.5zm1.5 0c0 1.5-0.7 3-2 4v1.5c2-1 3.5-3 3.5-5.5S12 3.5 10 2.5V4c1.3 1 2 2.5 2 4z"
+              fill="currentColor"
+            />
           </svg>
         )}
       </button>

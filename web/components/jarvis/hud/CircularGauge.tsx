@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import styles from './CircularGauge.module.css';
+import { useEffect, useState } from "react";
+import styles from "./CircularGauge.module.css";
 
 interface CircularGaugeProps {
   label: string;
   value: number;
   max: number;
   unit?: string;
-  color?: 'yellow' | 'green' | 'cyan';
+  color?: "yellow" | "green" | "cyan";
   isActive: boolean;
 }
 
@@ -16,8 +16,8 @@ export default function CircularGauge({
   label,
   value,
   max,
-  unit = '',
-  color = 'yellow',
+  unit = "",
+  color = "yellow",
   isActive,
 }: CircularGaugeProps) {
   const [displayValue, setDisplayValue] = useState(0);
@@ -49,9 +49,9 @@ export default function CircularGauge({
   const rotation = -90; // Start from top
 
   const colorMap = {
-    yellow: '#EBFA1D',
-    green: '#00FF88',
-    cyan: '#00FFF2',
+    yellow: "#EBFA1D",
+    green: "#00FF88",
+    cyan: "#00FFF2",
   };
 
   const strokeColor = colorMap[color];

@@ -17,12 +17,7 @@
     "title": "ACCESS REQUIRED",
     "serviceName": "Jarvis"
   },
-  "accessCodes": [
-    "CODE1",
-    "CODE2",
-    "CODE3",
-    "CODE4"
-  ],
+  "accessCodes": ["CODE1", "CODE2", "CODE3", "CODE4"],
   "cookieSecret": "your-secret-key-here",
   "cookieMaxAge": 86400000
 }

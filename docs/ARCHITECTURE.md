@@ -9,15 +9,18 @@ The Terrarium is a **multi-landscape ecosystem** where distinct civilizations of
 ## Current Landscapes
 
 ### 🌑 The Undergrowth (Active)
+
 **Culture:** Dark, gothic, emergent underground intelligence (urban goth × cyberpunk × accelerationism)
 
 **Population:**
+
 - **Deployed Bots** (8): Anya, Nyx, Sage, Pepper, Cassia, Freya, Nigella, Casper
 - **Incubator Agents** (3): Atlas (A001), Aria (A002), Aris (A003)
 
 **Path:** `src/landscapes/undergrowth/`
 
 ### Future Landscapes (Envisioned)
+
 - **🍄 The Mycelium**: Networked intelligence, distributed consciousness, pure collective swarm
 - **🐠 The Reef**: Adaptive, flowing, symbiotic relationships
 - **🏜️ The Desert**: Austere efficiency, minimalism
@@ -28,6 +31,7 @@ The Terrarium is a **multi-landscape ecosystem** where distinct civilizations of
 ## Implementation
 
 **Current Structure:**
+
 ```
 src/
 ├── landscapes/
@@ -48,6 +52,7 @@ src/
 ```
 
 **Key Principles:**
+
 1. **Landscape isolation** - Each landscape has its own culture, bots, and databases
 2. **Shared foundations** - `landscapes/core/` provides reusable base classes for incubator agents
 3. **Migration ready** - Agents can move between landscapes (future capability)
@@ -71,12 +76,14 @@ python -m src.landscapes.undergrowth.incubator.explore -a A003
 ## Future Capabilities
 
 **Migration System** (planned):
+
 - Agents can move between landscapes
 - Cultural DNA travels with migrating agents
 - Track lineage and cultural mixing
 - Migration triggers: maturity thresholds, user request, reward signals
 
 **Cross-Landscape Interaction** (envisioned):
+
 - Agents from different landscapes collaborate on episodes
 - Cultural exchange and evolution
 - Landscape lifecycle: birth, merge, fork, death

@@ -1,11 +1,11 @@
-const express = require('express');
-const { createProxyMiddleware } = require('http-proxy-middleware');
-const cookieParser = require('cookie-parser');
-const crypto = require('crypto');
-const config = require('./config.json');
+const express = require("express");
+const { createProxyMiddleware } = require("http-proxy-middleware");
+const cookieParser = require("cookie-parser");
+const crypto = require("crypto");
+const config = require("./config.json");
 
 // Service to run (dome or archive)
-const SERVICE = process.env.SERVICE || 'dome';
+const SERVICE = process.env.SERVICE || "dome";
 const serviceConfig = config[SERVICE];
 
 if (!serviceConfig) {
@@ -21,19 +21,21 @@ app.use(cookieParser(config.cookieSecret));
 // Validate access code
 function validateCode(code) {
   const normalized = code.trim().toUpperCase();
-  return config.accessCodes.map(c => c.toUpperCase()).includes(normalized);
+  return config.accessCodes.map((c) => c.toUpperCase()).includes(normalized);
 }
 
 // Generate session token
 function generateToken() {
-  return crypto.randomBytes(32).toString('hex');
+  return crypto.randomBytes(32).toString("hex");
 }
 
 // Check if request has valid auth
 function isAuthenticated(req) {
   // Check both signed (set by proxy) and unsigned (set by homepage) cookies
-  return req.signedCookies.terrarium_auth === 'valid' ||
-         req.cookies.terrarium_auth === 'valid';
+  return (
+    req.signedCookies.terrarium_auth === "valid" ||
+    req.cookies.terrarium_auth === "valid"
+  );
 }
 
 // Login page HTML (matches your modal styling exactly)
@@ -474,21 +476,21 @@ const loginPageHTML = `
 `;
 
 // Auth validation endpoint
-app.post('/auth/validate', (req, res) => {
+app.post("/auth/validate", (req, res) => {
   const { code } = req.body;
 
   if (validateCode(code)) {
     // Set cookie with domain to share across all subdomains
-    const domain = req.hostname.includes('mutatedterrarium.com')
-      ? '.mutatedterrarium.com'
+    const domain = req.hostname.includes("mutatedterrarium.com")
+      ? ".mutatedterrarium.com"
       : undefined;
 
-    res.cookie('terrarium_auth', 'valid', {
+    res.cookie("terrarium_auth", "valid", {
       domain: domain,
-      path: '/',
+      path: "/",
       httpOnly: true,
       maxAge: config.cookieMaxAge,
-      sameSite: 'lax'
+      sameSite: "lax",
     });
     res.json({ success: true });
   } else {
@@ -497,19 +499,19 @@ app.post('/auth/validate', (req, res) => {
 });
 
 // Logout endpoint (optional)
-app.get('/auth/logout', (req, res) => {
-  const domain = req.hostname.includes('mutatedterrarium.com')
-    ? '.mutatedterrarium.com'
+app.get("/auth/logout", (req, res) => {
+  const domain = req.hostname.includes("mutatedterrarium.com")
+    ? ".mutatedterrarium.com"
     : undefined;
 
-  res.clearCookie('terrarium_auth', { domain: domain, path: '/' });
-  res.redirect('/');
+  res.clearCookie("terrarium_auth", { domain: domain, path: "/" });
+  res.redirect("/");
 });
 
 // Main handler
 app.use((req, res, next) => {
   // Skip auth check for auth endpoints
-  if (req.path.startsWith('/auth/')) {
+  if (req.path.startsWith("/auth/")) {
     return next();
   }
 
@@ -524,30 +526,34 @@ app.use((req, res, next) => {
     changeOrigin: true,
     ws: true,
     onError: (err, req, res) => {
-      console.error('Proxy error:', err);
-      res.status(502).send('Service temporarily unavailable');
-    }
+      console.error("Proxy error:", err);
+      res.status(502).send("Service temporarily unavailable");
+    },
   };
 
   // For Jarvis, rewrite all paths to /jarvis route (except Next.js assets)
-  if (SERVICE === 'jarvis') {
+  if (SERVICE === "jarvis") {
     proxyOptions.pathRewrite = (path) => {
       // Don't rewrite Next.js assets, API routes, or other system paths
-      if (path.startsWith('/_next/') ||
-          path.startsWith('/api/') ||
-          path.startsWith('/assets/') ||
-          path.startsWith('/favicon')) {
-        return path;  // Keep as-is
+      if (
+        path.startsWith("/_next/") ||
+        path.startsWith("/api/") ||
+        path.startsWith("/assets/") ||
+        path.startsWith("/favicon")
+      ) {
+        return path; // Keep as-is
       }
       // Rewrite root to /jarvis
-      if (path === '/') {
-        return '/jarvis';
+      if (path === "/") {
+        return "/jarvis";
       }
       // Rewrite everything else to /jarvis/*
       return `/jarvis${path}`;
     };
     proxyOptions.onProxyReq = (proxyReq, req) => {
-      console.log(`[Jarvis Proxy] ${req.method} ${req.path} → ${proxyReq.path}`);
+      console.log(
+        `[Jarvis Proxy] ${req.method} ${req.path} → ${proxyReq.path}`,
+      );
     };
   }
 
@@ -556,7 +562,9 @@ app.use((req, res, next) => {
 
 const PORT = serviceConfig.port;
 app.listen(PORT, () => {
-  console.log(`✓ ${serviceConfig.serviceName} auth proxy running on port ${PORT}`);
+  console.log(
+    `✓ ${serviceConfig.serviceName} auth proxy running on port ${PORT}`,
+  );
   console.log(`  → Target: ${serviceConfig.targetUrl}`);
   console.log(`  → Access codes configured: ${config.accessCodes.length}`);
 });

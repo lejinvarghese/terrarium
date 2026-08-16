@@ -10,7 +10,7 @@
   background: rgba(0, 0, 0, 0.5);
   border: 1px solid rgba(255, 255, 255, 0.1);
   font-family: var(--font-jetbrains-mono), monospace;
-  color: #FFFFFF;
+  color: #ffffff;
   padding: 1.5rem;
   border-radius: 0;
 }
@@ -41,7 +41,7 @@
 .calendarWrapper :global(.react-calendar__navigation button:enabled:focus) {
   background: rgba(235, 250, 29, 0.1);
   border-color: rgba(235, 250, 29, 0.3);
-  color: #EBFA1D;
+  color: #ebfa1d;
 }
 
 .calendarWrapper :global(.react-calendar__navigation button:disabled) {
@@ -101,7 +101,7 @@
 .calendarWrapper :global(.react-calendar__tile--now) {
   background: rgba(235, 250, 29, 0.1);
   border-color: rgba(235, 250, 29, 0.3);
-  color: #EBFA1D;
+  color: #ebfa1d;
 }
 
 .calendarWrapper :global(.react-calendar__tile--now:enabled:hover),
@@ -112,13 +112,14 @@
 
 .calendarWrapper :global(.react-calendar__tile--active) {
   background: rgba(235, 250, 29, 0.2);
-  border-color: #EBFA1D;
-  color: #EBFA1D;
+  border-color: #ebfa1d;
+  color: #ebfa1d;
   font-weight: 600;
 }
 
 /* Neighboring months */
-.calendarWrapper :global(.react-calendar__month-view__days__day--neighboringMonth) {
+.calendarWrapper
+  :global(.react-calendar__month-view__days__day--neighboringMonth) {
   opacity: 0.3;
 }
 

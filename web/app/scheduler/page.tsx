@@ -1,18 +1,28 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
-import dynamic from 'next/dynamic';
-import { bots } from '@/data/bots';
-import SchedulerCalendar from '@/components/scheduler/SchedulerCalendar';
-import styles from './scheduler.module.css';
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import dynamic from "next/dynamic";
+import { bots } from "@/data/bots";
+import SchedulerCalendar from "@/components/scheduler/SchedulerCalendar";
+import styles from "./scheduler.module.css";
 
 // Import LiveTerminal dynamically to avoid SSR issues with xterm.js
-const LiveTerminal = dynamic(() => import('@/components/LiveTerminal').then(mod => ({ default: mod.LiveTerminal })), {
-  ssr: false,
-  loading: () => <div style={{ padding: '1rem', color: '#EBFA1D' }}>Loading terminal...</div>
-});
+const LiveTerminal = dynamic(
+  () =>
+    import("@/components/LiveTerminal").then((mod) => ({
+      default: mod.LiveTerminal,
+    })),
+  {
+    ssr: false,
+    loading: () => (
+      <div style={{ padding: "1rem", color: "#EBFA1D" }}>
+        Loading terminal...
+      </div>
+    ),
+  },
+);
 
 interface ScheduledTask {
   id: string;
@@ -23,7 +33,7 @@ interface ScheduledTask {
   humanReadable?: string;
   nextRun: string;
   lastRun?: string;
-  status: 'active' | 'paused' | 'failed';
+  status: "active" | "paused" | "failed";
   service: string;
   command?: string;
 }
@@ -46,11 +56,11 @@ export default function SchedulerPage() {
     // Fetch schedule data from API
     const fetchSchedule = async () => {
       try {
-        const response = await fetch('/api/schedule');
+        const response = await fetch("/api/schedule");
         const data = await response.json();
         setTasks(data.tasks || []);
       } catch (error) {
-        console.error('Failed to load schedule:', error);
+        console.error("Failed to load schedule:", error);
       } finally {
         setLoading(false);
       }
@@ -60,26 +70,26 @@ export default function SchedulerPage() {
   }, []);
 
   const formatTime = (date: Date) => {
-    return date.toLocaleTimeString('en-US', {
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
+    return date.toLocaleTimeString("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
       hour12: false,
     });
   };
 
   const formatDateMMDDYYYY = (date: Date) => {
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
     const year = date.getFullYear();
     return `${month}/${day}/${year}`;
   };
 
   const formatDateTimeMMDDYYYY = (date: Date) => {
     const dateStr = formatDateMMDDYYYY(date);
-    const time = date.toLocaleTimeString('en-US', {
-      hour: '2-digit',
-      minute: '2-digit',
+    const time = date.toLocaleTimeString("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
       hour12: false,
     });
     return `${dateStr} ${time}`;
@@ -93,10 +103,11 @@ export default function SchedulerPage() {
     const diffHours = Math.floor(diffMins / 60);
     const diffDays = Math.floor(diffHours / 24);
 
-    let relativeTime = '';
-    if (diffMins < 1) relativeTime = 'in < 1 min';
+    let relativeTime = "";
+    if (diffMins < 1) relativeTime = "in < 1 min";
     else if (diffMins < 60) relativeTime = `in ${diffMins} mins`;
-    else if (diffHours < 24) relativeTime = `in ${diffHours}h ${diffMins % 60}m`;
+    else if (diffHours < 24)
+      relativeTime = `in ${diffHours}h ${diffMins % 60}m`;
     else relativeTime = `in ${diffDays}d ${diffHours % 24}h`;
 
     return relativeTime;
@@ -113,7 +124,7 @@ export default function SchedulerPage() {
   };
 
   const getCleanTaskName = (taskName: string) => {
-    return taskName.replace(/^.*?\s+-\s+/, '');
+    return taskName.replace(/^.*?\s+-\s+/, "");
   };
 
   const parseCron = (task: ScheduledTask): string => {
@@ -127,34 +138,38 @@ export default function SchedulerPage() {
     const dayOfWeek = date.getDay();
 
     // Daily tasks
-    if (schedule.includes('every day') || schedule.includes('daily')) {
+    if (schedule.includes("every day") || schedule.includes("daily")) {
       return true;
     }
 
     // Weekly tasks
-    if (schedule.includes('monday') && dayOfWeek === 1) return true;
-    if (schedule.includes('tuesday') && dayOfWeek === 2) return true;
-    if (schedule.includes('wednesday') && dayOfWeek === 3) return true;
-    if (schedule.includes('thursday') && dayOfWeek === 4) return true;
-    if (schedule.includes('friday') && dayOfWeek === 5) return true;
-    if (schedule.includes('saturday') && dayOfWeek === 6) return true;
-    if (schedule.includes('sunday') && dayOfWeek === 0) return true;
+    if (schedule.includes("monday") && dayOfWeek === 1) return true;
+    if (schedule.includes("tuesday") && dayOfWeek === 2) return true;
+    if (schedule.includes("wednesday") && dayOfWeek === 3) return true;
+    if (schedule.includes("thursday") && dayOfWeek === 4) return true;
+    if (schedule.includes("friday") && dayOfWeek === 5) return true;
+    if (schedule.includes("saturday") && dayOfWeek === 6) return true;
+    if (schedule.includes("sunday") && dayOfWeek === 0) return true;
 
     // Bi-weekly
-    if (schedule.includes('every 2 weeks') || schedule.includes('bi-weekly')) {
+    if (schedule.includes("every 2 weeks") || schedule.includes("bi-weekly")) {
       const nextRun = new Date(task.nextRun);
       if (dayOfWeek === nextRun.getDay()) {
-        const weeksDiff = Math.floor((date.getTime() - nextRun.getTime()) / (7 * 24 * 60 * 60 * 1000));
+        const weeksDiff = Math.floor(
+          (date.getTime() - nextRun.getTime()) / (7 * 24 * 60 * 60 * 1000),
+        );
         return weeksDiff % 2 === 0;
       }
       return false;
     }
 
     // Every 4 weeks
-    if (schedule.includes('every 4 weeks')) {
+    if (schedule.includes("every 4 weeks")) {
       const nextRun = new Date(task.nextRun);
       if (dayOfWeek === nextRun.getDay()) {
-        const weeksDiff = Math.floor((date.getTime() - nextRun.getTime()) / (7 * 24 * 60 * 60 * 1000));
+        const weeksDiff = Math.floor(
+          (date.getTime() - nextRun.getTime()) / (7 * 24 * 60 * 60 * 1000),
+        );
         return weeksDiff % 4 === 0;
       }
       return false;
@@ -217,19 +232,19 @@ export default function SchedulerPage() {
         </div>
         <div className={styles.statCard}>
           <div className={styles.statValue}>
-            {tasks.filter((t) => t.status === 'active').length}
+            {tasks.filter((t) => t.status === "active").length}
           </div>
           <div className={styles.statLabel}>Active</div>
         </div>
         <div className={styles.statCard}>
           <div className={styles.statValue}>
-            {tasks.filter((t) => t.status === 'paused').length}
+            {tasks.filter((t) => t.status === "paused").length}
           </div>
           <div className={styles.statLabel}>Paused</div>
         </div>
         <div className={styles.statCard}>
           <div className={styles.statValue}>
-            {tasks.filter((t) => t.status === 'failed').length}
+            {tasks.filter((t) => t.status === "failed").length}
           </div>
           <div className={styles.statLabel}>Failed</div>
         </div>
@@ -251,8 +266,13 @@ export default function SchedulerPage() {
             Swarm Routines
             {selectedDate && (
               <span className={styles.filterIndicator}>
-                {' '}
-                · {selectedDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                {" "}
+                ·{" "}
+                {selectedDate.toLocaleDateString("en-US", {
+                  month: "short",
+                  day: "numeric",
+                  year: "numeric",
+                })}
               </span>
             )}
           </h2>
@@ -275,65 +295,76 @@ export default function SchedulerPage() {
         </div>
         {filteredTasks.length === 0 && selectedDate ? (
           <div className={styles.noTasks}>
-            <p>No swarm activity scheduled for {selectedDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}</p>
+            <p>
+              No swarm activity scheduled for{" "}
+              {selectedDate.toLocaleDateString("en-US", {
+                weekday: "long",
+                month: "long",
+                day: "numeric",
+                year: "numeric",
+              })}
+            </p>
           </div>
         ) : (
           <div className={styles.taskList}>
             {filteredTasks.map((task) => {
-            const bot = getBotFromTaskName(task.name);
-            const cleanName = getCleanTaskName(task.name);
+              const bot = getBotFromTaskName(task.name);
+              const cleanName = getCleanTaskName(task.name);
 
-            return (
-              <div key={task.id} className={styles.taskCard}>
-                <div className={styles.taskHeader}>
-                  <div className={styles.taskTitleRow}>
-                    {bot && (
-                      <div className={styles.botProfile}>
-                        <Image
-                          src={bot.image}
-                          alt={`${bot.name} profile`}
-                          width={40}
-                          height={50}
-                          className={styles.botAvatar}
-                        />
-                      </div>
-                    )}
-                    <div className={styles.taskInfo}>
-                      <h3 className={styles.taskName}>{cleanName}</h3>
+              return (
+                <div key={task.id} className={styles.taskCard}>
+                  <div className={styles.taskHeader}>
+                    <div className={styles.taskTitleRow}>
                       {bot && (
-                        <span className={styles.botName} style={{ color: bot.color }}>
-                          {bot.name}
-                        </span>
+                        <div className={styles.botProfile}>
+                          <Image
+                            src={bot.image}
+                            alt={`${bot.name} profile`}
+                            width={40}
+                            height={50}
+                            className={styles.botAvatar}
+                          />
+                        </div>
                       )}
+                      <div className={styles.taskInfo}>
+                        <h3 className={styles.taskName}>{cleanName}</h3>
+                        {bot && (
+                          <span
+                            className={styles.botName}
+                            style={{ color: bot.color }}
+                          >
+                            {bot.name}
+                          </span>
+                        )}
+                      </div>
+                      <span
+                        className={styles.taskStatus}
+                        data-status={task.status}
+                      >
+                        {task.status.toUpperCase()}
+                      </span>
                     </div>
-                    <span
-                      className={styles.taskStatus}
-                      data-status={task.status}
-                    >
-                      {task.status.toUpperCase()}
-                    </span>
+                  </div>
+
+                  <p className={styles.taskDescription}>{task.description}</p>
+
+                  <div className={styles.taskSchedule}>
+                    <div className={styles.scheduleItem}>
+                      <span className={styles.scheduleLabel}>Schedule:</span>
+                      <span className={styles.scheduleValue}>
+                        {parseCron(task)}
+                      </span>
+                    </div>
+                    <div className={styles.scheduleItem}>
+                      <span className={styles.scheduleLabel}>Next Run:</span>
+                      <span className={styles.scheduleValue}>
+                        {formatDate(task.nextRun)}
+                      </span>
+                    </div>
                   </div>
                 </div>
-
-                <p className={styles.taskDescription}>{task.description}</p>
-
-              <div className={styles.taskSchedule}>
-                <div className={styles.scheduleItem}>
-                  <span className={styles.scheduleLabel}>Schedule:</span>
-                  <span className={styles.scheduleValue}>
-                    {parseCron(task)}
-                  </span>
-                </div>
-                <div className={styles.scheduleItem}>
-                  <span className={styles.scheduleLabel}>Next Run:</span>
-                  <span className={styles.scheduleValue}>
-                    {formatDate(task.nextRun)}
-                  </span>
-                </div>
-              </div>
-            </div>
-            );
-          })}
+              );
+            })}
           </div>
         )}
       </section>
@@ -353,7 +384,7 @@ export default function SchedulerPage() {
               strokeLinejoin="round"
             />
           </svg>
-          {showTerminal ? 'Hide' : 'Show'} Engine Heartbeat
+          {showTerminal ? "Hide" : "Show"} Engine Heartbeat
         </button>
 
         {showTerminal && (

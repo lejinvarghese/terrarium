@@ -31,7 +31,7 @@
 }
 
 .title {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: "JetBrains Mono", monospace;
   font-size: 11px;
   font-weight: 500;
   color: var(--jarvis-primary);
@@ -82,7 +82,7 @@
 }
 
 .label {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: "JetBrains Mono", monospace;
   font-size: 9px;
   font-weight: 400;
   color: var(--jarvis-text-dim);
@@ -90,7 +90,7 @@
 }
 
 .value {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: "JetBrains Mono", monospace;
   font-size: 11px;
   font-weight: 300;
   letter-spacing: 1px;
@@ -98,21 +98,21 @@
 }
 
 .value.normal {
-  color: #FFFFFF;
+  color: #ffffff;
 }
 
 .value.success {
-  color: #00FF88;
+  color: #00ff88;
   text-shadow: 0 0 8px rgba(0, 255, 136, 0.5);
 }
 
 .value.warning {
-  color: #FFB800;
+  color: #ffb800;
   text-shadow: 0 0 8px rgba(255, 184, 0, 0.5);
 }
 
 .value.error {
-  color: #FF4444;
+  color: #ff4444;
   text-shadow: 0 0 8px rgba(255, 68, 68, 0.5);
   animation: jarvis-pulse 2s ease-in-out infinite;
 }

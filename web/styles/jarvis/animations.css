@@ -2,7 +2,8 @@
 
 /* Pulse Animation - For glowing core */
 @keyframes jarvis-pulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
     transform: scale(1);
   }
@@ -78,7 +79,8 @@
 
 /* Glow Intensity Pulse */
 @keyframes jarvis-glow-pulse {
-  0%, 100% {
+  0%,
+  100% {
     filter: drop-shadow(0 0 10px var(--jarvis-glow-soft));
   }
   50% {
@@ -98,7 +100,8 @@
 
 /* Flicker - Holographic effect */
 @keyframes jarvis-flicker {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
   }
   50% {

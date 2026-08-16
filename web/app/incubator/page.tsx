@@ -1,15 +1,23 @@
-'use client';
+"use client";
 
-import { useState, useEffect, useCallback } from 'react';
-import Link from 'next/link';
-import dynamic from 'next/dynamic';
-import { useRouter } from 'next/navigation';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { format } from 'date-fns';
-import SecureAccessModal from '@/components/ui/SecureAccessModal';
-import styles from './incubator.module.css';
+import { useState, useEffect, useCallback } from "react";
+import Link from "next/link";
+import dynamic from "next/dynamic";
+import { useRouter } from "next/navigation";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
+import { format } from "date-fns";
+import SecureAccessModal from "@/components/ui/SecureAccessModal";
+import styles from "./incubator.module.css";
 
-const GridTrail = dynamic(() => import('@/components/effects/GridTrail'), {
+const GridTrail = dynamic(() => import("@/components/effects/GridTrail"), {
   ssr: false,
 });
 
@@ -38,7 +46,8 @@ export default function IncubatorPage() {
   const [agents, setAgents] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedAgent, setSelectedAgent] = useState<string | null>(null);
-  const [selectedObservation, setSelectedObservation] = useState<Observation | null>(null);
+  const [selectedObservation, setSelectedObservation] =
+    useState<Observation | null>(null);
   const [autoRefresh, setAutoRefresh] = useState(false);
   const [limit, setLimit] = useState<number>(10);
   const [dailyAverages, setDailyAverages] = useState<DailyAverage[]>([]);
@@ -47,9 +56,11 @@ export default function IncubatorPage() {
   // Check authentication on mount
   useEffect(() => {
     const checkAuth = () => {
-      const cookies = document.cookie.split(';');
-      const authCookie = cookies.find((c) => c.trim().startsWith('terrarium_auth='));
-      if (authCookie?.includes('valid')) {
+      const cookies = document.cookie.split(";");
+      const authCookie = cookies.find((c) =>
+        c.trim().startsWith("terrarium_auth="),
+      );
+      if (authCookie?.includes("valid")) {
         setIsAuthenticated(true);
         setShowAccessModal(false);
       }
@@ -66,10 +77,13 @@ export default function IncubatorPage() {
         ? `/api/incubator/logs?agent_id=${selectedAgent}&limit=${limit}`
         : `/api/incubator/logs?limit=${limit}`;
 
-      console.log('Fetching logs from:', url);
+      console.log("Fetching logs from:", url);
       const response = await fetch(url);
       const data = await response.json();
-      console.log('Received data:', { observationCount: data.observations?.length, agents: data.agents });
+      console.log("Received data:", {
+        observationCount: data.observations?.length,
+        agents: data.agents,
+      });
 
       if (data.observations) {
         setObservations(data.observations);
@@ -81,7 +95,7 @@ export default function IncubatorPage() {
         setDailyAverages(data.dailyAverages);
       }
     } catch (error) {
-      console.error('Failed to load logs:', error);
+      console.error("Failed to load logs:", error);
     } finally {
       setLoading(false);
     }
@@ -104,29 +118,29 @@ export default function IncubatorPage() {
 
   const formatTimestamp = (timestamp: string) => {
     const date = new Date(timestamp);
-    return date.toLocaleString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
+    return date.toLocaleString("en-US", {
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
     });
   };
 
   const getRewardColor = (reward: number) => {
-    if (reward > 0.5) return '#00ff41';
-    if (reward < 0) return '#ff0051';
-    return '#EBFA1D';
+    if (reward > 0.5) return "#00ff41";
+    if (reward < 0) return "#ff0051";
+    return "#EBFA1D";
   };
 
   const truncateText = (text: string, maxLength: number = 200) => {
-    if (!text) return '';
+    if (!text) return "";
     if (text.length <= maxLength) return text;
-    return text.substring(0, maxLength) + '...';
+    return text.substring(0, maxLength) + "...";
   };
 
   const formatAction = (actionCode: string | null) => {
-    if (!actionCode) return '';
+    if (!actionCode) return "";
 
     // Extract text from environment.run(...) wrapper
     const match = actionCode.match(/environment\.run\((.*)\)/);
@@ -135,9 +149,9 @@ export default function IncubatorPage() {
     // Convert to title case
     return text
       .toLowerCase()
-      .split(' ')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ');
+      .split(" ")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
   };
 
   if (!isAuthenticated) {
@@ -197,9 +211,11 @@ export default function IncubatorPage() {
         </Link>
         <div className={styles.headerInfo}>
           <h1 className={styles.title}>
-            <span className={styles.titlePrefix}>{'//'}</span>the incubator
+            <span className={styles.titlePrefix}>{"//"}</span>the incubator
           </h1>
-          <p className={styles.subtitle}>exploration logs · undergrowth landscape</p>
+          <p className={styles.subtitle}>
+            exploration logs · undergrowth landscape
+          </p>
         </div>
       </header>
 
@@ -209,7 +225,7 @@ export default function IncubatorPage() {
           <label className={styles.filterLabel}>Agent:</label>
           <select
             className={`${styles.filterSelect} cursor-hover`}
-            value={selectedAgent || ''}
+            value={selectedAgent || ""}
             onChange={(e) => setSelectedAgent(e.target.value || null)}
           >
             <option value="">All Agents</option>
@@ -258,7 +274,12 @@ export default function IncubatorPage() {
               strokeWidth="2"
               strokeLinecap="round"
             />
-            <path d="M14 8L12 6M14 8L12 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+            <path
+              d="M14 8L12 6M14 8L12 10"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+            />
           </svg>
           Refresh
         </button>
@@ -275,35 +296,35 @@ export default function IncubatorPage() {
                 <XAxis
                   dataKey="date"
                   stroke="#888"
-                  tick={{ fill: '#888', fontSize: 12 }}
-                  tickFormatter={(date) => format(new Date(date), 'MMM d')}
+                  tick={{ fill: "#888", fontSize: 12 }}
+                  tickFormatter={(date) => format(new Date(date), "MMM d")}
                 />
                 <YAxis
                   stroke="#888"
-                  tick={{ fill: '#888', fontSize: 12 }}
+                  tick={{ fill: "#888", fontSize: 12 }}
                   domain={[0, 1]}
                   ticks={[0, 0.25, 0.5, 0.75, 1]}
                 />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: '#1a1a1a',
-                    border: '1px solid #EBFA1D',
-                    borderRadius: '4px',
-                    color: '#fff',
-                    padding: '8px 12px',
-                    fontSize: '12px',
+                    backgroundColor: "#1a1a1a",
+                    border: "1px solid #EBFA1D",
+                    borderRadius: "4px",
+                    color: "#fff",
+                    padding: "8px 12px",
+                    fontSize: "12px",
                   }}
                   labelStyle={{
-                    color: '#EBFA1D',
-                    fontSize: '11px',
-                    marginBottom: '4px',
+                    color: "#EBFA1D",
+                    fontSize: "11px",
+                    marginBottom: "4px",
                   }}
                   itemStyle={{
-                    color: '#fff',
-                    fontSize: '12px',
-                    padding: '2px 0',
+                    color: "#fff",
+                    fontSize: "12px",
+                    padding: "2px 0",
                   }}
-                  labelFormatter={(date) => format(new Date(date), 'MMM d')}
+                  labelFormatter={(date) => format(new Date(date), "MMM d")}
                   formatter={(value: number) => value.toFixed(3)}
                 />
                 <Line
@@ -311,8 +332,8 @@ export default function IncubatorPage() {
                   dataKey="avgReward"
                   stroke="#EBFA1D"
                   strokeWidth={2}
-                  dot={{ fill: '#EBFA1D', r: 4 }}
-                  activeDot={{ r: 6, fill: '#EBFA1D' }}
+                  dot={{ fill: "#EBFA1D", r: 4 }}
+                  activeDot={{ r: 6, fill: "#EBFA1D" }}
                 />
               </LineChart>
             </ResponsiveContainer>
@@ -339,13 +360,19 @@ export default function IncubatorPage() {
         <div className={styles.statCard}>
           <div
             className={styles.statValue}
-            style={{ color: getRewardColor(
-              observations.reduce((sum, o) => sum + o.reward, 0) / observations.length || 0
-            )}}
+            style={{
+              color: getRewardColor(
+                observations.reduce((sum, o) => sum + o.reward, 0) /
+                  observations.length || 0,
+              ),
+            }}
           >
             {observations.length > 0
-              ? (observations.reduce((sum, o) => sum + o.reward, 0) / observations.length).toFixed(2)
-              : '0.00'}
+              ? (
+                  observations.reduce((sum, o) => sum + o.reward, 0) /
+                  observations.length
+                ).toFixed(2)
+              : "0.00"}
           </div>
           <div className={styles.statLabel}>Avg Reward</div>
         </div>
@@ -380,7 +407,9 @@ export default function IncubatorPage() {
                     </span>
                   </div>
                 </div>
-                <div className={styles.logEpisode}>Episode: {obs.episodeId}</div>
+                <div className={styles.logEpisode}>
+                  Episode: {obs.episodeId}
+                </div>
                 <div className={styles.logPreview}>
                   {truncateText(obs.observationText)}
                 </div>
@@ -392,7 +421,10 @@ export default function IncubatorPage() {
 
       {/* Detail Modal */}
       {selectedObservation && (
-        <div className={styles.modal} onClick={() => setSelectedObservation(null)}>
+        <div
+          className={styles.modal}
+          onClick={() => setSelectedObservation(null)}
+        >
           <div
             className={styles.modalContent}
             onClick={(e) => e.stopPropagation()}
@@ -412,7 +444,9 @@ export default function IncubatorPage() {
             </button>
 
             <div className={styles.modalHeader}>
-              <h2 className={styles.modalTitle}>{selectedObservation.agentId}</h2>
+              <h2 className={styles.modalTitle}>
+                {selectedObservation.agentId}
+              </h2>
               <div className={styles.modalMeta}>
                 <span>{formatTimestamp(selectedObservation.timestamp)}</span>
                 <span
@@ -425,13 +459,17 @@ export default function IncubatorPage() {
 
             <div className={styles.modalSection}>
               <h3 className={styles.modalSectionTitle}>Episode ID</h3>
-              <code className={styles.modalCode}>{selectedObservation.episodeId}</code>
+              <code className={styles.modalCode}>
+                {selectedObservation.episodeId}
+              </code>
             </div>
 
             {selectedObservation.actionCode && (
               <div className={styles.modalSection}>
                 <h3 className={styles.modalSectionTitle}>Action</h3>
-                <div className={styles.modalText}>{formatAction(selectedObservation.actionCode)}</div>
+                <div className={styles.modalText}>
+                  {formatAction(selectedObservation.actionCode)}
+                </div>
               </div>
             )}
 
@@ -453,7 +491,9 @@ export default function IncubatorPage() {
 
             <div className={styles.modalSection}>
               <h3 className={styles.modalSectionTitle}>Checkpoint</h3>
-              <code className={styles.modalCode}>{selectedObservation.modelCheckpoint}</code>
+              <code className={styles.modalCode}>
+                {selectedObservation.modelCheckpoint}
+              </code>
             </div>
           </div>
         </div>

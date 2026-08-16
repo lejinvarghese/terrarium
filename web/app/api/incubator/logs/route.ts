@@ -1,9 +1,9 @@
-import { NextResponse } from 'next/server';
-import { join } from 'path';
-import Database from 'better-sqlite3';
+import { NextResponse } from "next/server";
+import { join } from "path";
+import Database from "better-sqlite3";
 
 // Mark route as dynamic
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 interface ObservationRow {
   id: number;
@@ -20,18 +20,18 @@ interface ObservationRow {
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const limit = parseInt(searchParams.get('limit') || '50');
-    const agentId = searchParams.get('agent_id');
+    const limit = parseInt(searchParams.get("limit") || "50");
+    const agentId = searchParams.get("agent_id");
 
     // Path to the incubator observations database
     const dbPath = join(
       process.cwd(),
-      '..',
-      'src',
-      'landscapes',
-      'undergrowth',
-      'incubator',
-      'observations.db'
+      "..",
+      "src",
+      "landscapes",
+      "undergrowth",
+      "incubator",
+      "observations.db",
     );
 
     const db = new Database(dbPath, { readonly: true });
@@ -54,11 +54,11 @@ export async function GET(request: Request) {
     const params: any[] = [];
 
     if (agentId) {
-      query += ' WHERE agent_id = ?';
+      query += " WHERE agent_id = ?";
       params.push(agentId);
     }
 
-    query += ' ORDER BY timestamp DESC LIMIT ?';
+    query += " ORDER BY timestamp DESC LIMIT ?";
     params.push(limit);
 
     const stmt = db.prepare(query);
@@ -79,14 +79,14 @@ export async function GET(request: Request) {
         AVG(reward) as avgReward,
         COUNT(*) as count
       FROM observations
-      ${agentId ? 'WHERE agent_id = ?' : ''}
+      ${agentId ? "WHERE agent_id = ?" : ""}
       GROUP BY DATE(timestamp)
       ORDER BY date ASC
     `;
     const dailyAveragesStmt = db.prepare(dailyAveragesQuery);
-    const dailyAverages = (agentId
-      ? dailyAveragesStmt.all(agentId)
-      : dailyAveragesStmt.all()) as { date: string; avgReward: number; count: number }[];
+    const dailyAverages = (
+      agentId ? dailyAveragesStmt.all(agentId) : dailyAveragesStmt.all()
+    ) as { date: string; avgReward: number; count: number }[];
 
     db.close();
 
@@ -110,13 +110,13 @@ export async function GET(request: Request) {
       })),
     });
   } catch (error) {
-    console.error('Error loading incubator logs:', error);
+    console.error("Error loading incubator logs:", error);
     return NextResponse.json(
       {
-        error: 'Failed to load logs',
-        details: error instanceof Error ? error.message : 'Unknown error'
+        error: "Failed to load logs",
+        details: error instanceof Error ? error.message : "Unknown error",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

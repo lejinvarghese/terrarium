@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 
 interface Service {
   name: string;
-  status: 'online' | 'offline' | 'unknown';
+  status: "online" | "offline" | "unknown";
   port?: number;
 }
 
@@ -26,16 +26,16 @@ export function useServiceStatus(isActive: boolean, pollInterval = 5000) {
 
     const fetchServices = async () => {
       try {
-        const response = await fetch('/api/jarvis/services');
+        const response = await fetch("/api/jarvis/services");
         if (!response.ok) {
-          throw new Error('Failed to fetch service status');
+          throw new Error("Failed to fetch service status");
         }
         const result = await response.json();
         setData(result);
         setError(null);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Unknown error');
-        console.error('Error fetching service status:', err);
+        setError(err instanceof Error ? err.message : "Unknown error");
+        console.error("Error fetching service status:", err);
       }
     };
 

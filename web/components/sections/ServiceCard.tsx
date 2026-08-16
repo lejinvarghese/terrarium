@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Service } from '@/data/services';
-import SecureAccessModal from '@/components/ui/SecureAccessModal';
-import styles from './ServiceCard.module.css';
+import { useState } from "react";
+import { Service } from "@/data/services";
+import SecureAccessModal from "@/components/ui/SecureAccessModal";
+import styles from "./ServiceCard.module.css";
 
 interface ServiceCardProps {
   service: Service;
@@ -11,10 +11,10 @@ interface ServiceCardProps {
 }
 
 // Services that require secure access
-const SECURE_SERVICES = ['dome', 'archive', 'incubator'];
+const SECURE_SERVICES = ["dome", "archive", "incubator"];
 
 // Single access title for all secured services
-const ACCESS_TITLE = 'ACCESS';
+const ACCESS_TITLE = "ACCESS";
 
 export default function ServiceCard({ service, index }: ServiceCardProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -59,9 +59,7 @@ export default function ServiceCard({ service, index }: ServiceCardProps) {
         </div>
 
         {requiresAuth && (
-          <div className={styles.secureBadge}>
-            SECURE ACCESS
-          </div>
+          <div className={styles.secureBadge}>SECURE ACCESS</div>
         )}
       </a>
 

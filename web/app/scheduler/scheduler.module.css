@@ -11,7 +11,7 @@
   min-height: 100vh;
   font-family: var(--font-jetbrains-mono), monospace;
   font-size: 1.5rem;
-  color: #EBFA1D;
+  color: #ebfa1d;
   letter-spacing: 0.1em;
 }
 
@@ -35,7 +35,7 @@
 }
 
 .backLink:hover {
-  color: #EBFA1D;
+  color: #ebfa1d;
   transform: translateX(-4px);
 }
 
@@ -50,7 +50,7 @@
 .title {
   font-size: clamp(3rem, 8vw, 5rem);
   font-weight: 200;
-  color: #FFFFFF;
+  color: #ffffff;
   letter-spacing: -0.02em;
   text-transform: lowercase;
 }
@@ -65,7 +65,7 @@
 .time {
   font-family: var(--font-jetbrains-mono), monospace;
   font-size: 2rem;
-  color: #EBFA1D;
+  color: #ebfa1d;
   font-weight: 400;
   letter-spacing: 0.05em;
 }
@@ -102,7 +102,7 @@
 .statValue {
   font-size: 3rem;
   font-weight: 200;
-  color: #EBFA1D;
+  color: #ebfa1d;
   line-height: 1;
   margin-bottom: 0.5rem;
 }
@@ -141,7 +141,7 @@
 .sectionTitle {
   font-size: clamp(1.5rem, 4vw, 2rem);
   font-weight: 300;
-  color: #FFFFFF;
+  color: #ffffff;
   margin-bottom: 0;
   text-transform: lowercase;
   letter-spacing: -0.01em;
@@ -154,7 +154,7 @@
 .filterIndicator {
   font-family: var(--font-jetbrains-mono), monospace;
   font-size: 0.875rem;
-  color: #EBFA1D;
+  color: #ebfa1d;
   font-weight: 400;
   letter-spacing: 0.05em;
 }
@@ -166,7 +166,7 @@
   padding: 0.75rem 1.25rem;
   background: rgba(235, 250, 29, 0.1);
   border: 1px solid rgba(235, 250, 29, 0.3);
-  color: #EBFA1D;
+  color: #ebfa1d;
   font-family: var(--font-jetbrains-mono), monospace;
   font-size: 0.75rem;
   text-transform: uppercase;
@@ -212,13 +212,13 @@
 }
 
 .taskCard::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
   width: 4px;
   height: 100%;
-  background: #FFB800;
+  background: #ffb800;
   opacity: 0;
   transition: opacity 0.3s ease;
 }
@@ -275,7 +275,7 @@
 .taskName {
   font-size: 1.5rem;
   font-weight: 400;
-  color: #FFFFFF;
+  color: #ffffff;
   letter-spacing: -0.01em;
 }
 
@@ -305,7 +305,7 @@
 
 .taskStatus[data-status="active"] {
   background: rgba(0, 255, 136, 0.15);
-  color: #00FF88;
+  color: #00ff88;
   border: 1px solid rgba(0, 255, 136, 0.3);
 }
 
@@ -317,7 +317,7 @@
 
 .taskStatus[data-status="failed"] {
   background: rgba(255, 51, 102, 0.15);
-  color: #FF3366;
+  color: #ff3366;
   border: 1px solid rgba(255, 51, 102, 0.3);
 }
 
@@ -355,7 +355,7 @@
 .scheduleValue {
   font-family: var(--font-jetbrains-mono), monospace;
   font-size: 0.875rem;
-  color: #EBFA1D;
+  color: #ebfa1d;
   font-weight: 400;
 }
 
@@ -384,7 +384,7 @@
 .actionBtn:hover {
   background: rgba(255, 184, 0, 0.1);
   border-color: rgba(255, 184, 0, 0.3);
-  color: #FFB800;
+  color: #ffb800;
 }
 
 .actionBtn:active {
@@ -408,7 +408,7 @@
   padding: 0.75rem 1.25rem;
   background: rgba(235, 250, 29, 0.05);
   border: 1px solid rgba(235, 250, 29, 0.2);
-  color: #EBFA1D;
+  color: #ebfa1d;
   font-family: var(--font-jetbrains-mono), monospace;
   font-size: 0.75rem;
   text-transform: uppercase;
@@ -443,7 +443,7 @@
 .terminalTitle {
   font-family: var(--font-jetbrains-mono), monospace;
   font-size: 0.75rem;
-  color: #EBFA1D;
+  color: #ebfa1d;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   font-weight: 600;

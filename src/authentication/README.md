@@ -29,17 +29,19 @@ Open WebUI (localhost:8080)
 ### Setup
 
 1. **First time setup:**
+
    ```bash
    cd src/authentication
    cp config.example.json config.json
    ```
 
 2. **Edit config.json:**
+
    ```json
    {
      "dome": {
-       "port": 8081,              // Auth proxy port
-       "targetUrl": "http://localhost:8080",  // Service URL
+       "port": 8081, // Auth proxy port
+       "targetUrl": "http://localhost:8080", // Service URL
        "title": "DOME ACCESS REQUIRED"
      },
      "archive": {
@@ -47,17 +49,14 @@ Open WebUI (localhost:8080)
        "targetUrl": "http://localhost:8502",
        "title": "ARCHIVE ACCESS REQUIRED"
      },
-     "accessCodes": [
-       "XXX",
-       "YYY"
-     ],
-     "cookieMaxAge": 86400000  // 24 hours
+     "accessCodes": ["XXX", "YYY"],
+     "cookieMaxAge": 86400000 // 24 hours
    }
    ```
 
 3. **Keep configs in sync:** When updating service ports, also update:
    - `web/config/services.config.ts` - Frontend service configuration
-   Both files must match for proper service routing.
+     Both files must match for proper service routing.
 
 ## Running
 
@@ -116,20 +115,24 @@ Visit `/auth/logout` to clear authentication cookie.
 ## Troubleshooting
 
 ### "Connection Error" on login
+
 - Check if backend service is running
 - Verify `targetUrl` in config.json
 - Check proxy logs: `./dev attach dome-proxy`
 
 ### Login page shows but backend unreachable
+
 - Verify backend service port matches config
 - Check if backend is listening on localhost
 - Try curl: `curl http://localhost:8080`
 
 ### Changes to config not applying
+
 - Restart the proxy: `./dev down && ./dev up`
 - Auth proxies don't hot-reload config changes
 
 ### Need to change access codes
+
 - Edit `config.json`
 - Restart proxies
 - Or better: set via environment in services.conf
@@ -154,6 +157,7 @@ curl http://localhost:8081  # Should show login page
 ### Customize styling
 
 The login page HTML is embedded in `server.js`. Edit the `loginPageHTML` constant to modify:
+
 - Colors (cyan: `#00FFF2`, yellow: `#EBFA1D`)
 - Layout and spacing
 - Text content
@@ -162,6 +166,7 @@ The login page HTML is embedded in `server.js`. Edit the `loginPageHTML` constan
 ### Add more services
 
 1. Add config to `config.json`:
+
 ```json
 "newservice": {
   "port": 9001,

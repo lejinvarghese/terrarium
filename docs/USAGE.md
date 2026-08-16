@@ -7,20 +7,24 @@ Quick guide to using your AI ecosystem.
 ## Services
 
 ### Dome (Web Chat)
+
 **Access:** http://localhost:8080
 
 Chat with your AI bots in a web interface. Upload documents, switch between models, manage conversations.
 
 ### Portal (Telegram)
+
 **Access:** Telegram → @your_bot
 
 Message your bot from anywhere. Commands:
+
 - Direct message → Casper (concierge)
 - `/bot anya` → Switch to Anya (creative)
 - `/bots` → List all available bots
 - `@sage <message>` → Direct mention
 
 ### Web Dashboard
+
 **Access:** http://localhost:3000
 
 Visual overview of services, bot profiles, and ecosystem status.
@@ -45,16 +49,19 @@ Visual overview of services, bot profiles, and ecosystem status.
 Exploration agents that learn through reinforcement learning:
 
 **Run exploration:**
+
 ```bash
 python -m src.landscapes.undergrowth.incubator.explore -a A001
 ```
 
 **Observe activity:**
+
 ```bash
 python -m src.landscapes.undergrowth.incubator.observe episodes
 ```
 
 **Agents:**
+
 - **Atlas (A001)** - Accelerationist (AI, fusion, space tech)
 - **Aria (A002)** - Creative (art, music, aesthetics)
 - **Aris (A003)** - Philosopher (systems thinking, synthesis)

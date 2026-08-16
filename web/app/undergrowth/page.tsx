@@ -1,13 +1,13 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
-import dynamic from 'next/dynamic';
-import { bots } from '@/data/bots';
-import styles from './ecosystem.module.css';
+import React, { useState } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import dynamic from "next/dynamic";
+import { bots } from "@/data/bots";
+import styles from "./ecosystem.module.css";
 
-const GridTrail = dynamic(() => import('@/components/effects/GridTrail'), {
+const GridTrail = dynamic(() => import("@/components/effects/GridTrail"), {
   ssr: false,
 });
 
@@ -42,10 +42,11 @@ export default function EcosystemPage() {
           Back
         </Link>
         <h1 className={styles.title}>
-          <span className={styles.titlePrefix}>{'//'}</span>undergrowth
+          <span className={styles.titlePrefix}>{"//"}</span>undergrowth
         </h1>
         <p className={styles.tagline}>
-          These cybernetic minds form a distributed intelligence, each tending to our terrarium with a purpose and emergent behavior.
+          These cybernetic minds form a distributed intelligence, each tending
+          to our terrarium with a purpose and emergent behavior.
         </p>
       </header>
 
@@ -59,7 +60,7 @@ export default function EcosystemPage() {
               onClick={() => openBotModal(bot.id)}
               style={
                 {
-                  '--bot-color': bot.color,
+                  "--bot-color": bot.color,
                 } as React.CSSProperties
               }
             >

@@ -24,6 +24,7 @@ src/portals/telegram/
 ## Prerequisites
 
 1. **Claude CLI installed and authenticated**
+
    ```bash
    # Install Claude Code
    npm install -g @anthropic-ai/claude-code
@@ -63,6 +64,7 @@ python3 -m src.portals.telegram.bot
 ```
 
 You should see colorful console output:
+
 - 🤖 Starting telegram bot
 - ⚙️ ClaudeEngine initialized
 - 💾 SessionManager initialized
@@ -102,6 +104,7 @@ Use `@botname` syntax to switch between Undergrowth bots:
 ```
 
 **Architecture:**
+
 - `@sage/@anya/etc` → ClaudeEngine → Claude CLI → Undergrowth bot (mem0 memory)
 
 ## How It Works
@@ -136,6 +139,7 @@ Bot: [Anya responds with creative vision and generates image]
 ## Database Schema
 
 **sessions table:**
+
 - `user_id` - Telegram user ID
 - `persona` - Active bot name (or NULL for Casper)
 - `session_id` - Claude session ID
@@ -144,6 +148,7 @@ Bot: [Anya responds with creative vision and generates image]
 - `created_at`, `updated_at` - Timestamps
 
 **users table:**
+
 - `user_id` - Telegram user ID
 - `username`, `first_name` - User info
 - `message_count` - Total messages sent
@@ -152,20 +157,24 @@ Bot: [Anya responds with creative vision and generates image]
 ## Troubleshooting
 
 **Bot not responding:**
+
 - Check Claude CLI is authenticated: `claude --version`
 - Verify `TELEGRAM_TOKEN` in `.env`
 - Check colorful console logs for error messages
 
 **Session not persisting:**
+
 - Verify `data/` directory exists
 - Check SQLite database permissions
 - Look for 💾 SessionManager initialization message
 
 **Bot personality not working:**
+
 - Verify bot files exist in `.claude/agents/` (casper.md, anya.md, etc.)
 - Check bot file has valid markdown format with frontmatter
 - Look for 🎭 Using bot message in console logs
 
 **JSON parsing errors:**
+
 - Ensure Claude CLI is up to date: `npm update -g @anthropic-ai/claude-code`
 - Check that `--output-format json` is supported in your CLI version

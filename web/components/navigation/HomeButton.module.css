@@ -21,8 +21,8 @@
 
 .homeButton:hover {
   background: rgba(0, 0, 0, 0.95);
-  border-color: #EBFA1D;
-  color: #EBFA1D;
+  border-color: #ebfa1d;
+  color: #ebfa1d;
   transform: translateY(-2px);
 }
 

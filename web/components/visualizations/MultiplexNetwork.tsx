@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useMemo } from 'react';
-import { landscapes } from '@/data/landscapes';
-import styles from './MultiplexNetwork.module.css';
+import { useMemo } from "react";
+import { landscapes } from "@/data/landscapes";
+import styles from "./MultiplexNetwork.module.css";
 
 export default function MultiplexNetwork() {
   const hexSize = 110; // Bottom hexagon size
@@ -34,7 +34,9 @@ export default function MultiplexNetwork() {
 
   // H1 position (centered below layer 1)
   const h1 = {
-    cx: layer1Positions[0].cx + (layer1Positions[1].cx - layer1Positions[0].cx) / 2,
+    cx:
+      layer1Positions[0].cx +
+      (layer1Positions[1].cx - layer1Positions[0].cx) / 2,
     cy: layer1Positions[2].cy + layerGap,
   };
 
@@ -52,22 +54,26 @@ export default function MultiplexNetwork() {
 
   const getHexPoints = (cx: number, cy: number, size: number) => {
     return getHexVertices(cx, cy, size)
-      .map(v => `${v.x},${v.y}`)
-      .join(' ');
+      .map((v) => `${v.x},${v.y}`)
+      .join(" ");
   };
 
   const h1Vertices = getHexVertices(h1.cx, h1.cy, hexSize);
-  const undergrowthVertices = getHexVertices(layer1Positions[0].cx, layer1Positions[0].cy, topHexSize);
+  const undergrowthVertices = getHexVertices(
+    layer1Positions[0].cx,
+    layer1Positions[0].cy,
+    topHexSize,
+  );
 
   // H1 dots
   const h1Dots = useMemo(() => {
     const dots = [];
     const innerRadius = hexSize * 0.5;
 
-    dots.push({ color: '#0099FF', size: 4, type: 'human' });
-    dots.push({ color: '#FF3366', size: 3.5, type: 'dog' });
+    dots.push({ color: "#0099FF", size: 4, type: "human" });
+    dots.push({ color: "#FF3366", size: 3.5, type: "dog" });
     for (let i = 0; i < 30; i++) {
-      dots.push({ color: '#00FF88', size: 2, type: 'plant' });
+      dots.push({ color: "#00FF88", size: 2, type: "plant" });
     }
 
     return dots.map((dot, i) => {
@@ -85,12 +91,16 @@ export default function MultiplexNetwork() {
     <div className={styles.container}>
       <div className="container">
         <h2 className={styles.title}>
-          <span className={styles.titlePrefix}>{'//'}</span>landscapes
+          <span className={styles.titlePrefix}>{"//"}</span>landscapes
         </h2>
       </div>
 
       <div className={styles.networkContainer}>
-        <svg className={styles.svg} viewBox="0 0 800 650" preserveAspectRatio="xMidYMid meet">
+        <svg
+          className={styles.svg}
+          viewBox="0 0 800 650"
+          preserveAspectRatio="xMidYMid meet"
+        >
           {/* Hexagonal cylinder edges - only from Undergrowth to H1 */}
           <g className={styles.cylinderEdges}>
             {h1Vertices.map((v0, i) => {
@@ -149,7 +159,9 @@ export default function MultiplexNetwork() {
               const innerRadius = topHexSize * 0.45;
 
               for (let j = 0; j < landscape.agentCount; j++) {
-                const angle = (j / landscape.agentCount) * Math.PI * 2 + Math.random() * 0.3;
+                const angle =
+                  (j / landscape.agentCount) * Math.PI * 2 +
+                  Math.random() * 0.3;
                 const r = Math.sqrt(Math.random()) * innerRadius;
                 dots.push({
                   x: pos.cx + r * Math.cos(angle),
@@ -161,11 +173,17 @@ export default function MultiplexNetwork() {
                 <g key={landscape.id}>
                   <polygon
                     points={getHexPoints(pos.cx, pos.cy, topHexSize)}
-                    fill={landscape.status === 'active' ? `${landscape.color}10` : 'transparent'}
+                    fill={
+                      landscape.status === "active"
+                        ? `${landscape.color}10`
+                        : "transparent"
+                    }
                     stroke={landscape.color}
-                    strokeWidth={landscape.status === 'active' ? 0.8 : 0.5}
-                    opacity={landscape.status === 'active' ? 1 : 0.5}
-                    strokeDasharray={landscape.status === 'dead' ? '5,5' : 'none'}
+                    strokeWidth={landscape.status === "active" ? 0.8 : 0.5}
+                    opacity={landscape.status === "active" ? 1 : 0.5}
+                    strokeDasharray={
+                      landscape.status === "dead" ? "5,5" : "none"
+                    }
                   />
                   <text
                     x={pos.cx}
@@ -182,7 +200,9 @@ export default function MultiplexNetwork() {
                     fill={landscape.color}
                     opacity={0.6}
                   >
-                    {landscape.agentCount > 0 ? `${landscape.agentCount} agents` : 'dormant'}
+                    {landscape.agentCount > 0
+                      ? `${landscape.agentCount} agents`
+                      : "dormant"}
                   </text>
                   {dots.map((dot, j) => (
                     <circle
@@ -207,15 +227,24 @@ export default function MultiplexNetwork() {
           <span className={styles.legendTitle}>Layer 0</span>
           <div className={styles.legendItems}>
             <div className={styles.legendItem}>
-              <div className={styles.legendDot} style={{ background: '#0099FF' }} />
+              <div
+                className={styles.legendDot}
+                style={{ background: "#0099FF" }}
+              />
               <span>Human (1)</span>
             </div>
             <div className={styles.legendItem}>
-              <div className={styles.legendDot} style={{ background: '#FF3366' }} />
+              <div
+                className={styles.legendDot}
+                style={{ background: "#FF3366" }}
+              />
               <span>Dog (1)</span>
             </div>
             <div className={styles.legendItem}>
-              <div className={styles.legendDot} style={{ background: '#00FF88' }} />
+              <div
+                className={styles.legendDot}
+                style={{ background: "#00FF88" }}
+              />
               <span>Plants (30)</span>
             </div>
           </div>
@@ -224,11 +253,17 @@ export default function MultiplexNetwork() {
           <span className={styles.legendTitle}>Layer 1</span>
           <div className={styles.legendItems}>
             <div className={styles.legendItem}>
-              <div className={styles.legendDot} style={{ background: '#EBFA1D' }} />
+              <div
+                className={styles.legendDot}
+                style={{ background: "#EBFA1D" }}
+              />
               <span>Active</span>
             </div>
             <div className={styles.legendItem}>
-              <div className={styles.legendDot} style={{ background: '#4A4A4A' }} />
+              <div
+                className={styles.legendDot}
+                style={{ background: "#4A4A4A" }}
+              />
               <span>Dead/Dormant</span>
             </div>
           </div>

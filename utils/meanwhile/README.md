@@ -9,16 +9,19 @@ A terminal Matrix-style "code rain" that displays live news headlines, local int
 ## Modifications from Original
 
 ### 1. **Tavily Search Integration** (instead of Exa)
+
 - Uses Tavily API for AI-powered news search
 - Requires `TAVILY_API_KEY` environment variable
 - Falls back to RSS feeds if no API key configured
 
 ### 2. **Toronto Customization**
+
 - Default region: Canada (`ca`)
 - Default places: `["Toronto", "Ontario"]`
 - Default topics: `["world news", "artificial intelligence", "science", "canada"]`
 
 ### 3. **Enhanced News Sources**
+
 - **Main News**: Fox News RSS feed
 - **Scientific RSS Feeds**:
   - Nature
@@ -34,32 +37,38 @@ A terminal Matrix-style "code rain" that displays live news headlines, local int
 ## Installation
 
 ### Prerequisites
+
 - Python 3.11 or later
 - Optional: Tavily API key for enhanced news search
 
 ### Setup
 
 1. **Clone or copy this directory**:
+
    ```bash
    cd /media/starscream/bumblebee1/blaze/terrarium/meanwhile-toronto
    ```
 
 2. **Make the script executable**:
+
    ```bash
    chmod +x meanwhile.py
    ```
 
 3. **Create a symlink** (optional, for easy access):
+
    ```bash
    ln -sf "$PWD/meanwhile.py" ~/.local/bin/meanwhile
    ```
 
 4. **Set up API key** (optional, for Tavily search):
+
    ```bash
    export TAVILY_API_KEY="your-api-key-here"
    ```
 
    Or add to `~/.env`:
+
    ```bash
    echo 'TAVILY_API_KEY=your-api-key-here' >> ~/.env
    ```
@@ -119,6 +128,7 @@ Configuration is stored in `~/.config/meanwhile/config.json` and auto-created on
 ## API Key Setup
 
 ### Tavily API
+
 1. Get a free API key from [tavily.com](https://tavily.com)
 2. Add to environment:
    ```bash
@@ -126,16 +136,17 @@ Configuration is stored in `~/.config/meanwhile/config.json` and auto-created on
    ```
 
 ### Without API Key
+
 The application will automatically fall back to RSS feeds (Fox News + Science feeds) if no Tavily API key is configured.
 
 ## Differences from Original
 
-| Feature | Original | This Version |
-|---------|----------|--------------|
-| Search API | Exa | Tavily |
-| Default Region | Auto-detect | Canada (Toronto) |
-| News Sources | BBC, Guardian, Al Jazeera | Fox News |
-| Science Feeds | None | 10 scientific sources |
+| Feature        | Original                     | This Version                                |
+| -------------- | ---------------------------- | ------------------------------------------- |
+| Search API     | Exa                          | Tavily                                      |
+| Default Region | Auto-detect                  | Canada (Toronto)                            |
+| News Sources   | BBC, Guardian, Al Jazeera    | Fox News                                    |
+| Science Feeds  | None                         | 10 scientific sources                       |
 | Default Topics | `["world news", "ai", "uk"]` | `["world news", "ai", "science", "canada"]` |
 
 ## Files

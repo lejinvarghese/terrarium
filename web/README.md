@@ -91,9 +91,9 @@ Edit `styles/theme.ts` to customize the color palette:
 
 ```typescript
 export const colors = {
-  primary: '#00FFF2',      // Cyan
-  secondary: '#FF00FF',    // Magenta
-  tertiary: '#EBFA1D',     // Neon Yellow
+  primary: "#00FFF2", // Cyan
+  secondary: "#FF00FF", // Magenta
+  tertiary: "#EBFA1D", // Neon Yellow
   // ... more colors
 };
 ```
@@ -105,13 +105,13 @@ Add or modify services in `data/services.ts`:
 ```typescript
 export const services: Service[] = [
   {
-    id: 'myservice',
-    name: 'My Service',
-    prefix: '[006]',
-    tagline: 'Service Tagline',
-    description: '...',
-    status: 'online',
-    color: '#00FFF2',
+    id: "myservice",
+    name: "My Service",
+    prefix: "[006]",
+    tagline: "Service Tagline",
+    description: "...",
+    status: "online",
+    color: "#00FFF2",
     // ...
   },
 ];

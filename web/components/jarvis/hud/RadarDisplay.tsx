@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import styles from './RadarDisplay.module.css';
+import { useEffect, useState } from "react";
+import styles from "./RadarDisplay.module.css";
 
 interface RadarDisplayProps {
   isActive: boolean;
@@ -59,7 +59,7 @@ export default function RadarDisplay({ isActive }: RadarDisplayProps) {
             ...dot,
             opacity: dot.opacity - 0.02,
           }))
-          .filter((dot) => dot.opacity > 0)
+          .filter((dot) => dot.opacity > 0),
       );
     }, 100);
 
@@ -100,14 +100,62 @@ export default function RadarDisplay({ isActive }: RadarDisplayProps) {
         />
 
         {/* Concentric circles */}
-        <circle cx="200" cy="200" r="25" fill="none" stroke="#00FF88" strokeWidth="0.5" opacity="0.4" />
-        <circle cx="200" cy="200" r="50" fill="none" stroke="#00FF88" strokeWidth="0.5" opacity="0.4" />
-        <circle cx="200" cy="200" r="75" fill="none" stroke="#00FF88" strokeWidth="0.5" opacity="0.4" />
-        <circle cx="200" cy="200" r="100" fill="none" stroke="#EBFA1D" strokeWidth="1.5" opacity="0.6" />
+        <circle
+          cx="200"
+          cy="200"
+          r="25"
+          fill="none"
+          stroke="#00FF88"
+          strokeWidth="0.5"
+          opacity="0.4"
+        />
+        <circle
+          cx="200"
+          cy="200"
+          r="50"
+          fill="none"
+          stroke="#00FF88"
+          strokeWidth="0.5"
+          opacity="0.4"
+        />
+        <circle
+          cx="200"
+          cy="200"
+          r="75"
+          fill="none"
+          stroke="#00FF88"
+          strokeWidth="0.5"
+          opacity="0.4"
+        />
+        <circle
+          cx="200"
+          cy="200"
+          r="100"
+          fill="none"
+          stroke="#EBFA1D"
+          strokeWidth="1.5"
+          opacity="0.6"
+        />
 
         {/* Cross lines */}
-        <line x1="200" y1="100" x2="200" y2="300" stroke="#00FFF2" strokeWidth="0.5" opacity="0.3" />
-        <line x1="100" y1="200" x2="300" y2="200" stroke="#00FFF2" strokeWidth="0.5" opacity="0.3" />
+        <line
+          x1="200"
+          y1="100"
+          x2="200"
+          y2="300"
+          stroke="#00FFF2"
+          strokeWidth="0.5"
+          opacity="0.3"
+        />
+        <line
+          x1="100"
+          y1="200"
+          x2="300"
+          y2="200"
+          stroke="#00FFF2"
+          strokeWidth="0.5"
+          opacity="0.3"
+        />
 
         {/* Diagonal guides */}
         <line

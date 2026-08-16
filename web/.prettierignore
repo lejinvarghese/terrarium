@@ -1,0 +1,11 @@
+node_modules
+.next
+out
+dist
+build
+*.min.js
+*.min.css
+public/assets/**/*.json
+app/fern/page.tsx
+.cache
+coverage

@@ -15,20 +15,20 @@
 }
 
 .hero::before {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
-  background-image: url('/assets/images/hero-background.webp');
+  background-image: url("/assets/images/hero-background.webp");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
   opacity: 0.6;
   z-index: 0;
-  filter: brightness(1.0) contrast(1.1);
+  filter: brightness(1) contrast(1.1);
 }
 
 .hero::after {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
   background: radial-gradient(
@@ -56,7 +56,7 @@
 
 .tagline {
   font-size: clamp(1.125rem, 3vw, 1.75rem);
-  color: #FFFFFF;
+  color: #ffffff;
   margin-bottom: 4rem;
   font-weight: 300;
   letter-spacing: 0.02em;
@@ -68,7 +68,7 @@
 }
 
 .cta {
-  background: #EBFA1D;
+  background: #ebfa1d;
   color: #000000;
   border: none;
   padding: 1.25rem 3rem;
@@ -84,7 +84,7 @@
 
 .cta:hover {
   transform: scale(1.05);
-  background: #FFFFFF;
+  background: #ffffff;
 }
 
 .cta:active {
@@ -112,13 +112,13 @@
   font-size: clamp(2rem, 5vw, 3.5rem);
   margin-bottom: 5rem;
   font-weight: 300;
-  color: #FFFFFF;
+  color: #ffffff;
   text-transform: lowercase;
   letter-spacing: -0.01em;
 }
 
 .titlePrefix {
-  color: #EBFA1D;
+  color: #ebfa1d;
   font-family: var(--font-mono);
 }
 
@@ -142,7 +142,7 @@
 }
 
 .card::before {
-  content: '';
+  content: "";
   position: absolute;
   top: -2px;
   left: -2px;
@@ -191,7 +191,7 @@
 
 .status[data-status="online"] {
   background: rgba(235, 250, 29, 0.15);
-  color: #EBFA1D;
+  color: #ebfa1d;
   border: 1px solid rgba(235, 250, 29, 0.3);
 }
 
@@ -203,14 +203,14 @@
 
 .status[data-status="configuring"] {
   background: rgba(255, 255, 255, 0.1);
-  color: #FFFFFF;
+  color: #ffffff;
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .cardTitle {
   font-size: 2.25rem;
   margin-bottom: 0.75rem;
-  color: #FFFFFF;
+  color: #ffffff;
   font-weight: 400;
   padding: 0 2rem;
   letter-spacing: -0.01em;

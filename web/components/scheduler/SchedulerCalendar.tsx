@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import Calendar from 'react-calendar';
-import { bots } from '@/data/bots';
-import styles from './SchedulerCalendar.module.css';
-import 'react-calendar/dist/Calendar.css';
+import { useState } from "react";
+import Calendar from "react-calendar";
+import { bots } from "@/data/bots";
+import styles from "./SchedulerCalendar.module.css";
+import "react-calendar/dist/Calendar.css";
 
 interface ScheduledTask {
   id: string;
@@ -12,7 +12,7 @@ interface ScheduledTask {
   nextRun: string;
   schedule: string;
   humanReadable?: string;
-  status: 'active' | 'paused' | 'failed';
+  status: "active" | "paused" | "failed";
 }
 
 interface SchedulerCalendarProps {
@@ -24,7 +24,7 @@ interface SchedulerCalendarProps {
 export default function SchedulerCalendar({
   tasks,
   onDateSelect,
-  selectedDate
+  selectedDate,
 }: SchedulerCalendarProps) {
   const [value, setValue] = useState(selectedDate || new Date());
 
@@ -52,34 +52,38 @@ export default function SchedulerCalendar({
     const dayOfMonth = date.getDate();
 
     // Daily tasks
-    if (schedule.includes('every day') || schedule.includes('daily')) {
+    if (schedule.includes("every day") || schedule.includes("daily")) {
       return true;
     }
 
     // Weekly tasks - specific day
-    if (schedule.includes('monday') && dayOfWeek === 1) return true;
-    if (schedule.includes('tuesday') && dayOfWeek === 2) return true;
-    if (schedule.includes('wednesday') && dayOfWeek === 3) return true;
-    if (schedule.includes('thursday') && dayOfWeek === 4) return true;
-    if (schedule.includes('friday') && dayOfWeek === 5) return true;
-    if (schedule.includes('saturday') && dayOfWeek === 6) return true;
-    if (schedule.includes('sunday') && dayOfWeek === 0) return true;
+    if (schedule.includes("monday") && dayOfWeek === 1) return true;
+    if (schedule.includes("tuesday") && dayOfWeek === 2) return true;
+    if (schedule.includes("wednesday") && dayOfWeek === 3) return true;
+    if (schedule.includes("thursday") && dayOfWeek === 4) return true;
+    if (schedule.includes("friday") && dayOfWeek === 5) return true;
+    if (schedule.includes("saturday") && dayOfWeek === 6) return true;
+    if (schedule.includes("sunday") && dayOfWeek === 0) return true;
 
     // Bi-weekly (every 2 weeks) - check if it's the same day of week as nextRun
-    if (schedule.includes('every 2 weeks') || schedule.includes('bi-weekly')) {
+    if (schedule.includes("every 2 weeks") || schedule.includes("bi-weekly")) {
       const nextRun = new Date(task.nextRun);
       if (dayOfWeek === nextRun.getDay()) {
-        const weeksDiff = Math.floor((date.getTime() - nextRun.getTime()) / (7 * 24 * 60 * 60 * 1000));
+        const weeksDiff = Math.floor(
+          (date.getTime() - nextRun.getTime()) / (7 * 24 * 60 * 60 * 1000),
+        );
         return weeksDiff % 2 === 0;
       }
       return false;
     }
 
     // Every 4 weeks (monthly-ish)
-    if (schedule.includes('every 4 weeks')) {
+    if (schedule.includes("every 4 weeks")) {
       const nextRun = new Date(task.nextRun);
       if (dayOfWeek === nextRun.getDay()) {
-        const weeksDiff = Math.floor((date.getTime() - nextRun.getTime()) / (7 * 24 * 60 * 60 * 1000));
+        const weeksDiff = Math.floor(
+          (date.getTime() - nextRun.getTime()) / (7 * 24 * 60 * 60 * 1000),
+        );
         return weeksDiff % 4 === 0;
       }
       return false;
@@ -101,7 +105,7 @@ export default function SchedulerCalendar({
 
   // Custom tile content - show colored dots for bot activities
   const tileContent = ({ date, view }: { date: Date; view: string }) => {
-    if (view !== 'month') return null;
+    if (view !== "month") return null;
 
     const dayTasks = getTasksForDate(date);
     if (dayTasks.length === 0) return null;
@@ -111,18 +115,20 @@ export default function SchedulerCalendar({
       dayTasks
         .map((task) => getBotFromTaskName(task.name))
         .filter((bot) => bot !== null)
-        .map((bot) => bot!.color)
+        .map((bot) => bot!.color),
     );
 
     return (
       <div className={styles.taskIndicators}>
-        {Array.from(botColors).slice(0, 4).map((color, idx) => (
-          <span
-            key={idx}
-            className={styles.taskDot}
-            style={{ backgroundColor: color }}
-          />
-        ))}
+        {Array.from(botColors)
+          .slice(0, 4)
+          .map((color, idx) => (
+            <span
+              key={idx}
+              className={styles.taskDot}
+              style={{ backgroundColor: color }}
+            />
+          ))}
         {botColors.size > 4 && (
           <span className={styles.moreIndicator}>+{botColors.size - 4}</span>
         )}
@@ -132,10 +138,12 @@ export default function SchedulerCalendar({
 
   // Add custom class to tiles with tasks
   const tileClassName = ({ date, view }: { date: Date; view: string }) => {
-    if (view !== 'month') return null;
+    if (view !== "month") return null;
 
     const dayTasks = getTasksForDate(date);
-    const activeTasksCount = dayTasks.filter((t) => t.status === 'active').length;
+    const activeTasksCount = dayTasks.filter(
+      (t) => t.status === "active",
+    ).length;
 
     if (activeTasksCount > 0) {
       return styles.hasActiveTasks;

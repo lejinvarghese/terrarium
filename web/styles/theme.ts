@@ -28,20 +28,20 @@
 // });
 
 export const colors = {
-  primary: '#00FFF2',
-  secondary: '#FF00FF',
-  tertiary: '#EBFA1D',
-  background: '#000814',
-  surface: '#0A1929',
-  gridLines: '#1A2332',
-  textPrimary: '#E0E0E0',
-  textSecondary: '#8F9BB3',
-  textHeading: '#FFFFFF',
-  textAccent: '#00FFF2',
-  statusOnline: '#00FF88',
-  statusOffline: '#FF3366',
-  statusConfiguring: '#FFB800',
-  accent: '#00D9FF',
+  primary: "#00FFF2",
+  secondary: "#FF00FF",
+  tertiary: "#EBFA1D",
+  background: "#000814",
+  surface: "#0A1929",
+  gridLines: "#1A2332",
+  textPrimary: "#E0E0E0",
+  textSecondary: "#8F9BB3",
+  textHeading: "#FFFFFF",
+  textAccent: "#00FFF2",
+  statusOnline: "#00FF88",
+  statusOffline: "#FF3366",
+  statusConfiguring: "#FFB800",
+  accent: "#00D9FF",
 };
 
 export const fonts = {
@@ -57,7 +57,7 @@ export const animations = {
     stagger: 0.05,
   },
   easing: {
-    default: 'cubic-bezier(0.4, 0, 0.2, 1)',
-    smooth: 'cubic-bezier(0.25, 0.1, 0.25, 1)',
+    default: "cubic-bezier(0.4, 0, 0.2, 1)",
+    smooth: "cubic-bezier(0.25, 0.1, 0.25, 1)",
   },
 };

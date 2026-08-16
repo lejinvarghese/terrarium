@@ -1,16 +1,16 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import styles from './SecureButton.module.css';
-import SecureAccessModal from './SecureAccessModal';
+import { useState } from "react";
+import styles from "./SecureButton.module.css";
+import SecureAccessModal from "./SecureAccessModal";
 
 interface SecureButtonProps {
   label: string;
   targetUrl: string;
   modalTitle?: string;
   validCodes?: string[];
-  variant?: 'primary' | 'secondary';
-  size?: 'medium' | 'large';
+  variant?: "primary" | "secondary";
+  size?: "medium" | "large";
   className?: string;
 }
 
@@ -19,9 +19,9 @@ export default function SecureButton({
   targetUrl,
   modalTitle,
   validCodes,
-  variant = 'primary',
-  size = 'medium',
-  className = ''
+  variant = "primary",
+  size = "medium",
+  className = "",
 }: SecureButtonProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 

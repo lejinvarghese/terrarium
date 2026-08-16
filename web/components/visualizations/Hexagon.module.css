@@ -21,14 +21,14 @@
 
 .hexagon.dead {
   stroke-width: 0.5;
-  stroke: #4A4A4A;
+  stroke: #4a4a4a;
   opacity: 0.6;
   stroke-dasharray: 5, 5;
 }
 
 .hexagon.dormant {
   stroke-width: 0.5;
-  stroke: #3A3A3A;
+  stroke: #3a3a3a;
   opacity: 0.5;
 }
 
@@ -58,7 +58,7 @@
 }
 
 .label {
-  font-family: 'Space Mono', 'Courier New', monospace;
+  font-family: "Space Mono", "Courier New", monospace;
   font-size: 8px;
   font-weight: 600;
   text-anchor: middle;
@@ -68,7 +68,7 @@
 }
 
 .count {
-  font-family: 'Space Mono', 'Courier New', monospace;
+  font-family: "Space Mono", "Courier New", monospace;
   font-size: 6px;
   text-anchor: middle;
   pointer-events: none;
@@ -76,7 +76,8 @@
 
 /* Animations */
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 0.2;
   }
   50% {
@@ -86,7 +87,8 @@
 
 /* Vertical floating animation for dots */
 @keyframes dotFloat {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 0.6;
     transform: translateY(0);
   }

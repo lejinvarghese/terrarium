@@ -6,9 +6,9 @@ This project, "Terrarium," is a meta-project for managing and orchestrating a co
 
 The primary services mentioned are:
 
-*   **Open WebUI:** A user-friendly interface for interacting with language models.
-*   **ComfyUI:** A tool for generating art using local or remote AI models.
-*   **Ollama:** A service for running local language models.
+- **Open WebUI:** A user-friendly interface for interacting with language models.
+- **ComfyUI:** A tool for generating art using local or remote AI models.
+- **Ollama:** A service for running local language models.
 
 The project also includes instructions for exposing these services to the local network.
 
@@ -48,9 +48,9 @@ To access the services from another device on the same network:
 
 ## Development Conventions
 
-*   **Configuration:** The project uses a `.env` file for managing environment variables. This file is ignored by git, so it's a good place to store secrets and other machine-specific configurations.
-*   **Source Code:** The `src` directory is currently empty, suggesting that this project is primarily for orchestration rather than custom application development.
-*   **Dependencies:** The `.gitignore` file is a standard Python gitignore, which suggests that Python scripting may be used for automation or other tasks.
+- **Configuration:** The project uses a `.env` file for managing environment variables. This file is ignored by git, so it's a good place to store secrets and other machine-specific configurations.
+- **Source Code:** The `src` directory is currently empty, suggesting that this project is primarily for orchestration rather than custom application development.
+- **Dependencies:** The `.gitignore` file is a standard Python gitignore, which suggests that Python scripting may be used for automation or other tasks.
 
 ## Working with Gemini
 
@@ -65,8 +65,8 @@ When you ask me to remember something, I will do two things:
 
 You can ask me to remember things like this:
 
-*   "Remember that my favorite color is blue."
-*   "Please save this: I prefer to use tabs over spaces."
+- "Remember that my favorite color is blue."
+- "Please save this: I prefer to use tabs over spaces."
 
 ### Proactive Memory
 

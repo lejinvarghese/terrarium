@@ -1,20 +1,20 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import CircularHUD from '../hud/CircularHUD';
-import RadarDisplay from '../hud/RadarDisplay';
-import CircularGauge from '../hud/CircularGauge';
-import TargetingReticle from '../hud/TargetingReticle';
-import DataPanel from '../ui/DataPanel';
-import ParticleField from '../effects/ParticleField';
-import HolographicOverlay from '../effects/HolographicOverlay';
-import { useSystemMetrics } from '@/hooks/jarvis/useSystemMetrics';
-import styles from './JarvisInterface.module.css';
+import { useState, useEffect } from "react";
+import CircularHUD from "../hud/CircularHUD";
+import RadarDisplay from "../hud/RadarDisplay";
+import CircularGauge from "../hud/CircularGauge";
+import TargetingReticle from "../hud/TargetingReticle";
+import DataPanel from "../ui/DataPanel";
+import ParticleField from "../effects/ParticleField";
+import HolographicOverlay from "../effects/HolographicOverlay";
+import { useSystemMetrics } from "@/hooks/jarvis/useSystemMetrics";
+import styles from "./JarvisInterface.module.css";
 
-type JarvisState = 'idle' | 'listening' | 'processing' | 'responding';
+type JarvisState = "idle" | "listening" | "processing" | "responding";
 
 export default function JarvisInterface() {
-  const [state, setState] = useState<JarvisState>('listening');
+  const [state, setState] = useState<JarvisState>("listening");
   const [isActive, setIsActive] = useState(true);
 
   // Fetch real system metrics
@@ -23,7 +23,7 @@ export default function JarvisInterface() {
   // Activation handler (will be replaced with voice activation later)
   const handleActivate = () => {
     setIsActive(!isActive);
-    setState(isActive ? 'idle' : 'listening');
+    setState(isActive ? "idle" : "listening");
   };
 
   // Handle fullscreen toggle
@@ -38,18 +38,18 @@ export default function JarvisInterface() {
   // Keyboard shortcuts
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
-      if (e.key === ' ') {
+      if (e.key === " ") {
         e.preventDefault();
-        setIsActive(prev => !prev);
-        setState(prev => prev === 'idle' ? 'listening' : 'idle');
+        setIsActive((prev) => !prev);
+        setState((prev) => (prev === "idle" ? "listening" : "idle"));
       }
-      if (e.key === 'f' || e.key === 'F') {
+      if (e.key === "f" || e.key === "F") {
         handleFullscreen();
       }
     };
 
-    window.addEventListener('keydown', handleKeyPress);
-    return () => window.removeEventListener('keydown', handleKeyPress);
+    window.addEventListener("keydown", handleKeyPress);
+    return () => window.removeEventListener("keydown", handleKeyPress);
   }, []);
 
   return (
@@ -117,10 +117,10 @@ export default function JarvisInterface() {
 
         {/* Activation Button (temporary until voice is added) */}
         <button
-          className={`${styles.activationButton} ${isActive ? styles.active : ''}`}
+          className={`${styles.activationButton} ${isActive ? styles.active : ""}`}
           onClick={handleActivate}
         >
-          {isActive ? 'DEACTIVATE' : 'ACTIVATE'}
+          {isActive ? "DEACTIVATE" : "ACTIVATE"}
         </button>
 
         {/* Controls Help */}

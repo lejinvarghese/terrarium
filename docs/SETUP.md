@@ -90,14 +90,17 @@ Edit `.claude/agents/*.md` to customize bot behavior and capabilities.
 ## Optional Services
 
 **Ollama (Local LLMs):**
+
 ```bash
 curl -fsSL https://ollama.com/install.sh | sh
 ollama serve
 ollama pull qwen2.5:3b
 ```
+
 Add to Dome: Settings → Connections → `http://localhost:11434`
 
 **ComfyUI (Art Generation):**
+
 ```bash
 # Set in .env
 COMFYUI_PATH=/path/to/ComfyUI
@@ -112,10 +115,10 @@ python main.py
 
 ## Troubleshooting
 
-| Issue | Fix |
-|-------|-----|
-| Service won't start | `./dev restart <service>` |
-| Port in use | `lsof -i :8080` then `kill -9 <PID>` |
+| Issue                   | Fix                                       |
+| ----------------------- | ----------------------------------------- |
+| Service won't start     | `./dev restart <service>`                 |
+| Port in use             | `lsof -i :8080` then `kill -9 <PID>`      |
 | Telegram not responding | Check `.env` token, verify `./dev status` |
 
 ---

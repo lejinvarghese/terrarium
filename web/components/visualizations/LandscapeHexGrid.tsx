@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 /**
  * LandscapeHexGrid - Hexagonal visualization of Terrarium landscapes
@@ -13,10 +13,10 @@
  * Components: Hexagon.tsx (individual hexagon), this file (grid layout)
  */
 
-import { useMemo } from 'react';
-import Hexagon from './Hexagon';
-import { landscapes } from '@/data/landscapes';
-import styles from './LandscapeHexGrid.module.css';
+import { useMemo } from "react";
+import Hexagon from "./Hexagon";
+import { landscapes } from "@/data/landscapes";
+import styles from "./LandscapeHexGrid.module.css";
 
 interface HexPosition {
   row: number;
@@ -57,8 +57,8 @@ export default function LandscapeHexGrid() {
   // Calculate SVG viewBox to fit all hexagons
   const viewBox = useMemo(() => {
     const padding = 20;
-    const maxX = Math.max(...hexPositions.map(p => p.cx)) + hexSize + padding;
-    const maxY = Math.max(...hexPositions.map(p => p.cy)) + hexSize + padding;
+    const maxX = Math.max(...hexPositions.map((p) => p.cx)) + hexSize + padding;
+    const maxY = Math.max(...hexPositions.map((p) => p.cy)) + hexSize + padding;
     return `0 0 ${maxX} ${maxY}`;
   }, [hexPositions, hexSize]);
 
@@ -66,7 +66,7 @@ export default function LandscapeHexGrid() {
     <div className={styles.container}>
       <div className={styles.header}>
         <h2 className={styles.title}>
-          <span className={styles.titlePrefix}>{'//'}</span>
+          <span className={styles.titlePrefix}>{"//"}</span>
           landscapes
         </h2>
         <p className={styles.subtitle}>
@@ -109,15 +109,15 @@ export default function LandscapeHexGrid() {
 
       <div className={styles.legend}>
         <div className={styles.legendItem}>
-          <div className={styles.legendDot} style={{ background: '#EBFA1D' }} />
+          <div className={styles.legendDot} style={{ background: "#EBFA1D" }} />
           <span>Active</span>
         </div>
         <div className={styles.legendItem}>
-          <div className={styles.legendDot} style={{ background: '#4A4A4A' }} />
+          <div className={styles.legendDot} style={{ background: "#4A4A4A" }} />
           <span>Dead</span>
         </div>
         <div className={styles.legendItem}>
-          <div className={styles.legendDot} style={{ background: '#2A2A2A' }} />
+          <div className={styles.legendDot} style={{ background: "#2A2A2A" }} />
           <span>Dormant</span>
         </div>
       </div>

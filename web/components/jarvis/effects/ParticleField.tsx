@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { useRef, useMemo, useState, useEffect } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
-import { Points, PointMaterial } from '@react-three/drei';
-import * as THREE from 'three';
-import styles from './ParticleField.module.css';
+import { useRef, useMemo, useState, useEffect } from "react";
+import { Canvas, useFrame } from "@react-three/fiber";
+import { Points, PointMaterial } from "@react-three/drei";
+import * as THREE from "three";
+import styles from "./ParticleField.module.css";
 
 interface ParticlesProps {
   isActive: boolean;
@@ -45,10 +45,11 @@ function Particles({ isActive }: ParticlesProps) {
 
     // If active, particles move toward center
     if (isActive) {
-      const positions = ref.current.geometry.attributes.position.array as Float32Array;
+      const positions = ref.current.geometry.attributes.position
+        .array as Float32Array;
       for (let i = 0; i < positions.length; i += 3) {
         const distance = Math.sqrt(
-          positions[i] ** 2 + positions[i + 1] ** 2 + positions[i + 2] ** 2
+          positions[i] ** 2 + positions[i + 1] ** 2 + positions[i + 2] ** 2,
         );
 
         if (distance > 1) {
@@ -86,14 +87,15 @@ export default function ParticleField({ isActive }: ParticleFieldProps) {
   useEffect(() => {
     // Check for WebGL support on client side
     try {
-      const canvas = document.createElement('canvas');
-      const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+      const canvas = document.createElement("canvas");
+      const gl =
+        canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
       if (!gl) {
-        console.warn('WebGL not supported, ParticleField disabled');
+        console.warn("WebGL not supported, ParticleField disabled");
         setHasWebGL(false);
       }
     } catch (e) {
-      console.warn('WebGL check failed:', e);
+      console.warn("WebGL check failed:", e);
       setHasWebGL(false);
     }
   }, []);
@@ -107,7 +109,7 @@ export default function ParticleField({ isActive }: ParticleFieldProps) {
         gl={{
           alpha: true,
           antialias: false, // Disable for better performance
-          powerPreference: 'high-performance',
+          powerPreference: "high-performance",
           failIfMajorPerformanceCaveat: false,
         }}
         dpr={Math.min(window.devicePixelRatio || 1, 2)} // Cap at 2x for performance

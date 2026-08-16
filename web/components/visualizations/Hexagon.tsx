@@ -1,13 +1,13 @@
-'use client';
+"use client";
 
-import { useMemo } from 'react';
-import styles from './Hexagon.module.css';
+import { useMemo } from "react";
+import styles from "./Hexagon.module.css";
 
 interface HexagonProps {
   size: number;
   color: string;
   agentCount: number;
-  status: 'active' | 'dead' | 'dormant';
+  status: "active" | "dead" | "dormant";
   name: string;
   culture: string;
   cx: number;
@@ -33,7 +33,7 @@ export default function Hexagon({
       const y = cy + size * Math.sin(angle);
       pts.push(`${x},${y}`);
     }
-    return pts.join(' ');
+    return pts.join(" ");
   }, [cx, cy, size]);
 
   // Generate random dot positions inside hexagon
@@ -69,12 +69,12 @@ export default function Hexagon({
         className={`${styles.hexagon} ${styles[status]}`}
         style={{
           stroke: color,
-          fill: status === 'active' ? `${color}10` : 'transparent',
+          fill: status === "active" ? `${color}10` : "transparent",
         }}
       />
 
       {/* Inner glow for active landscapes */}
-      {status === 'active' && (
+      {status === "active" && (
         <polygon
           points={points}
           className={styles.hexagonGlow}
@@ -91,13 +91,13 @@ export default function Hexagon({
           key={i}
           cx={dot.x}
           cy={dot.y}
-          r={status === 'active' ? 1.5 : 1}
+          r={status === "active" ? 1.5 : 1}
           className={`${styles.dot} ${styles[status]}`}
           style={{
             fill: color,
             animationDelay: `${dot.delay}s`,
             // CSS variable for vertical movement amplitude
-            ['--float-distance' as any]: `${dot.amplitude}px`,
+            ["--float-distance" as any]: `${dot.amplitude}px`,
           }}
         />
       ))}
@@ -119,7 +119,7 @@ export default function Hexagon({
         className={styles.count}
         style={{ fill: color, opacity: 0.6 }}
       >
-        {agentCount > 0 ? `${agentCount} agents` : 'dormant'}
+        {agentCount > 0 ? `${agentCount} agents` : "dormant"}
       </text>
 
       {/* Tooltip on hover */}

@@ -32,14 +32,15 @@
 }
 
 .logoCell {
-  background: #EBFA1D;
+  background: #ebfa1d;
   border-radius: 2px;
   opacity: 0;
   animation: cellPulse 1.5s ease-in-out infinite;
 }
 
 @keyframes cellPulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 0.2;
     transform: scale(0.8);
   }
@@ -54,7 +55,7 @@
   font-weight: 100;
   letter-spacing: 0.2em;
   margin-bottom: 1rem;
-  background: linear-gradient(135deg, #FFFFFF 0%, #EBFA1D 100%);
+  background: linear-gradient(135deg, #ffffff 0%, #ebfa1d 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -81,7 +82,7 @@
 
 .progressFill {
   height: 100%;
-  background: linear-gradient(90deg, #00FFF2, #EBFA1D);
+  background: linear-gradient(90deg, #00fff2, #ebfa1d);
   transition: width 0.1s linear;
   box-shadow: 0 0 20px rgba(235, 250, 29, 0.6);
 }
@@ -89,7 +90,7 @@
 .loadingText {
   font-size: var(--paragraph-small);
   color: rgba(255, 255, 255, 0.4);
-  font-family: 'JetBrains Mono', monospace;
+  font-family: "JetBrains Mono", monospace;
   letter-spacing: 0.05em;
 }
 
@@ -101,7 +102,8 @@
 }
 
 @keyframes glowPulse {
-  0%, 100% {
+  0%,
+  100% {
     filter: drop-shadow(0 0 20px rgba(235, 250, 29, 0.4));
   }
   50% {

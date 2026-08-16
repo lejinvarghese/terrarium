@@ -1,7 +1,11 @@
 /* Import base card styles from page */
 .card {
   position: relative;
-  background: linear-gradient(135deg, rgba(0, 0, 0, 0.6), rgba(10, 25, 41, 0.4));
+  background: linear-gradient(
+    135deg,
+    rgba(0, 0, 0, 0.6),
+    rgba(10, 25, 41, 0.4)
+  );
   border: 1px solid rgba(255, 255, 255, 0.1);
   padding: 2rem;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -14,7 +18,7 @@
 }
 
 .card::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
@@ -59,19 +63,19 @@
 }
 
 .status[data-status="online"] {
-  color: #00FF88;
+  color: #00ff88;
   border-color: rgba(0, 255, 136, 0.3);
   background: rgba(0, 255, 136, 0.1);
 }
 
 .status[data-status="offline"] {
-  color: #FF3366;
+  color: #ff3366;
   border-color: rgba(255, 51, 102, 0.3);
   background: rgba(255, 51, 102, 0.1);
 }
 
 .status[data-status="configuring"] {
-  color: #FFB800;
+  color: #ffb800;
   border-color: rgba(255, 184, 0, 0.3);
   background: rgba(255, 184, 0, 0.1);
 }
@@ -80,7 +84,7 @@
   font-size: 1.5rem;
   font-weight: 300;
   letter-spacing: 0.1em;
-  color: #FFFFFF;
+  color: #ffffff;
   margin: 0;
   text-transform: uppercase;
 }
@@ -135,18 +139,23 @@
   justify-content: center;
   margin-top: 1rem;
   padding: 0.75rem 1rem;
-  background: linear-gradient(135deg, rgba(235, 250, 29, 0.1) 0%, rgba(0, 255, 242, 0.1) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(235, 250, 29, 0.1) 0%,
+    rgba(0, 255, 242, 0.1) 100%
+  );
   border: 1px solid rgba(235, 250, 29, 0.3);
   font-size: 0.625rem;
   letter-spacing: 0.15em;
-  color: #EBFA1D;
+  color: #ebfa1d;
   text-transform: uppercase;
   font-weight: 500;
   animation: pulse 2s ease-in-out infinite;
 }
 
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 0.8;
     border-color: rgba(235, 250, 29, 0.3);
   }

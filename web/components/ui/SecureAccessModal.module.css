@@ -54,7 +54,7 @@
   position: absolute;
   width: 20px;
   height: 20px;
-  border: 2px solid #EBFA1D;
+  border: 2px solid #ebfa1d;
 }
 
 .cornerTL {
@@ -98,11 +98,11 @@
   cursor: none;
   padding: 0.5rem;
   transition: all 0.3s ease;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: "JetBrains Mono", monospace;
 }
 
 .closeBtn:hover {
-  color: #EBFA1D;
+  color: #ebfa1d;
   transform: rotate(90deg);
 }
 
@@ -118,11 +118,11 @@
   font-size: clamp(1rem, 3vw, 1.25rem);
   font-weight: 300;
   letter-spacing: 0.25em;
-  color: #00FFF2;
+  color: #00fff2;
   text-align: center;
   margin: 0;
   text-transform: uppercase;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: "JetBrains Mono", monospace;
 }
 
 .glitchLine {
@@ -131,9 +131,9 @@
   background: linear-gradient(
     90deg,
     transparent 0%,
-    #00FFF2 20%,
-    #EBFA1D 50%,
-    #00FFF2 80%,
+    #00fff2 20%,
+    #ebfa1d 50%,
+    #00fff2 80%,
     transparent 100%
   );
   opacity: 0.6;
@@ -141,7 +141,8 @@
 }
 
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 0.3;
   }
   50% {
@@ -166,8 +167,8 @@
   width: 100%;
   background: rgba(0, 0, 0, 0.5);
   border: 1px solid rgba(0, 255, 242, 0.3);
-  color: #FFFFFF;
-  font-family: 'JetBrains Mono', monospace;
+  color: #ffffff;
+  font-family: "JetBrains Mono", monospace;
   font-size: 0.875rem;
   letter-spacing: 0.2em;
   padding: 0.875rem 1.25rem;
@@ -177,7 +178,7 @@
 }
 
 .input:focus {
-  border-color: #00FFF2;
+  border-color: #00fff2;
   box-shadow:
     0 0 20px rgba(0, 255, 242, 0.3),
     inset 0 0 20px rgba(0, 255, 242, 0.1);
@@ -214,16 +215,23 @@
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  color: #FF3366;
+  color: #ff3366;
   font-size: 0.875rem;
   letter-spacing: 0.1em;
   animation: shake 0.4s ease;
 }
 
 @keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-10px); }
-  75% { transform: translateX(10px); }
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-10px);
+  }
+  75% {
+    transform: translateX(10px);
+  }
 }
 
 .errorIcon {
@@ -232,17 +240,28 @@
 }
 
 @keyframes blink {
-  0%, 50%, 100% { opacity: 1; }
-  25%, 75% { opacity: 0.3; }
+  0%,
+  50%,
+  100% {
+    opacity: 1;
+  }
+  25%,
+  75% {
+    opacity: 0.3;
+  }
 }
 
 /* Submit Button */
 .submitBtn {
   position: relative;
-  background: linear-gradient(135deg, rgba(75, 80, 45, 0.8) 0%, rgba(50, 60, 30, 0.9) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(75, 80, 45, 0.8) 0%,
+    rgba(50, 60, 30, 0.9) 100%
+  );
   border: 1px solid rgba(235, 250, 29, 0.4);
-  color: #EBFA1D;
-  font-family: 'JetBrains Mono', monospace;
+  color: #ebfa1d;
+  font-family: "JetBrains Mono", monospace;
   font-size: 0.8125rem;
   font-weight: 400;
   letter-spacing: 0.15em;
@@ -254,8 +273,12 @@
 }
 
 .submitBtn:hover:not(:disabled) {
-  background: linear-gradient(135deg, rgba(75, 80, 45, 1) 0%, rgba(50, 60, 30, 1) 100%);
-  border-color: #EBFA1D;
+  background: linear-gradient(
+    135deg,
+    rgba(75, 80, 45, 1) 0%,
+    rgba(50, 60, 30, 1) 100%
+  );
+  border-color: #ebfa1d;
   box-shadow:
     0 0 30px rgba(235, 250, 29, 0.3),
     inset 0 0 20px rgba(235, 250, 29, 0.1);
@@ -280,7 +303,7 @@
   position: absolute;
   width: 12px;
   height: 12px;
-  border: 1px solid #EBFA1D;
+  border: 1px solid #ebfa1d;
   opacity: 0.6;
   transition: all 0.3s ease;
 }

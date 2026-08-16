@@ -1,5 +1,5 @@
-import { NextResponse } from 'next/server';
-import si from 'systeminformation';
+import { NextResponse } from "next/server";
+import si from "systeminformation";
 
 export async function GET() {
   try {
@@ -19,9 +19,10 @@ export async function GET() {
     // GPU metrics (use first GPU if multiple)
     const gpu = graphics.controllers[0];
     const gpuUtilization = gpu?.utilizationGpu || 0;
-    const gpuMemoryUsage = gpu?.memoryUsed && gpu?.memoryTotal
-      ? (gpu.memoryUsed / gpu.memoryTotal) * 100
-      : 0;
+    const gpuMemoryUsage =
+      gpu?.memoryUsed && gpu?.memoryTotal
+        ? (gpu.memoryUsed / gpu.memoryTotal) * 100
+        : 0;
 
     return NextResponse.json({
       cpu: Math.round(cpuUsage * 10) / 10,
@@ -32,10 +33,10 @@ export async function GET() {
       timestamp: Date.now(),
     });
   } catch (error) {
-    console.error('Error fetching system metrics:', error);
+    console.error("Error fetching system metrics:", error);
     return NextResponse.json(
-      { error: 'Failed to fetch system metrics' },
-      { status: 500 }
+      { error: "Failed to fetch system metrics" },
+      { status: 500 },
     );
   }
 }

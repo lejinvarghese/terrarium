@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
-import { useState, useEffect, Suspense } from 'react';
-import dynamic from 'next/dynamic';
-import JarvisInterface from '@/components/jarvis/core/JarvisInterface';
-import SecureAccessModal from '@/components/ui/SecureAccessModal';
-import '@/styles/jarvis/variables.css';
-import '@/styles/jarvis/animations.css';
-import styles from './jarvis.module.css';
+import { useState, useEffect, Suspense } from "react";
+import dynamic from "next/dynamic";
+import JarvisInterface from "@/components/jarvis/core/JarvisInterface";
+import SecureAccessModal from "@/components/ui/SecureAccessModal";
+import "@/styles/jarvis/variables.css";
+import "@/styles/jarvis/animations.css";
+import styles from "./jarvis.module.css";
 
-const GridTrail = dynamic(() => import('@/components/effects/GridTrail'), {
+const GridTrail = dynamic(() => import("@/components/effects/GridTrail"), {
   ssr: false,
 });
 
@@ -19,9 +19,11 @@ export default function JarvisPage() {
   // Check authentication on mount
   useEffect(() => {
     const checkAuth = () => {
-      const cookies = document.cookie.split(';');
-      const authCookie = cookies.find((c) => c.trim().startsWith('terrarium_auth='));
-      if (authCookie?.includes('valid')) {
+      const cookies = document.cookie.split(";");
+      const authCookie = cookies.find((c) =>
+        c.trim().startsWith("terrarium_auth="),
+      );
+      if (authCookie?.includes("valid")) {
         setIsAuthenticated(true);
         setShowAccessModal(false);
       }

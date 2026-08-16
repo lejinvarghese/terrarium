@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { validateAccessCode } from '@/utils/accessConfig';
-import styles from './SecureAccessModal.module.css';
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { validateAccessCode } from "@/utils/accessConfig";
+import styles from "./SecureAccessModal.module.css";
 
 interface SecureAccessModalProps {
   isOpen: boolean;
@@ -16,47 +16,47 @@ interface SecureAccessModalProps {
 
 // Default access codes - can be overridden via props or environment
 const DEFAULT_ACCESS_CODES = [
-  'UNDERGROWTH',
-  'TERR4R1UM',
-  'CYB3RN3T1C',
-  'SW4RM',
-  'ECLIPSE',
+  "UNDERGROWTH",
+  "TERR4R1UM",
+  "CYB3RN3T1C",
+  "SW4RM",
+  "ECLIPSE",
 ];
 
 export default function SecureAccessModal({
   isOpen,
   onClose,
   targetUrl,
-  title = 'ACCESS REQUIRED',
+  title = "ACCESS REQUIRED",
   validCodes = DEFAULT_ACCESS_CODES,
-  onAuthenticated
+  onAuthenticated,
 }: SecureAccessModalProps) {
-  const [accessCode, setAccessCode] = useState('');
-  const [error, setError] = useState('');
+  const [accessCode, setAccessCode] = useState("");
+  const [error, setError] = useState("");
   const [isValidating, setIsValidating] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
     if (isOpen) {
-      setAccessCode('');
-      setError('');
-      document.body.style.overflow = 'hidden';
+      setAccessCode("");
+      setError("");
+      document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = "unset";
     }
 
     return () => {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = "unset";
     };
   }, [isOpen]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setIsValidating(true);
 
     // Simulate validation delay for effect
-    await new Promise(resolve => setTimeout(resolve, 600));
+    await new Promise((resolve) => setTimeout(resolve, 600));
 
     if (validateAccessCode(accessCode, validCodes)) {
       // Success - set cookie
@@ -70,15 +70,15 @@ export default function SecureAccessModal({
       }
       onClose();
     } else {
-      setError('INVALID ACCESS CODE');
-      setAccessCode('');
+      setError("INVALID ACCESS CODE");
+      setAccessCode("");
     }
 
     setIsValidating(false);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Escape') {
+    if (e.key === "Escape") {
       onClose();
     }
   };
@@ -141,7 +141,7 @@ export default function SecureAccessModal({
               disabled={!accessCode || isValidating}
             >
               <span className={styles.submitText}>
-                {isValidating ? 'VALIDATING...' : 'GRANT ACCESS'}
+                {isValidating ? "VALIDATING..." : "GRANT ACCESS"}
               </span>
               <div className={styles.btnCornerTL} />
               <div className={styles.btnCornerTR} />
@@ -150,9 +150,7 @@ export default function SecureAccessModal({
             </button>
           </form>
 
-          <p className={styles.hint}>
-            ENTER CLEARANCE CODE TO PROCEED
-          </p>
+          <p className={styles.hint}>ENTER CLEARANCE CODE TO PROCEED</p>
         </div>
       </div>
     </div>

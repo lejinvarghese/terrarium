@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import styles from './Preloader.module.css';
+import { useEffect, useState } from "react";
+import styles from "./Preloader.module.css";
 
 const PRELOADER_DURATION = 3600; // 3.6 seconds
-const SESSION_KEY = 'terrarium_preloader_shown';
+const SESSION_KEY = "terrarium_preloader_shown";
 
 export default function Preloader() {
   const [isVisible, setIsVisible] = useState(true);
@@ -26,14 +26,14 @@ export default function Preloader() {
           clearInterval(progressInterval);
           return 100;
         }
-        return prev + (100 / (PRELOADER_DURATION / 50)); // Update every 50ms
+        return prev + 100 / (PRELOADER_DURATION / 50); // Update every 50ms
       });
     }, 50);
 
     // Hide preloader after duration
     const hideTimer = setTimeout(() => {
       setIsVisible(false);
-      sessionStorage.setItem(SESSION_KEY, 'true');
+      sessionStorage.setItem(SESSION_KEY, "true");
     }, PRELOADER_DURATION);
 
     return () => {

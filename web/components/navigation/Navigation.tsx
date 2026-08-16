@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import styles from './Navigation.module.css';
+import Link from "next/link";
+import styles from "./Navigation.module.css";
 
 export default function Navigation() {
   return (
     <nav className={styles.nav}>
       <div className={styles.container}>
         <Link href="/" className={styles.logo}>
-          <span className={styles.logoPrefix}>{'//'}</span>
+          <span className={styles.logoPrefix}>{"//"}</span>
           terrarium
         </Link>
 
