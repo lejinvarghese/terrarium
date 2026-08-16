@@ -86,6 +86,18 @@ All bots share `TERRARIUM_MEMORY.md` for continuity across conversations.
 
 ---
 
+## Troubleshooting
+
+| Issue                   | Fix                                       |
+| ----------------------- | ----------------------------------------- |
+| Service won't start     | `./dev restart <service>`                 |
+| Port in use             | `lsof -i :8080` then `kill -9 <PID>`      |
+| Telegram not responding | Check `.env` token, verify `./dev status` |
+| Bot not in Dome         | Check `.claude/agents/*.md` files exist   |
+| Memory not persisting   | Verify `TERRARIUM_MEMORY.md` permissions  |
+
+---
+
 ## Advanced
 
 For deployment, networking, and detailed component docs, see **[help/](help/)** directory.
