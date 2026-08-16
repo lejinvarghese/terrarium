@@ -728,43 +728,11 @@ async def chat_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         # Show typing
         await update.message.chat.send_action("typing")
 
-        # Retrieve most relevant memories
-        memory = context.bot_data["memory"]
-        agent_id = bot or "casper"
-        memory_list = []
-
-        try:
-            memories_response = memory.search(
-                query=user_message,
-                filters={
-                    "user_id": str(user.id),
-                    "agent_id": agent_id,
-                },
-                limit=3,  # Only get top 3 most relevant memories
-            )
-
-            # Handle response format
-            if isinstance(memories_response, dict):
-                memory_list = memories_response.get(
-                    "results", memories_response.get("memories", [])
-                )
-            else:
-                memory_list = memories_response if isinstance(memories_response, list) else []
-        except Exception as mem_error:
-            click.secho(f"⚠️  Memory retrieval failed: {mem_error}", fg="yellow")
-            memory_list = []
-
-        # Enhance message with memory context if relevant memories found
-        enhanced_message = user_message
-        if memory_list:
-            context_parts = [m.get("memory", m.get("text", str(m))) for m in memory_list]
-            enhanced_message = f"{user_message}\n\n[Context: {'; '.join(context_parts)}]"
-            click.secho(f"🧠 Added {len(memory_list)} relevant memories", fg="magenta")
-
+        # Agents now handle their own memory via MCP tools
         # Chat with Claude
         try:
             response, new_session_id, metadata = await claude_engine.chat(
-                message=enhanced_message,
+                message=user_message,
                 session_id=session_id,
                 bot=bot if not session_id else None,  # Only for new sessions
             )
@@ -775,7 +743,7 @@ async def chat_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
                 session_manager.clear_session(user.id, bot)
                 # Retry with new session
                 response, new_session_id, metadata = await claude_engine.chat(
-                    message=enhanced_message,
+                    message=user_message,
                     session_id=None,  # Force new session
                     bot=bot,
                 )
@@ -787,40 +755,6 @@ async def chat_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
             session_manager.create_session(user.id, new_session_id, bot)
             if metadata.get("cost"):
                 session_manager.update_session_metadata(user.id, bot, cost=metadata["cost"])
-
-        # Store conversation in memory
-        if response:
-            try:
-                result = memory.add(
-                    messages=[
-                        {"role": "user", "content": user_message},
-                        {"role": "assistant", "content": response},
-                    ],
-                    user_id=str(user.id),
-                    agent_id=agent_id,
-                )
-                # Only log if memories were actually stored
-                if (
-                    result
-                    and (isinstance(result, dict) and result.get("results"))
-                    or (isinstance(result, list) and len(result) > 0)
-                ):
-                    memory_count = (
-                        len(result.get("results", result))
-                        if isinstance(result, dict)
-                        else len(result)
-                    )
-                    click.secho(
-                        f"💾 Stored {memory_count} memory/memories: user_id={str(user.id)}, agent_id={agent_id}",
-                        fg="green",
-                    )
-                else:
-                    click.secho(
-                        "📝 No significant facts to store (filtered by extraction prompt)",
-                        fg="cyan",
-                    )
-            except Exception as mem_error:
-                click.secho(f"⚠️  Memory storage failed: {mem_error}", fg="yellow")
 
         # Send response
         await send_message_in_chunks(update, response)

@@ -9,6 +9,8 @@ from runware import IImageInference, IPromptEnhance, Runware
 from runware.types import ILora
 from telegram import Bot
 
+from src.engine.memory_config import USER_ID, get_memory
+
 load_dotenv()
 
 RUNWARE_API_KEY = os.getenv("RUNWARE_API_KEY")
@@ -373,6 +375,112 @@ async def get_watchlist() -> dict:
         }
     except Exception as e:
         return {"error": f"Failed to get watchlist: {str(e)}"}
+
+
+# Memory Integration
+
+
+@mcp.tool()
+async def search_memory(
+    query: str,
+    user_id: str = None,
+    agent_id: str = None,
+    limit: int = 10,
+) -> dict:
+    """Search memories for relevant context
+
+    Args:
+        query: Search query (topic, keyword, question)
+        user_id: Optional user ID filter (defaults to main user)
+        agent_id: Optional agent ID filter (your bot name)
+        limit: Max results to return
+
+    Returns:
+        List of relevant memories with text, metadata, and scores
+    """
+    try:
+        memory = get_memory()
+        filters = {}
+        if user_id:
+            filters["user_id"] = user_id
+        if agent_id:
+            filters["agent_id"] = agent_id
+
+        results = memory.search(
+            query=query,
+            filters=filters if filters else None,
+            limit=limit,
+        )
+        return results
+    except Exception as e:
+        return {"error": f"Memory search failed: {str(e)}"}
+
+
+@mcp.tool()
+async def add_memory(
+    content: str,
+    user_id: str = None,
+    agent_id: str = None,
+    category: str = "conversation",
+) -> dict:
+    """Store new memory
+
+    Args:
+        content: The memory content to store
+        user_id: User ID (defaults to main user)
+        agent_id: Agent ID (your bot name)
+        category: Memory type (conversation, discovery, preference, goal)
+
+    Returns:
+        Stored memory details
+    """
+    try:
+        memory = get_memory()
+        target_user = user_id or USER_ID
+
+        result = memory.add(
+            messages=[{"role": "assistant", "content": f"[{category}] {content}"}],
+            user_id=target_user,
+            agent_id=agent_id or "system",
+        )
+        return result
+    except Exception as e:
+        return {"error": f"Memory storage failed: {str(e)}"}
+
+
+@mcp.resource("memory://profile/main")
+async def get_user_profile() -> str:
+    """Get user profile and preferences from memory
+
+    Returns consolidated profile information for context
+    """
+    try:
+        memory = get_memory()
+        profile_queries = [
+            "user preferences personality background",
+            "health fitness nutrition goals",
+            "work career schedule",
+        ]
+
+        all_memories = []
+        for query in profile_queries:
+            results = memory.search(
+                query=query,
+                filters={"user_id": USER_ID},
+                limit=5,
+            )
+            all_memories.extend(results.get("results", [])[:3])
+
+        if not all_memories:
+            return "No profile data found"
+
+        profile_text = "# User Profile\n\n"
+        for mem in all_memories[:10]:
+            profile_text += f"- {mem['memory']}\n"
+
+        return profile_text
+    except Exception as e:
+        return f"Error loading profile: {str(e)}"
 
 
 if __name__ == "__main__":

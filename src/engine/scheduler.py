@@ -3,7 +3,6 @@
 
 import itertools
 import json
-import re
 import subprocess
 import sys
 import time
@@ -11,91 +10,16 @@ import uuid
 
 import click
 import schedule
-from memory_config import DANIELLE_USER_ID, USER_ID, get_memory
 
 
-def run_command(name, command, description=""):
+def run_command(name, command, description=None):
     """Execute a shell command with memory context injection."""
     timestamp = click.style(time.strftime("%H:%M:%S"), fg="cyan", bold=True)
     task_name = click.style(name, fg="yellow", bold=True)
     click.echo(f"⚡ [{timestamp}] {task_name}")
 
-    # Extract bot name from task name (e.g., "🍝 Nigella - Seasonal Dinner" -> "nigella")
-    bot_match = re.search(r"[^\w]*(\w+)\s*-", name)
-    bot_name = bot_match.group(1).lower() if bot_match else None
-
-    # Inject memory context if we can identify the bot
+    # Agents now handle their own memory via MCP tools
     enhanced_command = command
-    memory = None
-
-    if bot_name:
-        try:
-            # Create memory instance on-demand to avoid locking issues
-            memory = get_memory()
-
-            # Determine which user_id to use based on bot
-            # Pepper only interacts with Danielle, all others with main user
-            target_user_id = DANIELLE_USER_ID if bot_name == "pepper" else USER_ID
-
-            # Search for relevant memories using task description as query
-            query = description or command
-            memories_response = memory.search(
-                query=query,
-                filters={
-                    "user_id": target_user_id,
-                    "agent_id": bot_name,
-                },
-                limit=5,  # Get more memories for scheduler context
-            )
-
-            # Extract memory list
-            if isinstance(memories_response, dict):
-                memory_list = memories_response.get(
-                    "results", memories_response.get("memories", [])
-                )
-            else:
-                memory_list = memories_response if isinstance(memories_response, list) else []
-
-            if memory_list:
-                # Build memory context string with character limit
-                MAX_CONTEXT_CHARS = 500  # Limit to prevent context inflation
-                context_parts = [m.get("memory", m.get("text", str(m))) for m in memory_list]
-
-                # Truncate each memory snippet to reasonable length
-                truncated_parts = []
-                total_chars = 0
-                for part in context_parts:
-                    if total_chars >= MAX_CONTEXT_CHARS:
-                        break
-                    # Limit each snippet to 150 chars
-                    snippet = part[:150] + "..." if len(part) > 150 else part
-                    if total_chars + len(snippet) <= MAX_CONTEXT_CHARS:
-                        truncated_parts.append(snippet)
-                        total_chars += len(snippet)
-
-                memory_context = "; ".join(truncated_parts)
-
-                # Inject into command prompt (between single quotes)
-                prompt_match = re.search(
-                    r"claude -p --dangerously-skip-permissions '([^']*)'", command
-                )
-                if prompt_match:
-                    original_prompt = prompt_match.group(1)
-                    enhanced_prompt = (
-                        f"Previous context (avoid repeating): {memory_context}\n\n{original_prompt}"
-                    )
-                    enhanced_command = command.replace(
-                        f"'{original_prompt}'", f"'{enhanced_prompt}'"
-                    )
-                    click.secho(
-                        f"  🧠 Injected {len(truncated_parts)}/{len(memory_list)} memories ({total_chars} chars)",
-                        fg="magenta",
-                        dim=True,
-                    )
-        except Exception:
-            # Gracefully degrade if memory fails (e.g., Qdrant already locked by bot)
-            click.secho("  💤 Memory unavailable (bot may be using it)", fg="cyan", dim=True)
-            memory = None
 
     # Add fresh session ID to prevent Claude context accumulation
     session_id = str(uuid.uuid4())
@@ -113,28 +37,7 @@ def run_command(name, command, description=""):
 
     if result.returncode == 0:
         click.secho("  ✨ Done", fg="green")
-
-        # Store output in memory
-        if bot_name and memory and result.stdout:
-            try:
-                # Use same user_id mapping as search
-                target_user_id = DANIELLE_USER_ID if bot_name == "pepper" else USER_ID
-                output = result.stdout.strip()
-                if output:  # Only store non-empty outputs
-                    memory.add(
-                        messages=[
-                            {
-                                "role": "user",
-                                "content": description or "Scheduled task execution",
-                            },
-                            {"role": "assistant", "content": output},
-                        ],
-                        user_id=target_user_id,
-                        agent_id=bot_name,
-                    )
-                    click.secho("  💾 Stored in memory", fg="green", dim=True)
-            except Exception as e:
-                click.secho(f"  ⚠️  Memory storage failed: {e}", fg="yellow", dim=True)
+        # Agents now store their own memories via add_memory() tool
     else:
         click.secho(f"  ❌ Failed (exit code: {result.returncode})", fg="red")
 
