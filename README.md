@@ -73,6 +73,10 @@ The heartbeat. Automated routines run like circadian rhythms morning briefings, 
 
 Visual interface showing the multiplex network, service status, and bot profiles in cyberpunk-organic aesthetic.
 
+### 📚 The Archive
+
+Document repository and knowledge base. Upload PDFs, search with semantic embeddings, and let your bots reference stored knowledge.
+
 ---
 
 ## Quick Start
@@ -126,6 +130,7 @@ dev up  # or ./dev up if you skipped the alias
 
 # Access services
 # - Dome: http://localhost:8080
+# - Archive: http://localhost:8502
 # - Web: http://localhost:3000
 # - Telegram: Message your bot
 
