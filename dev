@@ -16,7 +16,7 @@ source "$SCRIPT_DIR/scripts/lib/services.conf"
 show_help() {
     echo "Terrarium Development Manager"
     echo ""
-    echo "Usage: $0 {up|down|attach <service>|status|setup|landscapes <subcommand>}"
+    echo "Usage: $0 {up|down|attach <service>|status|setup|landscapes <subcommand>|meanwhile}"
     echo ""
     echo "Commands:"
     echo "  up                       - Start all services in separate tmux sessions"
@@ -25,6 +25,7 @@ show_help() {
     echo "  status                   - Check which services are running"
     echo "  setup                    - Configure Cloudflare named tunnel with custom domain"
     echo "  landscapes <subcommand>  - Manage landscapes (list, status)"
+    echo "  meanwhile                - Launch Matrix-style terminal screensaver with live news"
     echo ""
     echo "Available services:"
     for service in "${SERVICES[@]}"; do
@@ -68,6 +69,10 @@ case "$1" in
     landscapes)
         shift
         "$COMMANDS_DIR/landscapes.sh" "$@"
+        ;;
+    meanwhile)
+        shift
+        "$COMMANDS_DIR/meanwhile.sh" "$@"
         ;;
     *)
         show_help

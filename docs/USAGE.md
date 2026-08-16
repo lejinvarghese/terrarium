@@ -17,6 +17,7 @@ dev status                # Show service status
 dev setup                 # Run initial setup
 dev landscapes list       # List landscapes
 dev landscapes create     # Create new landscape
+dev meanwhile             # Launch Matrix-style news screensaver
 ```
 
 **Services:** `dome`, `portal`, `engine`, `web`
