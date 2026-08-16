@@ -148,6 +148,8 @@ dev down
 
 **Optional - Ollama (local LLMs):**
 
+If you intent to have custom local agents, which we currently use in the incubator.
+
 ```bash
 curl -fsSL https://ollama.com/install.sh | sh
 ollama serve
@@ -184,7 +186,3 @@ See something that inspires you? Build on it. The glass dome is open.
 MIT License - See [LICENSE](./LICENSE) for details
 
 ---
-
-**Built with:** Python, Next.js, Claude, Open WebUI, and cyberpunk dreams
-**Hosted at:** [mutatedterrarium.com](https://mutatedterrarium.com)
-**Created by:** lejin ([@lejinvarghese](https://github.com/lejinvarghese))
