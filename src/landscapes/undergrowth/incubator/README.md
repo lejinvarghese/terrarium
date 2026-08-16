@@ -86,7 +86,7 @@ tail -f src/landscapes/undergrowth/incubator/incubate.log # the daily runner's l
 
 ```cron
 # 07:00 every day — one exploration cycle for all agents
-0 7 * * * cd /media/starscream/bumblebee1/blaze/terrarium && \
+0 7 * * * cd /path/to/terrarium && \
   PYTHONPATH=. TAVILY_API_KEY_ALTERNATE=... \
   .venv/bin/python -m src.landscapes.undergrowth.incubator.incubate --once >> data/incubator_logs/cron.log 2>&1
 ```
