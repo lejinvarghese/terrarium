@@ -99,18 +99,6 @@ ollama pull qwen2.5:3b
 
 Add to Dome: Settings → Connections → `http://localhost:11434`
 
-**ComfyUI (Art Generation):**
-
-```bash
-# Set in .env
-COMFYUI_PATH=/path/to/ComfyUI
-
-# Run
-cd $COMFYUI_PATH
-source .venv/bin/activate
-python main.py
-```
-
 ---
 
 ## Troubleshooting

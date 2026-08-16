@@ -118,7 +118,6 @@ pip3 install -r requirements.txt
 
 1. **Configure the Engine** — Edit `src/configs/schedule.json` to set up automated tasks (morning briefings, etc.)
 2. **Chat with your bots** — Open the Dome (http://localhost:8080) or message your Telegram bot
-3. **Explore the visualization** — Open http://localhost:3000 to see the multiplex network
 4. **Customize personalities** — Edit bot definitions in `.claude/agents/`
 
 ---
