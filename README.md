@@ -53,7 +53,7 @@ Each landscape has its own culture, memory systems, identity and purpose.
 
 ## Substations
 
-![Services](assets/screenshots/services.png)
+![Substations](assets/screenshots/substations.jpg)
 
 Each landscape can be as vibrant as you want it to be, but for now we have **substations**:
 
