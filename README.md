@@ -1,11 +1,12 @@
 # Terrarium 🌿
 
-[![x](https://img.shields.io/badge/🌐_Live_Demo-mutatedterrarium.com-EBFA1D?style=for-the-badge)](https://mutatedterrarium.com)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 [![Code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg)](https://github.com/prettier/prettier)
 [![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit)](https://github.com/pre-commit/pre-commit)
 [![Complexity](https://img.shields.io/badge/complexity-monitored-blue.svg)](https://github.com/rohaquinlop/complexipy)
+
+[![mutatedterrarium.com](https://img.shields.io/badge/🌐-mutatedterrarium.com-EBFA1D?style=for-the-badge)](https://mutatedterrarium.com)
 
 ![Terrarium Hero](assets/main.png)
 
