@@ -448,6 +448,105 @@ async def add_memory(
         return {"error": f"Memory storage failed: {str(e)}"}
 
 
+@mcp.tool()
+async def send_agent_message(
+    to_agent: str,
+    content: str,
+    from_agent: str,
+    message_type: str = "note",
+) -> dict:
+    """Send a message to another terrarium agent
+
+    Use this to delegate tasks, ask questions, leave notes, or reply to other agents.
+
+    Args:
+        to_agent: Recipient agent name (cassia, nyx, sage, freya, nigella, anya, pepper, casper)
+        content: Your message content
+        from_agent: Your agent name
+        message_type: Type of message (delegation, question, note, reply, update)
+
+    Returns:
+        Confirmation of sent message
+
+    Examples:
+        - Delegation: send_agent_message("nigella", "User wants high-protein Italian dinner ideas", "cassia", "delegation")
+        - Collaboration: send_agent_message("sage", "Found paper on quantum computing breakthroughs", "nyx", "note")
+        - Question: send_agent_message("freya", "What's optimal protein intake for muscle gain?", "cassia", "question")
+    """
+    try:
+        memory = get_memory()
+
+        # Structured format for reliable search
+        formatted_content = f"@{to_agent} FROM {from_agent} [{message_type}]: {content}"
+
+        # Store in sender's context (outbox)
+        memory.add(
+            messages=[{"role": "assistant", "content": formatted_content}],
+            user_id=USER_ID,
+            agent_id=from_agent,
+        )
+
+        # Store in recipient's context (inbox) - makes it discoverable when they search
+        memory.add(
+            messages=[{"role": "user", "content": formatted_content}],
+            user_id=USER_ID,
+            agent_id=to_agent,
+        )
+
+        return {
+            "status": "sent",
+            "to": to_agent,
+            "from": from_agent,
+            "type": message_type,
+            "content": content,
+        }
+    except Exception as e:
+        return {"error": f"Failed to send message: {str(e)}"}
+
+
+@mcp.tool()
+async def get_my_messages(
+    agent_id: str,
+    limit: int = 10,
+    message_type: str = None,
+) -> dict:
+    """Check for messages sent to you by other agents
+
+    Use this at startup to check your inbox for delegations, questions, or notes from other agents.
+
+    Args:
+        agent_id: Your agent name
+        limit: Maximum messages to return (default 10)
+        message_type: Optional filter by type (delegation, question, note, reply, update)
+
+    Returns:
+        Dictionary with message count and list of messages with content and metadata
+    """
+    try:
+        memory = get_memory()
+
+        # Search for messages addressed to this agent
+        query = f"@{agent_id} FROM"
+        if message_type:
+            query += f" [{message_type}]"
+
+        results = memory.search(
+            query=query,
+            filters={"user_id": USER_ID, "agent_id": agent_id},
+            limit=limit,
+        )
+
+        messages = results.get("results", [])
+
+        return {
+            "agent": agent_id,
+            "message_count": len(messages),
+            "messages": messages,
+        }
+    except Exception as e:
+        return {"error": f"Failed to get messages: {str(e)}"}
+
+
 @mcp.resource("memory://profile/main")
 async def get_user_profile() -> str:
     """Get user profile and preferences from memory
