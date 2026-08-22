@@ -1,21 +1,29 @@
 import os
+import sys
+from pathlib import Path
 
-import click
-import httpx
-from dotenv import load_dotenv
-from fastmcp import FastMCP
-from recipe_scrapers import SCRAPERS, scrape_me
-from runware import IImageInference, IPromptEnhance, Runware
-from runware.types import ILora
-from telegram import Bot
+# MCP clients launch this file by path (`python src/mcp/server.py`), which puts
+# src/mcp/ on sys.path instead of the project root, so the `src.` imports below
+# cannot resolve. Put the project root on sys.path before importing them.
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from src.engine.memory_config import USER_ID, get_memory
+import click  # noqa: E402
+import httpx  # noqa: E402
+from dotenv import load_dotenv  # noqa: E402
+from fastmcp import FastMCP  # noqa: E402
+from recipe_scrapers import SCRAPERS, scrape_me  # noqa: E402
+from runware import IImageInference, IPromptEnhance, Runware  # noqa: E402
+from runware.types import ILora  # noqa: E402
+from telegram import Bot  # noqa: E402
+
+from src.engine import memory_store  # noqa: E402
 
 load_dotenv()
 
 RUNWARE_API_KEY = os.getenv("RUNWARE_API_KEY")
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
+DANIELLE_TELEGRAM_CHAT_ID = os.getenv("DANIELLE_TELEGRAM_CHAT_ID")
 
 # Persona emojis for Terrarium characters
 PERSONA_EMOJIS = {
@@ -139,8 +147,11 @@ async def send_telegram_message(
 
     bot = Bot(token=TELEGRAM_TOKEN)
 
-    # Use provided chat_id or fall back to default
-    target_chat_id = chat_id or TELEGRAM_CHAT_ID
+    # Resolve chat_id placeholders
+    if chat_id == "DANIELLE_TELEGRAM_CHAT_ID":
+        target_chat_id = DANIELLE_TELEGRAM_CHAT_ID
+    else:
+        target_chat_id = chat_id or TELEGRAM_CHAT_ID
 
     if not target_chat_id:
         return "Error: No chat_id provided and TELEGRAM_CHAT_ID not set in environment"
@@ -378,6 +389,36 @@ async def get_watchlist() -> dict:
 
 
 # Memory Integration
+#
+# Qdrant is the single home for memory. Profile facts (category="profile") are
+# fetched by exact filter and always complete; episodic memory is vector-searched.
+# No LLM sits in the write path - see src/engine/memory_store.py for why.
+
+
+@mcp.tool()
+async def get_profile(user_id: str = None) -> dict:
+    """Get ALL profile facts for a person - identity, preferences, constraints.
+
+    Use this instead of search_memory when you need to know who you're dealing with.
+    Returns every profile fact by exact lookup, so nothing is left out. These facts
+    are ground truth: they override anything you infer or remember sending before.
+
+    Args:
+        user_id: Person to look up - "lejin"/"me" or "danielle", or a raw chat ID.
+                 Defaults to the main user.
+
+    Returns:
+        Dict with the person's id and the full list of profile facts
+    """
+    try:
+        facts = memory_store.get_profile(user_id)
+        return {
+            "user_id": memory_store.resolve_user(user_id),
+            "fact_count": len(facts),
+            "facts": facts,
+        }
+    except Exception as e:
+        return {"error": f"Profile lookup failed: {str(e)}"}
 
 
 @mcp.tool()
@@ -385,33 +426,35 @@ async def search_memory(
     query: str,
     user_id: str = None,
     agent_id: str = None,
+    category: str = "episodic",
     limit: int = 10,
 ) -> dict:
-    """Search memories for relevant context
+    """Search episodic memory for relevant past context
+
+    For identity facts (what someone likes, does, needs) call get_profile instead -
+    this is a similarity search and will not reliably surface every relevant fact.
 
     Args:
         query: Search query (topic, keyword, question)
-        user_id: Optional user ID filter (defaults to main user)
-        agent_id: Optional agent ID filter (your bot name)
+        user_id: Person whose memory to search ("lejin", "danielle", or chat ID)
+        agent_id: Optional filter to one agent's memories. Note that a memory written
+                  by an agent is a log of what that agent DID, not a statement of fact
+                  about the person - never treat your own past message as evidence.
+        category: "episodic" (default) or "profile", or None for both
         limit: Max results to return
 
     Returns:
-        List of relevant memories with text, metadata, and scores
+        List of relevant memories with text, score, and metadata
     """
     try:
-        memory = get_memory()
-        filters = {}
-        if user_id:
-            filters["user_id"] = user_id
-        if agent_id:
-            filters["agent_id"] = agent_id
-
-        results = memory.search(
+        results = memory_store.search(
             query=query,
-            filters=filters if filters else None,
+            user_id=user_id,
+            agent_id=agent_id,
+            category=category,
             limit=limit,
         )
-        return results
+        return {"count": len(results), "results": results}
     except Exception as e:
         return {"error": f"Memory search failed: {str(e)}"}
 
@@ -421,29 +464,35 @@ async def add_memory(
     content: str,
     user_id: str = None,
     agent_id: str = None,
-    category: str = "conversation",
+    category: str = "episodic",
 ) -> dict:
-    """Store new memory
+    """Store a new memory, verbatim
+
+    Stored exactly as you write it - nothing rewrites or summarises it, so say what
+    you mean. Duplicates of identical text are skipped.
+
+    Use category="episodic" (default) for what happened: discoveries, decisions,
+    what you sent. Use category="profile" ONLY for a durable fact about the person
+    that should shape every future message - and phrase it positively. A fact
+    written as "X, not Y" puts Y in the record alongside their name and it comes
+    back to haunt you.
 
     Args:
         content: The memory content to store
-        user_id: User ID (defaults to main user)
-        agent_id: Agent ID (your bot name)
-        category: Memory type (conversation, discovery, preference, goal)
+        user_id: Person it belongs to ("lejin", "danielle", or chat ID)
+        agent_id: Your bot name
+        category: "episodic" (default) or "profile"
 
     Returns:
         Stored memory details
     """
     try:
-        memory = get_memory()
-        target_user = user_id or USER_ID
-
-        result = memory.add(
-            messages=[{"role": "assistant", "content": f"[{category}] {content}"}],
-            user_id=target_user,
+        return memory_store.add_fact(
+            data=content,
+            user_id=user_id,
             agent_id=agent_id or "system",
+            category=category,
         )
-        return result
     except Exception as e:
         return {"error": f"Memory storage failed: {str(e)}"}
 
@@ -474,24 +523,11 @@ async def send_agent_message(
         - Question: send_agent_message("freya", "What's optimal protein intake for muscle gain?", "cassia", "question")
     """
     try:
-        memory = get_memory()
-
-        # Structured format for reliable search
         formatted_content = f"@{to_agent} FROM {from_agent} [{message_type}]: {content}"
 
-        # Store in sender's context (outbox)
-        memory.add(
-            messages=[{"role": "assistant", "content": formatted_content}],
-            user_id=USER_ID,
-            agent_id=from_agent,
-        )
-
-        # Store in recipient's context (inbox) - makes it discoverable when they search
-        memory.add(
-            messages=[{"role": "user", "content": formatted_content}],
-            user_id=USER_ID,
-            agent_id=to_agent,
-        )
+        # Outbox copy (sender's context) and inbox copy (discoverable by recipient)
+        memory_store.add_fact(data=formatted_content, agent_id=from_agent, category="episodic")
+        memory_store.add_fact(data=formatted_content, agent_id=to_agent, category="episodic")
 
         return {
             "status": "sent",
@@ -523,20 +559,16 @@ async def get_my_messages(
         Dictionary with message count and list of messages with content and metadata
     """
     try:
-        memory = get_memory()
-
-        # Search for messages addressed to this agent
         query = f"@{agent_id} FROM"
         if message_type:
             query += f" [{message_type}]"
 
-        results = memory.search(
+        messages = memory_store.search(
             query=query,
-            filters={"user_id": USER_ID, "agent_id": agent_id},
+            agent_id=agent_id,
+            category="episodic",
             limit=limit,
         )
-
-        messages = results.get("results", [])
 
         return {
             "agent": agent_id,
@@ -549,35 +581,9 @@ async def get_my_messages(
 
 @mcp.resource("memory://profile/main")
 async def get_user_profile() -> str:
-    """Get user profile and preferences from memory
-
-    Returns consolidated profile information for context
-    """
+    """Get the main user's full profile as a markdown block"""
     try:
-        memory = get_memory()
-        profile_queries = [
-            "user preferences personality background",
-            "health fitness nutrition goals",
-            "work career schedule",
-        ]
-
-        all_memories = []
-        for query in profile_queries:
-            results = memory.search(
-                query=query,
-                filters={"user_id": USER_ID},
-                limit=5,
-            )
-            all_memories.extend(results.get("results", [])[:3])
-
-        if not all_memories:
-            return "No profile data found"
-
-        profile_text = "# User Profile\n\n"
-        for mem in all_memories[:10]:
-            profile_text += f"- {mem['memory']}\n"
-
-        return profile_text
+        return memory_store.render_profile() or "No profile data found"
     except Exception as e:
         return f"Error loading profile: {str(e)}"
 

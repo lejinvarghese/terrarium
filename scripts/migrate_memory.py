@@ -1,7 +1,12 @@
 #!/usr/bin/env python3
-"""Migrate TERRARIUM_MEMORY.md → Qdrant memory system"""
+"""Seed profile facts into Qdrant.
 
-from src.engine.memory_config import DANIELLE_USER_ID, USER_ID, get_memory
+Idempotent: facts are deduplicated on exact content hash, so re-running is safe.
+These land as category="profile" and are injected verbatim into every agent
+prompt by src/engine/build_prompt.py.
+"""
+
+from src.engine.memory_store import DANIELLE_USER_ID, PROFILE, USER_ID, add_fact
 
 LEJIN_FACTS = [
     # Identity & Background
@@ -50,44 +55,37 @@ LEJIN_FACTS = [
 DANIELLE_FACTS = [
     "Name: Danielle Mearns, born December 10, 1989",
     "Background: British, grew up in Regina",
-    "Beverage: Yorkshire Tea (not coffee)",
+    # Phrase preferences positively. A fact written as "X (not Y)" puts Y in the
+    # embedding alongside her name, so every retrieval hands the agent Y as well.
+    "Beverage: Yorkshire Tea is her drink, morning and through the day",
     "Morning routine: Yorkshire tea with biscuits, then meds",
     "Snacks: Biscuits, cheese, carrots",
     "Has ADHD - uses Pepper bot for accountability",
+    "Work: Ontario Health, improving emergency response; on the sepsis crisis task force",
+    "Joined a biking club - rides are a regular anchor in her week",
+    "Loves wine and is actively moderating her intake - never offer wine, drinks, or bars as a reward or wind-down",
 ]
 
 
 def migrate():
-    memory = get_memory()
-
     print("=" * 60)
-    print("MIGRATING TERRARIUM_MEMORY.md → Qdrant")
+    print("SEEDING PROFILE FACTS → Qdrant")
     print("=" * 60)
 
     # Lejin's facts
     print(f"\n📝 Storing {len(LEJIN_FACTS)} facts for Lejin...")
     for fact in LEJIN_FACTS:
-        result = memory.add(
-            messages=[{"role": "assistant", "content": f"[profile] {fact}"}],
-            user_id=USER_ID,
-            agent_id="system",
-        )
-        stored = len(result.get("results", []))
-        print(f"  {'✓' if stored > 0 else '~'} {fact[:70]}...")
+        result = add_fact(fact, user_id=USER_ID, agent_id="system", category=PROFILE)
+        print(f"  {'✓' if result.get('status') == 'added' else '~'} {fact[:70]}...")
 
     # Danielle's facts
     print(f"\n📝 Storing {len(DANIELLE_FACTS)} facts for Danielle...")
     for fact in DANIELLE_FACTS:
-        result = memory.add(
-            messages=[{"role": "assistant", "content": f"[profile] {fact}"}],
-            user_id=DANIELLE_USER_ID,
-            agent_id="system",
-        )
-        stored = len(result.get("results", []))
-        print(f"  {'✓' if stored > 0 else '~'} {fact[:70]}...")
+        result = add_fact(fact, user_id=DANIELLE_USER_ID, agent_id="system", category=PROFILE)
+        print(f"  {'✓' if result.get('status') == 'added' else '~'} {fact[:70]}...")
 
     print("\n✅ Migration complete!")
-    print("\nNote: '~' means fact was similar to existing memory (skipped)")
+    print("\nNote: '~' means this exact fact was already stored (skipped)")
 
 
 if __name__ == "__main__":
