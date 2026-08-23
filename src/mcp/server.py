@@ -390,9 +390,8 @@ async def get_watchlist() -> dict:
 
 # Memory Integration
 #
-# Qdrant is the single home for memory. Profile facts (category="profile") are
-# fetched by exact filter and always complete; episodic memory is vector-searched.
-# No LLM sits in the write path - see src/engine/memory_store.py for why.
+# Profile facts (category="profile") are fetched by exact filter and are always
+# complete; episodic memory is vector-searched. See src/engine/memory_store.py.
 
 
 @mcp.tool()
@@ -437,9 +436,8 @@ async def search_memory(
     Args:
         query: Search query (topic, keyword, question)
         user_id: Person whose memory to search ("lejin", "danielle", or chat ID)
-        agent_id: Optional filter to one agent's memories. Note that a memory written
-                  by an agent is a log of what that agent DID, not a statement of fact
-                  about the person - never treat your own past message as evidence.
+        agent_id: Optional filter to one agent's memories. These record what that
+                  agent did, not facts about the person; use get_profile for those.
         category: "episodic" (default) or "profile", or None for both
         limit: Max results to return
 
@@ -468,14 +466,12 @@ async def add_memory(
 ) -> dict:
     """Store a new memory, verbatim
 
-    Stored exactly as you write it - nothing rewrites or summarises it, so say what
-    you mean. Duplicates of identical text are skipped.
+    Stored exactly as you write it; identical text is skipped.
 
     Use category="episodic" (default) for what happened: discoveries, decisions,
-    what you sent. Use category="profile" ONLY for a durable fact about the person
-    that should shape every future message - and phrase it positively. A fact
-    written as "X, not Y" puts Y in the record alongside their name and it comes
-    back to haunt you.
+    what you sent. Use category="profile" for a durable fact about the person that
+    should shape every future message. Phrase profile facts positively - state what
+    is true rather than contrasting it with what is not.
 
     Args:
         content: The memory content to store

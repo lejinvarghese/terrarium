@@ -1,15 +1,12 @@
-"""Direct Qdrant memory store for Terrarium.
+"""Qdrant-backed memory store for Terrarium.
 
-Qdrant is the single home for memory. Points carry a `category` in their payload:
+Points carry a `category` in their payload:
 
-    profile   - identity facts. Small, stable, must ALWAYS apply. Fetched by exact
-                filter (never by similarity) and injected verbatim into prompts.
-    episodic  - what happened. Large, growing. Fetched by vector similarity.
+    profile   - identity facts. Fetched by exact filter and injected verbatim
+                into agent prompts.
+    episodic  - activity and conversation history. Fetched by vector similarity.
 
-There is no LLM in the write path. Text is stored exactly as given, which is the
-whole point: an agent-memory layer that rewrites facts on write, and deletes ones
-it decides are superseded, is how "she drinks tea" turned into "coffee + meds" and
-stayed that way for months.
+Text is stored exactly as given; nothing rewrites or summarises it on write.
 """
 
 import hashlib
@@ -92,11 +89,10 @@ def add_fact(
     agent_id: str = "system",
     category: str = EPISODIC,
 ) -> dict:
-    """Store one memory verbatim. Returns the stored point, or the existing one.
+    """Store one memory verbatim.
 
-    Deduplicates on an exact content hash, which is what replaces mem0's LLM
-    dedup step. Near-duplicates are allowed through by design: silently dropping
-    something that only *looks* similar is how facts go missing.
+    Deduplicates on exact content hash. Near-duplicates are stored as distinct
+    memories. Returns the new point, or the existing one if the text matches.
     """
     data = data.strip()
     if not data:
@@ -142,10 +138,9 @@ def add_fact(
 
 
 def get_profile(user_id: str | None = None) -> list[str]:
-    """Return EVERY profile fact for a user, by exact filter.
+    """Return every profile fact for a user, ordered by creation time.
 
-    Deliberately not a similarity search: profile facts must not compete with each
-    other for a top-k slot. If a fact is in here, it reaches the prompt.
+    Exact filter, not a similarity search: the result is always complete.
     """
     target_user = resolve_user(user_id)
     facts, offset = [], None
@@ -174,7 +169,7 @@ def get_all(
     category: str | None = None,
     limit: int = 1000,
 ) -> list[dict]:
-    """List memories by exact filter, newest first. No similarity involved."""
+    """List memories by exact filter, newest first."""
     points, offset = [], None
     while len(points) < limit:
         body = {

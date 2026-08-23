@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 """Seed profile facts into Qdrant.
 
-Idempotent: facts are deduplicated on exact content hash, so re-running is safe.
-These land as category="profile" and are injected verbatim into every agent
-prompt by src/engine/build_prompt.py.
+Facts are stored as category="profile" and injected into agent prompts by
+src/engine/build_prompt.py. Idempotent: re-running skips facts already stored.
 """
 
 from src.engine.memory_store import DANIELLE_USER_ID, PROFILE, USER_ID, add_fact
@@ -55,8 +54,6 @@ LEJIN_FACTS = [
 DANIELLE_FACTS = [
     "Name: Danielle Mearns, born December 10, 1989",
     "Background: British, grew up in Regina",
-    # Phrase preferences positively. A fact written as "X (not Y)" puts Y in the
-    # embedding alongside her name, so every retrieval hands the agent Y as well.
     "Beverage: Yorkshire Tea is her drink, morning and through the day",
     "Morning routine: Yorkshire tea with biscuits, then meds",
     "Snacks: Biscuits, cheese, carrots",

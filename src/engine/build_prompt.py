@@ -1,13 +1,13 @@
-"""Compose an agent prompt: persona definition + profile facts from Qdrant.
+"""Compose an agent prompt from its persona file, the current time, and profile facts.
 
-Replaces `cat .claude/agents/<agent>.md` in scheduled commands. The persona file
-says how the agent behaves; Qdrant says who it is writing to. Keeping the second
-part out of the persona file means there is exactly one place to correct a fact.
+The persona file defines how the agent behaves; Qdrant supplies who it is
+writing to. Used in place of `cat .claude/agents/<agent>.md` in scheduled commands.
 
     uv run python -m src.engine.build_prompt pepper --user danielle
 """
 
 import sys
+from datetime import datetime
 from pathlib import Path
 
 import click
@@ -22,6 +22,23 @@ AGENTS_DIR = Path(__file__).resolve().parents[2] / ".claude" / "agents"
 AGENT_AUDIENCE = {"pepper": "danielle"}
 
 
+def render_now() -> str:
+    """Current date, weekday and time in the host's local timezone."""
+    now = datetime.now().astimezone()
+    return (
+        "## Current date and time\n"
+        "\n"
+        f"It is **{now:%A, %-d %B %Y, %-I:%M %p}** "
+        f"({now.tzname()}, UTC{now:%z}).\n"
+        "\n"
+        "This is the authoritative local time. Take the date, the day of the week\n"
+        "and the clock time from here.\n"
+        "\n"
+        "`get-current-time` returns a UTC instant and an unreliable `isDST` flag.\n"
+        "Use it to convert calendar timestamps, not to tell the time.\n"
+    )
+
+
 @click.command()
 @click.argument("agent")
 @click.option("--user", default=None, help="Whose profile to inject (name or chat ID).")
@@ -33,6 +50,8 @@ def main(agent, user, no_profile):
         raise click.ClickException(f"No persona file at {persona_path}")
 
     click.echo(persona_path.read_text().rstrip())
+    click.echo("\n---\n")
+    click.echo(render_now())
 
     if no_profile:
         return
@@ -41,8 +60,7 @@ def main(agent, user, no_profile):
     try:
         block = memory_store.render_profile(audience)
     except Exception as e:
-        # A profile we cannot reach is worth shouting about, but it must not stop
-        # the agent running - a briefing without facts beats no briefing.
+        # Emit the persona without facts rather than failing the run.
         click.echo(f"\n<!-- profile unavailable: {e} -->", err=True)
         return
 
