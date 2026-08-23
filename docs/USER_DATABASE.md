@@ -141,40 +141,6 @@ block = memory_store.render_profile("alice")
 - `src/engine/memory_store.py` - Memory interface (no user data)
 - `scripts/migrate_memory.py` - Profile seeding script (loads from gitignored file)
 
-## Migration from Legacy System
-
-### Before (Hardcoded - DON'T DO THIS)
-
-```python
-# BAD - hardcoded user data in code
-USER_ALIASES = {
-    "user1": "123456789",
-    "user2": "987654321",
-}
-```
-
-### After (Database - CORRECT)
-
-```python
-from src.engine import user_db
-
-# Good - data comes from database
-user_id = user_db.resolve_user_id("user1")
-```
-
-All hardcoded references have been removed and replaced with database lookups.
-
-## Files Modified
-
-- `src/engine/user_db.py` - New user database module
-- `src/engine/memory_store.py` - Uses user_db for resolution
-- `src/engine/build_prompt.py` - Uses user_db for agent audiences
-- `src/mcp/server.py` - Uses user_db for chat ID resolution
-- `src/portals/telegram/claude_engine.py` - Uses user_db for bot filtering
-- `scripts/notify_tunnel.py` - Uses user_db to get all users
-- `scripts/migrate_memory.py` - Loads from profiles.json
-- `.gitignore` - Excludes sensitive files
-
 ## Troubleshooting
 
 ### "User not found" error
