@@ -16,14 +16,13 @@ from runware import IImageInference, IPromptEnhance, Runware  # noqa: E402
 from runware.types import ILora  # noqa: E402
 from telegram import Bot  # noqa: E402
 
-from src.engine import memory_store  # noqa: E402
+from src.engine import memory_store, user_db  # noqa: E402
 
 load_dotenv()
 
 RUNWARE_API_KEY = os.getenv("RUNWARE_API_KEY")
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
-DANIELLE_TELEGRAM_CHAT_ID = os.getenv("DANIELLE_TELEGRAM_CHAT_ID")
 
 # Persona emojis for Terrarium characters
 PERSONA_EMOJIS = {
@@ -147,9 +146,12 @@ async def send_telegram_message(
 
     bot = Bot(token=TELEGRAM_TOKEN)
 
-    # Resolve chat_id placeholders
-    if chat_id == "DANIELLE_TELEGRAM_CHAT_ID":
-        target_chat_id = DANIELLE_TELEGRAM_CHAT_ID
+    # Resolve chat_id from user database if a username/alias is provided
+    if chat_id and not chat_id.isdigit():
+        try:
+            target_chat_id = user_db.resolve_user_id(chat_id)
+        except ValueError:
+            return f"Error: Unknown user identifier: {chat_id}"
     else:
         target_chat_id = chat_id or TELEGRAM_CHAT_ID
 
@@ -403,8 +405,7 @@ async def get_profile(user_id: str = None) -> dict:
     are ground truth: they override anything you infer or remember sending before.
 
     Args:
-        user_id: Person to look up - "lejin"/"me" or "danielle", or a raw chat ID.
-                 Defaults to the main user.
+        user_id: Person to look up - username, alias, or chat ID. Defaults to the primary user.
 
     Returns:
         Dict with the person's id and the full list of profile facts
@@ -435,7 +436,7 @@ async def search_memory(
 
     Args:
         query: Search query (topic, keyword, question)
-        user_id: Person whose memory to search ("lejin", "danielle", or chat ID)
+        user_id: Person whose memory to search (username, alias, or chat ID)
         agent_id: Optional filter to one agent's memories. These record what that
                   agent did, not facts about the person; use get_profile for those.
         category: "episodic" (default) or "profile", or None for both
@@ -475,7 +476,7 @@ async def add_memory(
 
     Args:
         content: The memory content to store
-        user_id: Person it belongs to ("lejin", "danielle", or chat ID)
+        user_id: Person it belongs to (username, alias, or chat ID)
         agent_id: Your bot name
         category: "episodic" (default) or "profile"
 

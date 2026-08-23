@@ -11,23 +11,35 @@ from dotenv import load_dotenv
 env_path = Path(__file__).parent.parent / ".env"
 load_dotenv(env_path)
 
+# Add project root to path for user_db import
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+from src.engine import user_db  # noqa: E402
+
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
-TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
-DANIELLE_TELEGRAM_CHAT_ID = os.getenv("DANIELLE_TELEGRAM_CHAT_ID")
+
+
+def get_notification_recipients() -> list[str]:
+    """Get all user chat IDs from the user database."""
+    try:
+        db = user_db.get_db()
+        users = db.list_users()
+        return [user["user_id"] for user in users if user.get("user_id")]
+    except Exception as e:
+        # Fallback to env var if database not available
+        print(f"⚠️  Could not load users from database: {e}", file=sys.stderr)
+        chat_id = os.getenv("TELEGRAM_CHAT_ID")
+        return [chat_id] if chat_id else []
 
 
 def send_notification(url: str, service_name: str = "Open WebUI"):
-    """Send tunnel URL to Telegram (both you and Danielle)."""
+    """Send tunnel URL to all configured Telegram users."""
     if not TELEGRAM_TOKEN:
         print("⚠️  Missing TELEGRAM_TOKEN in .env", file=sys.stderr)
         return
 
-    # Collect all chat IDs to send to
-    chat_ids = []
-    if TELEGRAM_CHAT_ID:
-        chat_ids.append(TELEGRAM_CHAT_ID)
-    if DANIELLE_TELEGRAM_CHAT_ID:
-        chat_ids.append(DANIELLE_TELEGRAM_CHAT_ID)
+    # Get all user chat IDs from database
+    chat_ids = get_notification_recipients()
 
     if not chat_ids:
         print("⚠️  No chat IDs configured in .env", file=sys.stderr)
@@ -77,7 +89,7 @@ def send_notification(url: str, service_name: str = "Open WebUI"):
 
 
 def send_combined_notification(portals: list[tuple[str, str]]):
-    """Send combined tunnel URLs to Telegram (both you and Danielle).
+    """Send combined tunnel URLs to all configured Telegram users.
 
     Args:
         portals: List of (service_name, url) tuples
@@ -85,12 +97,8 @@ def send_combined_notification(portals: list[tuple[str, str]]):
     if not TELEGRAM_TOKEN:
         return
 
-    # Collect all chat IDs to send to
-    chat_ids = []
-    if TELEGRAM_CHAT_ID:
-        chat_ids.append(TELEGRAM_CHAT_ID)
-    if DANIELLE_TELEGRAM_CHAT_ID:
-        chat_ids.append(DANIELLE_TELEGRAM_CHAT_ID)
+    # Get all user chat IDs from database
+    chat_ids = get_notification_recipients()
 
     if not chat_ids:
         return

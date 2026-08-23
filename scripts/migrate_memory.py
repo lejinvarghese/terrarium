@@ -1,85 +1,54 @@
 #!/usr/bin/env python3
-"""Seed profile facts into Qdrant.
+"""Seed profile facts from data/profiles.json into Qdrant. Idempotent."""
 
-Facts are stored as category="profile" and injected into agent prompts by
-src/engine/build_prompt.py. Idempotent: re-running skips facts already stored.
-"""
+import json
+import sys
+from pathlib import Path
 
-from src.engine.memory_store import DANIELLE_USER_ID, PROFILE, USER_ID, add_fact
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-LEJIN_FACTS = [
-    # Identity & Background
-    "Name: Lejin, born June 22, 1989 at 10:45 AM",
-    "Astrology: Cancer sun, Aquarius moon, Virgo rising",
-    "Location: 510, 1169 Queen Street West, Toronto, Canada",
-    "Personality: INFJ with Hero and Sage archetypes",
-    "Identity: Continuous learner, scientist, engineer, philosopher, artist, aspiring polymath",
-    "Values: Integrity, innovation, pluralism, human-centric progress",
-    "Aesthetic: Urban hippie goth - Bohemian/Scandinavian elegance meets Goth/Cyberpunk darkness",
-    # Favorites
-    "Favorite color: Black",
-    "Favorite drinks: Wine and whiskey",
-    "Favorite sport: Basketball",
-    # Home & Lifestyle
-    "Pet: Piqiu (pronounced Pi-Chou) - brindle pie French Bulldog",
-    "Home: Filled with plants and terrarium of AI assistants",
-    "Neighborhood: Queen West & Roncesvalles - vibrant, artsy area",
-    "Weekday preference: Close to home - reading, workouts, cooking",
-    "Weekend preference: Exploring local food, nature, beaches, culture in warm weather",
-    # Work & Career
-    "Work: Staff Machine Learning Engineer at Tubi",
-    "Work schedule: In-office Tuesday and Thursday",
-    "Work style: Needs tasks broken into concrete daily items",
-    "Technical interests: Adaptive intelligent systems, optimization algorithms, network science, psychology, complexity science, multimodal large language models, robotics",
-    # Health & Fitness
-    "Fitness goals: Gain lean muscle, burn fat, improve flexibility",
-    "Activities: Gym strength training",
-    "Diet: High protein, low carb",
-    "Cuisine preference: Italian, meat and seafood, seasonal ingredients",
-    "Cooking inspiration: Gordon Ramsay, Ina Garten, Jamie Oliver",
-    "Supplements: Whey protein, cottage cheese, creatine, maca, ashwagandha",
-    "Family health history: Diabetes, cancer, heart disease, high blood pressure (no personal diagnoses)",
-    # Interests & Reading
-    "Big interests: Plants, nature, sci-fi, fantasy (huge Trekkie), cooking, walking/streetcar",
-    "Current reading: Cryptonomicon, Private Truths Public Lies, Software Engineering at Google, The Flavour Matrix, Gödel Escher Bach",
-    "Ambition: Uncover mysteries of intelligence bridging scientific paradigms, help humans become multi-planetary",
-    "2025 goals: Minimize social media, improve concentration, gain lean muscle, read more books/papers, build applications",
-    "Free time needs: Options and possibilities - dislikes empty unstructured time",
-    # Communication Style
-    "Communication preference: Concise, structured, actionable - skip formalities",
-    "Engagement style: Don't recite known facts - assume familiarity",
-    "INFJ cognitive functions: Honors vision (Ni), empowers mission (Fe), sharpens plan (Ti), manifests reality (Se)",
-]
+from src.engine import user_db
+from src.engine.memory_store import PROFILE, add_fact
 
-DANIELLE_FACTS = [
-    "Name: Danielle Mearns, born December 10, 1989",
-    "Background: British, grew up in Regina",
-    "Beverage: Yorkshire Tea is her drink, morning and through the day",
-    "Morning routine: Yorkshire tea with biscuits, then meds",
-    "Snacks: Biscuits, cheese, carrots",
-    "Has ADHD - uses Pepper bot for accountability",
-    "Work: Ontario Health, improving emergency response; on the sepsis crisis task force",
-    "Joined a biking club - rides are a regular anchor in her week",
-    "Loves wine and is actively moderating her intake - never offer wine, drinks, or bars as a reward or wind-down",
-]
+PROFILES_FILE = Path(__file__).parent.parent / "data" / "profiles.json"
+
+
+def load_profiles() -> dict[str, list[str]]:
+    """Load from data/profiles.json."""
+    if not PROFILES_FILE.exists():
+        print(f"ERROR: {PROFILES_FILE} not found")
+        print('Create: {"username": ["fact1", "fact2", ...]}')
+        sys.exit(1)
+    with open(PROFILES_FILE) as f:
+        return json.load(f)
 
 
 def migrate():
+    """Seed profiles into Qdrant."""
+    profiles = load_profiles()
+
     print("=" * 60)
     print("SEEDING PROFILE FACTS → Qdrant")
     print("=" * 60)
 
-    # Lejin's facts
-    print(f"\n📝 Storing {len(LEJIN_FACTS)} facts for Lejin...")
-    for fact in LEJIN_FACTS:
-        result = add_fact(fact, user_id=USER_ID, agent_id="system", category=PROFILE)
-        print(f"  {'✓' if result.get('status') == 'added' else '~'} {fact[:70]}...")
+    for username, facts in profiles.items():
+        try:
+            user_id = user_db.resolve_user_id(username)
+            user = user_db.get_user(user_id)
+            if not user:
+                print(f"\n⚠️  User not found: '{username}'")
+                continue
 
-    # Danielle's facts
-    print(f"\n📝 Storing {len(DANIELLE_FACTS)} facts for Danielle...")
-    for fact in DANIELLE_FACTS:
-        result = add_fact(fact, user_id=DANIELLE_USER_ID, agent_id="system", category=PROFILE)
-        print(f"  {'✓' if result.get('status') == 'added' else '~'} {fact[:70]}...")
+            print(f"\n📝 Storing {len(facts)} facts for {user.get('username')}...")
+
+            for fact in facts:
+                result = add_fact(fact, user_id=user_id, agent_id="system", category=PROFILE)
+                status = "✓" if result.get("status") == "added" else "~"
+                print(f"  {status} {fact[:70]}...")
+
+        except ValueError as e:
+            print(f"\n⚠️  Skipping unknown user '{username}': {e}")
+            continue
 
     print("\n✅ Migration complete!")
     print("\nNote: '~' means this exact fact was already stored (skipped)")

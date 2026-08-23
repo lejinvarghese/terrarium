@@ -14,12 +14,9 @@ import click
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from src.engine import memory_store  # noqa: E402
+from src.engine import memory_store, user_db  # noqa: E402
 
 AGENTS_DIR = Path(__file__).resolve().parents[2] / ".claude" / "agents"
-
-# Agents that write to someone other than the main user.
-AGENT_AUDIENCE = {"pepper": "danielle"}
 
 
 def render_now() -> str:
@@ -56,7 +53,13 @@ def main(agent, user, no_profile):
     if no_profile:
         return
 
-    audience = user or AGENT_AUDIENCE.get(agent.lower())
+    # Resolve audience: explicit --user flag, or check agent_audiences table
+    audience = user
+    if not audience:
+        audience_id = user_db.get_agent_audience(agent.lower())
+        if audience_id:
+            audience = audience_id
+
     try:
         block = memory_store.render_profile(audience)
     except Exception as e:

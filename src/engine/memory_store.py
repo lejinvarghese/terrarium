@@ -18,6 +18,8 @@ from pathlib import Path
 import httpx
 from dotenv import load_dotenv
 
+from . import user_db
+
 load_dotenv(Path(__file__).parent.parent.parent / ".env")
 
 QDRANT_URL = os.getenv("QDRANT_URL", "http://localhost:6333")
@@ -25,30 +27,13 @@ COLLECTION = os.getenv("MEMORY_COLLECTION", "mem0")
 EMBED_MODEL = "text-embedding-3-small"
 EMBED_DIMS = 1536
 
-USER_ID = os.getenv("TELEGRAM_CHAT_ID")
-DANIELLE_USER_ID = os.getenv("DANIELLE_TELEGRAM_CHAT_ID")
-
 PROFILE = "profile"
 EPISODIC = "episodic"
 
-# Friendly names accepted anywhere a user_id is expected.
-USER_ALIASES = {
-    "lejin": USER_ID,
-    "me": USER_ID,
-    "main": USER_ID,
-    "danielle": DANIELLE_USER_ID,
-    "dani": DANIELLE_USER_ID,
-}
-
 
 def resolve_user(user_id: str | None) -> str:
-    """Map a friendly name or raw chat ID to a chat ID. Defaults to the main user."""
-    if not user_id:
-        if not USER_ID:
-            raise RuntimeError("TELEGRAM_CHAT_ID not set; cannot resolve default user")
-        return USER_ID
-    resolved = USER_ALIASES.get(str(user_id).strip().lower())
-    return resolved or str(user_id)
+    """Map a username, alias, or user_id to a user_id. Defaults to the primary user."""
+    return user_db.resolve_user_id(user_id)
 
 
 def embed(text: str) -> list[float]:
