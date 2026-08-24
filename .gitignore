@@ -254,3 +254,10 @@ TERRARIUM_MEMORY.md
 .claude/settings.local.json
 package.json
 package-lock.json
+
+# User database and profiles (contains sensitive user data)
+data/users.db
+data/profiles.json
+
+# One-time initialization script (delete after use)
+scripts/init_users.py

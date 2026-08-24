@@ -3,11 +3,16 @@
 
 import asyncio
 import json
-import os
+import sys
 from pathlib import Path
 from typing import Any
 
 import click
+
+# Add project root to path for user_db import
+sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
+
+from src.engine import user_db  # noqa: E402
 
 
 class ClaudeEngine:
@@ -31,8 +36,6 @@ class ClaudeEngine:
         self.working_dir = working_dir or str(Path.cwd())
         self.timeout = timeout
         self.bot_prompts_dir = Path(__file__).parent.parent.parent.parent / ".claude" / "agents"
-        # Get Danielle's user ID from env (chat_id is same as user_id for DMs)
-        self.danielle_user_id = os.getenv("DANIELLE_TELEGRAM_CHAT_ID")
         click.secho(f"⚙️  ClaudeEngine initialized: {self.working_dir}", fg="blue")
 
     def list_bots(self, user_id: int | None = None) -> list[str]:
@@ -50,9 +53,17 @@ class ClaudeEngine:
 
         all_bots = sorted([f.stem for f in self.bot_prompts_dir.glob("*.md")])
 
-        # Filter out pepper unless user is Danielle
-        if user_id is None or str(user_id) != self.danielle_user_id:
-            all_bots = [bot for bot in all_bots if bot != "pepper"]
+        # Filter bots based on agent audiences (e.g., pepper is only for specific users)
+        if user_id is not None:
+            filtered_bots = []
+            for bot in all_bots:
+                audience_id = user_db.get_agent_audience(bot)
+                # Include bot if:
+                # - It has no specific audience (available to all), OR
+                # - Its audience matches this user
+                if audience_id is None or str(user_id) == audience_id:
+                    filtered_bots.append(bot)
+            return filtered_bots
 
         return all_bots
 
@@ -219,7 +230,7 @@ class ClaudeEngine:
                     # Get assistant message text
                     if event_type == "assistant" and "message" in event:
                         message = event["message"]
-                        content = message.get("content", [])
+                        content = message.get("content", []) if isinstance(message, dict) else []
                         if content and isinstance(content, list):
                             for item in content:
                                 if item.get("type") == "text":
