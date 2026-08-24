@@ -10,6 +10,27 @@ from telegram import Bot
 load_dotenv()
 
 
+def _format_chat_info(chat) -> list[str]:
+    """Format chat information as list of strings."""
+    lines = [f"\nChat ID: {chat.id}", f"  Type: {chat.type}"]
+    if chat.username:
+        lines.append(f"  Username: @{chat.username}")
+    if chat.first_name:
+        lines.append(f"  Name: {chat.first_name} {chat.last_name or ''}")
+    return lines
+
+
+def _extract_unique_chats(updates):
+    """Extract unique chat IDs from updates."""
+    seen_chats = {}
+    for update in updates:
+        if update.message:
+            chat = update.message.chat
+            if chat.id not in seen_chats:
+                seen_chats[chat.id] = chat
+    return seen_chats
+
+
 async def get_chat_id():
     token = os.getenv("TELEGRAM_TOKEN")
     if not token:
@@ -26,22 +47,16 @@ async def get_chat_id():
         print("Send a message to your bot first, then run this script again.")
         return
 
-    print("\n=== Recent Chats ===")
-    seen_chats = set()
-    for update in updates:
-        if update.message:
-            chat = update.message.chat
-            if chat.id not in seen_chats:
-                seen_chats.add(chat.id)
-                print(f"\nChat ID: {chat.id}")
-                print(f"  Type: {chat.type}")
-                if chat.username:
-                    print(f"  Username: @{chat.username}")
-                if chat.first_name:
-                    print(f"  Name: {chat.first_name} {chat.last_name or ''}")
+    seen_chats = _extract_unique_chats(updates)
 
     if not seen_chats:
         print("\nNo messages found. Send a message to your bot first!")
+        return
+
+    print("\n=== Recent Chats ===")
+    for chat in seen_chats.values():
+        for line in _format_chat_info(chat):
+            print(line)
 
 
 if __name__ == "__main__":

@@ -569,6 +569,110 @@ async def send_message_in_chunks(update: Update, message: str, chunk_size: int =
                 raise
 
 
+async def _handle_incubator_message(update: Update, user_message: str, user) -> bool:
+    """Handle @incubator agent syntax. Returns True if message was handled."""
+    if not update.message:
+        return False
+
+    incubator_match = re.match(
+        r"@(atlas|aria|aris|incubator)\s+(.*)", user_message, re.DOTALL | re.IGNORECASE
+    )
+    if not incubator_match:
+        return False
+
+    target = incubator_match.group(1).lower()
+    message_text = incubator_match.group(2).strip()
+
+    if target == "incubator":
+        agent_id = "all"
+        display_name = "all incubator agents (Atlas, Aria, Aris)"
+    else:
+        agent_id = INCUBATOR_AGENTS[target]
+        display_name = target.title()
+
+    from src.landscapes.undergrowth.incubator.store import Store
+
+    store = Store()
+    try:
+        store.write_message(
+            from_agent=f"TELEGRAM_{user.id}",
+            from_name=user.first_name or "User",
+            to_agent=agent_id,
+            content=message_text,
+        )
+        await update.message.reply_text(
+            f"📨 Message queued for **{display_name}**.\n"
+            f"They'll see it on their next exploration (daily at 06:00).",
+            parse_mode=ParseMode.MARKDOWN,
+        )
+        click.secho(
+            f"📬 Incubator message queued: {user.first_name or 'User'} → {target}", fg="green"
+        )
+    finally:
+        store.close()
+    return True
+
+
+async def _handle_bot_switch(
+    update: Update,
+    user_message: str,
+    context: ContextTypes.DEFAULT_TYPE,
+    claude_engine,
+    session_manager,
+) -> str | None:
+    """Handle @botname syntax. Returns updated message or None if bot not found."""
+    if not update.effective_user or not update.message:
+        return user_message
+
+    at_bot_match = re.match(r"@(\w+)\s+(.*)", user_message, re.DOTALL)
+    if not at_bot_match:
+        return user_message
+
+    bot_name = at_bot_match.group(1).lower()
+    actual_message = at_bot_match.group(2).strip()
+    available_bots = claude_engine.list_bots(user_id=update.effective_user.id)
+
+    if bot_name in available_bots:
+        context.user_data["bot"] = bot_name
+        session_manager.clear_session(update.effective_user.id, bot_name)
+        click.secho(f"🔄 @bot syntax switch to: {bot_name}", fg="cyan")
+        return actual_message
+
+    await update.message.reply_text(
+        f"❌ Bot '{bot_name}' not found.\n"
+        f"Available bots: {', '.join(available_bots)}\n\n"
+        f"Tip: Use @botname followed by your message (e.g., @sage what's new?)"
+    )
+    return None
+
+
+async def _execute_chat_with_retry(
+    claude_engine,
+    user_message: str,
+    session_id: str | None,
+    bot: str | None,
+    session_manager,
+    user_id: int,
+) -> tuple[str, str, dict]:
+    """Execute chat with automatic session retry on expiry."""
+    try:
+        return await claude_engine.chat(
+            message=user_message,
+            session_id=session_id,
+            bot=bot if not session_id else None,
+        )
+    except RuntimeError as e:
+        if "No conversation found with session ID" in str(e):
+            click.secho("⚠️  Session expired, starting fresh", fg="yellow")
+            session_manager.clear_session(user_id, bot)
+            return await claude_engine.chat(
+                message=user_message,
+                session_id=None,
+                bot=bot,
+            )
+        raise
+
+
 async def chat_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Handle regular chat messages."""
     user = update.effective_user
@@ -579,109 +683,33 @@ async def chat_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     claude_engine = context.bot_data["claude_engine"]
     session_manager = context.bot_data["session_manager"]
 
-    # Register user activity
     session_manager.register_user(user.id, user.username, user.first_name)
 
-    # Check for @incubator agent syntax (async message queue to exploration agents)
-    incubator_match = re.match(
-        r"@(atlas|aria|aris|incubator)\s+(.*)", user_message, re.DOTALL | re.IGNORECASE
+    if await _handle_incubator_message(update, user_message, user):
+        return
+
+    user_message = await _handle_bot_switch(
+        update, user_message, context, claude_engine, session_manager
     )
-    if incubator_match:
-        target = incubator_match.group(1).lower()
-        message_text = incubator_match.group(2).strip()
+    if user_message is None:
+        return
 
-        # Determine recipient
-        if target == "incubator":
-            agent_id = "all"  # Broadcast to all incubator agents
-            display_name = "all incubator agents (Atlas, Aria, Aris)"
-        else:
-            agent_id = INCUBATOR_AGENTS[target]
-            display_name = target.title()
-
-        # Write to incubator message queue
-        from src.landscapes.undergrowth.incubator.store import Store
-
-        store = Store()
-        try:
-            store.write_message(
-                from_agent=f"TELEGRAM_{user.id}",
-                from_name=user.first_name,
-                to_agent=agent_id,
-                content=message_text,
-            )
-            await update.message.reply_text(
-                f"📨 Message queued for **{display_name}**.\n"
-                f"They'll see it on their next exploration (daily at 06:00).",
-                parse_mode=ParseMode.MARKDOWN,
-            )
-            click.secho(f"📬 Incubator message queued: {user.first_name} → {target}", fg="green")
-        finally:
-            store.close()
-        return  # Exit early - message queued
-
-    # Check for @botname syntax: @sage how are you?
-    at_bot_match = re.match(r"@(\w+)\s+(.*)", user_message, re.DOTALL)
-    if at_bot_match:
-        bot_name = at_bot_match.group(1).lower()
-        actual_message = at_bot_match.group(2).strip()
-
-        # Validate bot exists (with user filtering)
-        available_bots = claude_engine.list_bots(user_id=user.id)
-        if bot_name in available_bots:
-            # Switch to the bot
-            context.user_data["bot"] = bot_name
-            session_manager.clear_session(user.id, bot_name)
-
-            # Update the message to process
-            user_message = actual_message
-            click.secho(f"🔄 @bot syntax switch to: {bot_name}", fg="cyan")
-        else:
-            await update.message.reply_text(
-                f"❌ Bot '{bot_name}' not found.\n"
-                f"Available bots: {', '.join(available_bots)}\n\n"
-                f"Tip: Use @botname followed by your message (e.g., @sage what's new?)"
-            )
-            return
-
-    # Get bot and session (with auto-expiry)
     bot = context.user_data.get("bot")
     session_id = session_manager.get_session(user.id, bot, max_age_hours=SESSION_EXPIRY_HOURS)
 
     try:
-        # Show typing
         await update.message.chat.send_action("typing")
 
-        # Agents now handle their own memory via MCP tools
-        # Chat with Claude
-        try:
-            response, new_session_id, metadata = await claude_engine.chat(
-                message=user_message,
-                session_id=session_id,
-                bot=bot if not session_id else None,  # Only for new sessions
-            )
-        except RuntimeError as e:
-            # Handle expired/invalid session - clear and retry with new session
-            if "No conversation found with session ID" in str(e):
-                click.secho("⚠️  Session expired, starting fresh", fg="yellow")
-                session_manager.clear_session(user.id, bot)
-                # Retry with new session
-                response, new_session_id, metadata = await claude_engine.chat(
-                    message=user_message,
-                    session_id=None,  # Force new session
-                    bot=bot,
-                )
-            else:
-                raise  # Re-raise other RuntimeErrors
+        response, new_session_id, metadata = await _execute_chat_with_retry(
+            claude_engine, user_message, session_id, bot, session_manager, user.id
+        )
 
-        # Save session
         if new_session_id:
             session_manager.create_session(user.id, new_session_id, bot)
             if metadata.get("cost"):
                 session_manager.update_session_metadata(user.id, bot, cost=metadata["cost"])
 
-        # Send response
         await send_message_in_chunks(update, response)
-
         click.secho(f"✅ Response sent to {user.id} (length: {len(response)})", fg="green")
 
     except TimeoutError:

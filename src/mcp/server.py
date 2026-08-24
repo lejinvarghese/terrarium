@@ -120,6 +120,29 @@ async def generate_image(
 
 
 @mcp.tool()
+def _resolve_chat_id(chat_id: str | None) -> tuple[str | None, str | None]:
+    """Resolve chat ID from username/alias or validate numeric ID. Returns (chat_id, error)."""
+    if not chat_id:
+        return TELEGRAM_CHAT_ID, None
+
+    if not chat_id.isdigit():
+        try:
+            return user_db.resolve_user_id(chat_id), None
+        except ValueError:
+            return None, f"Error: Unknown user identifier: {chat_id}"
+
+    return chat_id, None
+
+
+def _format_message(message: str, persona: str | None) -> tuple[str, str | None]:
+    """Format message with persona. Returns (formatted_message, parse_mode)."""
+    if not persona:
+        return message, None
+
+    emoji = PERSONA_EMOJIS.get(persona.lower(), PERSONA_EMOJIS["default"])
+    return f"{emoji} *{persona.title()}*\n{message}", "Markdown"
+
+
 async def send_telegram_message(
     message: str,
     persona: str = None,
@@ -135,27 +158,17 @@ async def send_telegram_message(
     if not TELEGRAM_TOKEN:
         return "Error: TELEGRAM_TOKEN not found in environment"
 
-    bot = Bot(token=TELEGRAM_TOKEN)
-
-    if chat_id and not chat_id.isdigit():
-        try:
-            target_chat_id = user_db.resolve_user_id(chat_id)
-        except ValueError:
-            return f"Error: Unknown user identifier: {chat_id}"
-    else:
-        target_chat_id = chat_id or TELEGRAM_CHAT_ID
+    target_chat_id, error = _resolve_chat_id(chat_id)
+    if error:
+        return error
 
     if not target_chat_id:
         return "Error: No chat_id provided and TELEGRAM_CHAT_ID not set in environment"
-    if persona:
-        emoji = PERSONA_EMOJIS.get(persona.lower(), PERSONA_EMOJIS["default"])
-        formatted_message = f"{emoji} *{persona.title()}*\n{message}"
-        parse_mode = "Markdown"
-    else:
-        formatted_message = message
-        parse_mode = None
+
+    formatted_message, parse_mode = _format_message(message, persona)
 
     try:
+        bot = Bot(token=TELEGRAM_TOKEN)
         await bot.send_message(
             chat_id=target_chat_id, text=formatted_message, parse_mode=parse_mode
         )

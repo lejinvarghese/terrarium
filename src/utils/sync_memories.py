@@ -61,9 +61,47 @@ def export_from_openwebui(db_path, output_file):
     click.secho(f"✨ Exported {len(memories)} memories to {output_file}", fg="green", bold=True)
 
 
+def _parse_markdown_sections(content: str) -> list[str]:
+    """Parse markdown content into sections based on ## headers."""
+    sections = []
+    current_section = []
+
+    for line in content.split("\n"):
+        if line.startswith("## ") and current_section:
+            sections.append("\n".join(current_section).strip())
+            current_section = [line]
+        else:
+            current_section.append(line)
+
+    if current_section:
+        sections.append("\n".join(current_section).strip())
+
+    return [s for s in sections if s and len(s) > 20]
+
+
+def _show_sections_preview(sections: list[str]):
+    """Display preview of memory sections."""
+    click.secho(f"\n📝 Found {len(sections)} memory sections to sync:", fg="cyan", bold=True)
+    for i, section in enumerate(sections, 1):
+        preview = section[:80].replace("\n", " ")
+        click.echo(f"  {i}. {preview}.")
+
+
+def _import_sections_to_db(cursor, user_id: str, sections: list[str]):
+    """Import sections to database, replacing existing memories."""
+    cursor.execute("DELETE FROM memory WHERE user_id = ?", (user_id,))
+
+    current_time = int(time.time())
+    for section in sections:
+        memory_id = str(uuid.uuid4())
+        cursor.execute(
+            "INSERT INTO memory (id, user_id, content, created_at, updated_at) VALUES (?, ?, ?, ?, ?)",
+            (memory_id, user_id, section, current_time, current_time),
+        )
+
+
 def import_to_openwebui(db_path, input_file, skip_confirm=False):
     """Import memories from markdown file to Open WebUI."""
-
     input_path = Path(input_file)
     if not input_path.exists():
         click.secho(f"File not found: {input_file}", fg="red")
@@ -72,39 +110,17 @@ def import_to_openwebui(db_path, input_file, skip_confirm=False):
     with open(input_path) as f:
         content = f.read()
 
-    # Parse markdown sections (## headers as separate memories)
-    sections = []
-    current_section = []
-
-    for line in content.split("\n"):
-        if line.startswith("## ") and current_section:
-            # Save previous section
-            sections.append("\n".join(current_section).strip())
-            current_section = [line]
-        else:
-            current_section.append(line)
-
-    # Add last section
-    if current_section:
-        sections.append("\n".join(current_section).strip())
-
-    # Filter out empty sections and metadata sections
-    sections = [s for s in sections if s and len(s) > 20]
+    sections = _parse_markdown_sections(content)
 
     if not sections:
         click.secho("No memory sections found in file.", fg="yellow")
         return
 
-    # Connect to database
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     user_id = get_user_id(cursor)
 
-    # Show preview
-    click.secho(f"\n📝 Found {len(sections)} memory sections to sync:", fg="cyan", bold=True)
-    for i, section in enumerate(sections, 1):
-        preview = section[:80].replace("\n", " ")
-        click.echo(f"  {i}. {preview}.")
+    _show_sections_preview(sections)
 
     if not skip_confirm:
         click.echo()
@@ -113,17 +129,7 @@ def import_to_openwebui(db_path, input_file, skip_confirm=False):
             conn.close()
             return
 
-    # Clear existing memories for this user
-    cursor.execute("DELETE FROM memory WHERE user_id = ?", (user_id,))
-
-    # Insert new memories
-    current_time = int(time.time())
-    for section in sections:
-        memory_id = str(uuid.uuid4())
-        cursor.execute(
-            "INSERT INTO memory (id, user_id, content, created_at, updated_at) VALUES (?, ?, ?, ?, ?)",
-            (memory_id, user_id, section, current_time, current_time),
-        )
+    _import_sections_to_db(cursor, user_id, sections)
 
     conn.commit()
     conn.close()
