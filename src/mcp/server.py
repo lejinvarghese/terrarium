@@ -2,9 +2,7 @@ import os
 import sys
 from pathlib import Path
 
-# MCP clients launch this file by path (`python src/mcp/server.py`), which puts
-# src/mcp/ on sys.path instead of the project root, so the `src.` imports below
-# cannot resolve. Put the project root on sys.path before importing them.
+# Put project root on sys.path for src.* imports
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 import click  # noqa: E402
@@ -24,28 +22,26 @@ RUNWARE_API_KEY = os.getenv("RUNWARE_API_KEY")
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 
-# Persona emojis for Terrarium characters
 PERSONA_EMOJIS = {
-    "anya": "🎨",  # Creative director & artistic guide
-    "cassia": "☀️",  # Daily planner & morning briefings
-    "freya": "💪",  # Health, fitness & nutrition
-    "nigella": "🍷",  # Culinary guide & sommelier
-    "nyx": "🚀",  # Accelerationist & futurist
-    "sage": "📚",  # Strategic visionary & wisdom guide
-    "system": "🌿",  # System notifications
-    "default": "🤖",  # Fallback
+    "anya": "🎨",
+    "cassia": "☀️",
+    "freya": "💪",
+    "nigella": "🍷",
+    "nyx": "🚀",
+    "sage": "📚",
+    "system": "🌿",
+    "default": "🤖",
 }
 
 dimensions = {
     "portrait": "512x768",
-    "landscape": "1344x768",  # Proper 16:9 landscape ratio
+    "landscape": "1344x768",
     "square": "640x640",
 }
 
-# Google Nano Banana 2 supported dimensions
 google_dimensions = {
     "portrait": "1264x1696",
-    "landscape": "2528x1696",  # 3:2 aspect ratio
+    "landscape": "2528x1696",
     "square": "1024x1024",
 }
 
@@ -79,7 +75,6 @@ async def generate_image(
     runware = Runware(api_key=RUNWARE_API_KEY)
     await runware.connect()
 
-    # Use google dimensions for google models, standard dimensions otherwise
     dimension_map = google_dimensions if model_id.startswith("google:") else dimensions
     width, height = map(int, dimension_map[orientation].split("x"))
     click.secho(f"Prompt: {prompt}", fg="green")
@@ -105,7 +100,6 @@ async def generate_image(
     else:
         lora = None
 
-    # Build request parameters
     request_params = {
         "positivePrompt": prompt,
         "model": model_id,
@@ -114,11 +108,8 @@ async def generate_image(
         "width": width,
     }
 
-    # Add optional parameters
     if lora:
         request_params["lora"] = lora
-
-    # Add reference images if provided (for multi-image composition)
     if reference_images:
         request_params["referenceImages"] = reference_images
 
@@ -146,7 +137,6 @@ async def send_telegram_message(
 
     bot = Bot(token=TELEGRAM_TOKEN)
 
-    # Resolve chat_id from user database if a username/alias is provided
     if chat_id and not chat_id.isdigit():
         try:
             target_chat_id = user_db.resolve_user_id(chat_id)
@@ -157,8 +147,6 @@ async def send_telegram_message(
 
     if not target_chat_id:
         return "Error: No chat_id provided and TELEGRAM_CHAT_ID not set in environment"
-
-    # Format message with persona emoji if provided
     if persona:
         emoji = PERSONA_EMOJIS.get(persona.lower(), PERSONA_EMOJIS["default"])
         formatted_message = f"{emoji} *{persona.title()}*\n{message}"
@@ -195,23 +183,16 @@ async def send_telegram_document(
         return "Error: TELEGRAM_TOKEN not found in environment"
 
     bot = Bot(token=TELEGRAM_TOKEN)
-
-    # Use provided chat_id or fall back to default
     target_chat_id = chat_id or TELEGRAM_CHAT_ID
 
     if not target_chat_id:
         return "Error: No chat_id provided and TELEGRAM_CHAT_ID not set in environment"
 
-    # Expand home directory if needed
     from pathlib import Path
 
     file_path = str(Path(file_path).expanduser())
-
-    # Check if file exists
     if not Path(file_path).exists():
         return f"Error: File not found at {file_path}"
-
-    # Format caption with persona emoji if provided
     if persona and caption:
         emoji = PERSONA_EMOJIS.get(persona.lower(), PERSONA_EMOJIS["default"])
         formatted_caption = f"{emoji} *{persona.title()}*\n{caption}"
@@ -259,12 +240,10 @@ async def scrape_recipe(url: str) -> dict:
             "host": scraper.host(),
         }
 
-        # Add optional fields if available
         try:
             recipe_data["nutrients"] = scraper.nutrients()
         except Exception:
             pass
-
         try:
             recipe_data["canonical_url"] = scraper.canonical_url()
         except Exception:
@@ -388,12 +367,6 @@ async def get_watchlist() -> dict:
         }
     except Exception as e:
         return {"error": f"Failed to get watchlist: {str(e)}"}
-
-
-# Memory Integration
-#
-# Profile facts (category="profile") are fetched by exact filter and are always
-# complete; episodic memory is vector-searched. See src/engine/memory_store.py.
 
 
 @mcp.tool()
@@ -522,7 +495,6 @@ async def send_agent_message(
     try:
         formatted_content = f"@{to_agent} FROM {from_agent} [{message_type}]: {content}"
 
-        # Outbox copy (sender's context) and inbox copy (discoverable by recipient)
         memory_store.add_fact(data=formatted_content, agent_id=from_agent, category="episodic")
         memory_store.add_fact(data=formatted_content, agent_id=to_agent, category="episodic")
 

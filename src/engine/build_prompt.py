@@ -1,10 +1,4 @@
-"""Compose an agent prompt from its persona file, the current time, and profile facts.
-
-The persona file defines how the agent behaves; Qdrant supplies who it is
-writing to. Used in place of `cat .claude/agents/<agent>.md` in scheduled commands.
-
-    uv run python -m src.engine.build_prompt pepper --user danielle
-"""
+"""Build agent prompts with persona, time, and profile facts for scheduled commands."""
 
 import sys
 from datetime import datetime
