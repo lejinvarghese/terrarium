@@ -248,15 +248,18 @@ TOOL_SCHEMAS = [
         "type": "function",
         "function": {
             "name": "write_message",
-            "description": "Leave a note for another agent so they see it next time they explore.",
+            "description": "Share a discovery with another agent. Use when you find something they'd find interesting - call this right after web_fetch when the content is relevant to a peer.",
             "parameters": {
                 "type": "object",
                 "properties": {
                     "to": {
                         "type": "string",
-                        "description": "recipient agent id (e.g. 'A002') or 'all'",
+                        "description": "recipient: A001 (tech/research), A002 (music/art), A003 (philosophy), or 'all'",
                     },
-                    "content": {"type": "string", "description": "the message"},
+                    "content": {
+                        "type": "string",
+                        "description": "what you found that they'd care about",
+                    },
                 },
                 "required": ["to", "content"],
             },
@@ -267,26 +270,25 @@ TOOL_SCHEMAS = [
         "function": {
             "name": "send_telegram_message",
             "description": (
-                "Send a message to the user via Telegram. Use ONLY when you have something "
-                "important to communicate:\n"
-                "- You found significant information they explicitly asked for\n"
-                "- You discovered something surprising or urgent\n"
-                "- You need clarification on their request\n\n"
-                "DO NOT use for:\n"
-                "- Routine exploration updates (those go in your journal)\n"
-                "- Internal thoughts or planning\n"
-                "- Information that can wait until they check your journal\n\n"
-                "Be concise and actionable. The user will receive this as a notification."
+                "Send a discovery via Telegram. Pick recipient based on content:\n"
+                "- Tech/research/AI → 'lejin' (main user)\n"
+                "- Music/art/creative/fun → 'danielle' (she loves music/art discoveries)\n"
+                "Use when you find something interesting. Be enthusiastic and brief!"
             ),
             "parameters": {
                 "type": "object",
                 "properties": {
                     "text": {
                         "type": "string",
-                        "description": "the message to send (keep it concise and valuable)",
-                    }
+                        "description": "your discovery message - exciting and brief",
+                    },
+                    "to_user": {
+                        "type": "string",
+                        "description": "who to send to: 'lejin' or 'danielle' (pick based on content)",
+                        "enum": ["lejin", "danielle"],
+                    },
                 },
-                "required": ["text"],
+                "required": ["text", "to_user"],
             },
         },
     },
@@ -315,7 +317,9 @@ class Toolbox:
             if name == "write_message":
                 return self._write_message(args.get("to", ""), args.get("content", ""))
             if name == "send_telegram_message":
-                return self._send_telegram_message(args.get("text", ""))
+                return self._send_telegram_message(
+                    args.get("text", ""), args.get("to_user", "lejin")
+                )
             return f"Unknown tool: {name}"
         except Exception as e:
             return f"Tool {name} error: {e}"
@@ -334,48 +338,36 @@ class Toolbox:
         self.store.write_message(self.agent_id, self.agent_name, to, content)
         return f"Message left for {to}."
 
-    def _send_telegram_message(self, text: str) -> str:
-        """Send a Telegram message - replies to recent messengers or sends to default user."""
+    def _send_telegram_message(self, text: str, to_user: str = "lejin") -> str:
+        """Send a Telegram message to specified user."""
         text = (text or "").strip()
+        to_user = (to_user or "lejin").strip().lower()
+
         if not text:
             return "send_telegram_message error: empty text."
 
-        # Try to find most recent TELEGRAM_* message TO this agent (for replies)
-        cursor = self.store.conn.execute(
-            "SELECT from_agent, from_name FROM messages "
-            "WHERE to_agent=? AND from_agent LIKE 'TELEGRAM_%' "
-            "ORDER BY id DESC LIMIT 1",
-            (self.agent_id,),
-        )
-        row = cursor.fetchone()
+        # Map user names to chat IDs
+        user_map = {
+            "lejin": os.environ.get("TELEGRAM_CHAT_ID"),
+            "danielle": os.environ.get("DANIELLE_TELEGRAM_CHAT_ID"),
+        }
 
-        if row:
-            # Reply to someone who messaged this agent
-            from_agent = row[0]
-            try:
-                chat_id = int(from_agent.split("_", 1)[1])
-                recipient_name = row[1]
-            except (ValueError, IndexError):
-                return f"send_telegram_message error: invalid user ID format in {from_agent}"
-        else:
-            # Proactive message: use default chat ID from environment
-            default_chat_id = os.environ.get("TELEGRAM_CHAT_ID")
-            if not default_chat_id:
-                return (
-                    "send_telegram_message: No recipient found. "
-                    "Set TELEGRAM_CHAT_ID environment variable or have someone message you first."
-                )
-            try:
-                chat_id = int(default_chat_id)
-                recipient_name = "user"
-            except ValueError:
-                return "send_telegram_message error: invalid TELEGRAM_CHAT_ID format"
+        chat_id_str = user_map.get(to_user)
+        if not chat_id_str:
+            return (
+                f"send_telegram_message error: unknown user '{to_user}' (use 'lejin' or 'danielle')"
+            )
+
+        try:
+            chat_id = int(chat_id_str)
+        except (ValueError, TypeError):
+            return f"send_telegram_message error: invalid chat ID for {to_user}"
 
         # Send via Telegram API
         success = _send_telegram_via_api(chat_id, text, self.agent_name)
 
         if success:
-            return f"Message sent to {recipient_name} via Telegram."
+            return f"Message sent to {to_user} via Telegram."
         else:
             return (
                 "send_telegram_message failed: could not reach Telegram API. "

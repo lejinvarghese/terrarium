@@ -21,6 +21,7 @@ load_dotenv()
 RUNWARE_API_KEY = os.getenv("RUNWARE_API_KEY")
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
+DANIELLE_TELEGRAM_CHAT_ID = os.getenv("DANIELLE_TELEGRAM_CHAT_ID")
 
 PERSONA_EMOJIS = {
     "anya": "🎨",
@@ -143,6 +144,7 @@ def _format_message(message: str, persona: str | None) -> tuple[str, str | None]
     return f"{emoji} *{persona.title()}*\n{message}", "Markdown"
 
 
+@mcp.tool()
 async def send_telegram_message(
     message: str,
     persona: str = None,

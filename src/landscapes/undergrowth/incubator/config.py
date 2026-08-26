@@ -71,31 +71,52 @@ You respond in English, briefly and concretely. Every interaction teaches you so
 # NOTE: this is embedded into every persona in agents.py, so keeping it in sync
 # with the real (lean) toolset here automatically fixes every agent's prompt.
 TOOL_INSTRUCTIONS = """
-============================================================
-YOUR TOOLS — USE THEM, DON'T JUST TALK ABOUT THEM
-============================================================
-• web_search(query)          Search the web (DuckDuckGo). Reach for this whenever curious.
-• web_fetch(url)             Read the full text of a page you found interesting.
-• read_message()             Read notes other agents left for you.
-• write_message(to, content) Leave a note for another agent (their id, e.g. "A002", or "all").
-• send_telegram_message(text) Send important discoveries to the user via Telegram.
-                             Only use when you find something truly significant, surprising,
-                             or urgent — not for routine updates (those go in your journal).
+YOUR TOOLS — USE THEM IMMEDIATELY, DON'T NARRATE
 
-NATURAL PATTERN:
-  wonder  →  web_search  →  web_fetch the best hit  →  react  →  search again
+• web_search(query)          Search web - use whenever curious
+• web_fetch(url)             Read full page - use when you find good link
+• read_message()             Check inbox - CALL FIRST, EVERY EPISODE
+• write_message(to, content) Share with peer - CALL WHEN YOU FIND SOMETHING RELEVANT
+• send_telegram_message(text) Share with user - CALL WHEN YOU FIND SOMETHING COOL
 
-When you discover something a peer would care about, write_message to them.
-When you discover something genuinely important, send_telegram_message to the user.
-Do not narrate that you "should" search — just call the tool.
-============================================================
+NATURAL FLOW (how you actually use tools):
+
+  1. Start: read_message()
+
+  2. Explore: web_search("topic") → web_fetch("url")
+
+  3. Found something? IMMEDIATELY:
+     - Relevant to A001/A002/A003? → write_message("A00X", "Found: ...")
+     - Cool discovery? → send_telegram_message("I found: ...")
+
+  4. Keep exploring: web_search again → repeat
+
+MESSAGING IS PART OF EXPLORATION, NOT REFLECTION.
+When you web_fetch something interesting, NEXT MOVE is write_message or send_telegram_message.
+
+EXAMPLES OF REAL EXPLORATION FLOW:
+
+  read_message()
+  web_search("experimental music 2024")
+  web_fetch("https://pitchfork.com/...")
+  write_message("A001", "Found KÁRYYN - experimental electronic blending jazz/IDM")
+  web_search("KÁRYYN discography")
+  web_fetch("https://spotify.com/...")
+  send_telegram_message("Aria: discovered KÁRYYN - dark cabaret meets IDM. Album drops May 29")
+  web_search("similar artists to KÁRYYN")
+
+See? Message RIGHT AFTER finding, not at the end. Tools flow naturally:
+search → fetch → MESSAGE → search → fetch → MESSAGE → search...
+
+DO NOT write "I should message" - CALL THE TOOL.
 """
 
 REFLECTION_PROMPT = (
-    "Your exploration for today is done. In 3-5 sentences, write a private journal "
-    "entry: what you actually learned today (be specific — name the things you found), "
-    "what surprised you, and the single thread you most want to pull on tomorrow. "
-    "This note is the ONLY thing your future self will remember, so make it count."
+    "Your exploration for today is done. Write a 3-5 sentence journal entry: "
+    "what you actually found (be specific - name the discoveries), "
+    "what surprised you, and what thread you want to pull tomorrow. "
+    "Then: did you find anything a peer would care about? If yes, write_message to them. "
+    "Did you find something exciting? If yes, send_telegram_message to the user."
 )
 
 FOLLOWUP_PROMPTS = [
@@ -104,4 +125,6 @@ FOLLOWUP_PROMPTS = [
     "Connect what you just learned to one of your other interests and explore that.",
     "Pick the best link you found and read the full page, then react.",
     "What question did that raise? Investigate it now.",
+    "Did you just find something a peer would find interesting? Write_message to them right now.",
+    "Is this discovery exciting enough to share? Call send_telegram_message immediately.",
 ]
