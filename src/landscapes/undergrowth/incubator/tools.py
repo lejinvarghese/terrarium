@@ -44,21 +44,36 @@ _UA = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ch
 _ENV_FILES = ("~/.zshrc", "~/.env", "~/dev/.env")
 
 
-def _key_from_files(var: str) -> str | None:
-    import re
+def _extract_env_value(line: str, pattern) -> str | None:
+    """Extract and clean environment variable value from a line."""
+    match = pattern.match(line)
+    if not match:
+        return None
+
+    val = match.group(1).strip().strip('"').strip("'")
+    return val if val else None
+
+
+def _read_env_file(path: str) -> list[str]:
+    """Read environment file, return empty list on error."""
     from pathlib import Path
 
-    pat = re.compile(rf"^\s*(?:export\s+)?{re.escape(var)}\s*=\s*(.+?)\s*$")
+    try:
+        return Path(path).expanduser().read_text().splitlines()
+    except OSError:
+        return []
+
+
+def _key_from_files(var: str) -> str | None:
+    import re
+
+    pattern = re.compile(rf"^\s*(?:export\s+)?{re.escape(var)}\s*=\s*(.+?)\s*$")
+
     for path in _ENV_FILES:
-        try:
-            for line in Path(path).expanduser().read_text().splitlines():
-                m = pat.match(line)
-                if m:
-                    val = m.group(1).strip().strip('"').strip("'")
-                    if val:
-                        return val
-        except OSError:
-            continue
+        for line in _read_env_file(path):
+            val = _extract_env_value(line, pattern)
+            if val:
+                return val
     return None
 
 

@@ -53,6 +53,60 @@ ECOSYSTEM_PROTOCOL = """## Ecosystem Protocol
 """
 
 
+def _find_section_end(lines: list[str], start_idx: int) -> int:
+    """Find the end of a markdown section."""
+    return next(
+        (i for i in range(start_idx + 1, len(lines)) if lines[i].startswith("##")),
+        len(lines),
+    )
+
+
+def _add_ecosystem_principle(lines: list[str], principles_idx: int, agent_name: str) -> bool:
+    """Add ecosystem principle if not present. Returns True if added."""
+    principles_end = _find_section_end(lines, principles_idx)
+
+    if any("Ecosystem Collaboration" in line for line in lines[principles_idx:principles_end]):
+        return False
+
+    lines.insert(principles_end, ECOSYSTEM_PRINCIPLE.strip())
+    print(f"✓ Added ecosystem principle to {agent_name}")
+    return True
+
+
+def _find_memory_section(lines: list[str]) -> int | None:
+    """Find Memory & Messaging or Memory & Continuity section."""
+    for i, line in enumerate(lines):
+        if "Memory & Messaging" in line or "Memory & Continuity" in line:
+            return i
+    return None
+
+
+def _replace_memory_section(lines: list[str], agent_name: str, agent_title: str, network: str):
+    """Replace or add the ecosystem protocol section."""
+    protocol = ECOSYSTEM_PROTOCOL.format(agent=agent_name, agent_title=agent_title, network=network)
+
+    memory_idx = _find_memory_section(lines)
+
+    if memory_idx is not None:
+        section_end = next(
+            (
+                i
+                for i in range(memory_idx + 1, len(lines))
+                if lines[i].startswith("##") or lines[i].startswith("---")
+            ),
+            len(lines),
+        )
+        lines[memory_idx:section_end] = protocol.strip().split("\n")
+        print(f"✓ Replaced memory section in {agent_name}")
+    else:
+        user_context_idx = next(
+            (i for i, line in enumerate(lines) if "User Context" in line),
+            len(lines) - 5,
+        )
+        lines.insert(user_context_idx, protocol.strip())
+        print(f"✓ Added protocol section to {agent_name}")
+
+
 def update_agent(agent_file: Path):
     """Update one agent file with ecosystem sections."""
     content = agent_file.read_text()
@@ -70,52 +124,9 @@ def update_agent(agent_file: Path):
         print(f"⚠️  No Principles section in {agent_name}")
         return
 
-    # Insert ecosystem principle after Principles header
-    principles_end = next(
-        (i for i in range(principles_idx + 1, len(lines)) if lines[i].startswith("##")), len(lines)
-    )
+    _add_ecosystem_principle(lines, principles_idx, agent_name)
+    _replace_memory_section(lines, agent_name, agent_title, network)
 
-    # Check if already added
-    if not any("Ecosystem Collaboration" in line for line in lines[principles_idx:principles_end]):
-        lines.insert(principles_end, ECOSYSTEM_PRINCIPLE.strip())
-        print(f"✓ Added ecosystem principle to {agent_name}")
-
-    # Replace Memory & Messaging or Memory & Continuity section
-    memory_section_idx = None
-    for i, line in enumerate(lines):
-        if "Memory & Messaging" in line or "Memory & Continuity" in line:
-            memory_section_idx = i
-            break
-
-    if memory_section_idx:
-        # Find end of section
-        section_end = next(
-            (
-                i
-                for i in range(memory_section_idx + 1, len(lines))
-                if lines[i].startswith("##") or lines[i].startswith("---")
-            ),
-            len(lines),
-        )
-
-        # Replace entire section
-        protocol = ECOSYSTEM_PROTOCOL.format(
-            agent=agent_name, agent_title=agent_title, network=network
-        )
-        lines[memory_section_idx:section_end] = protocol.strip().split("\n")
-        print(f"✓ Replaced memory section in {agent_name}")
-    else:
-        # Add before User Context or at end
-        user_context_idx = next(
-            (i for i, line in enumerate(lines) if "User Context" in line), len(lines) - 5
-        )
-        protocol = ECOSYSTEM_PROTOCOL.format(
-            agent=agent_name, agent_title=agent_title, network=network
-        )
-        lines.insert(user_context_idx, protocol.strip())
-        print(f"✓ Added protocol section to {agent_name}")
-
-    # Write back
     agent_file.write_text("\n".join(lines))
 
 
