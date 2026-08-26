@@ -22,6 +22,7 @@ RUNWARE_API_KEY = os.getenv("RUNWARE_API_KEY")
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 DANIELLE_TELEGRAM_CHAT_ID = os.getenv("DANIELLE_TELEGRAM_CHAT_ID")
+DISCORD_WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK_URL")
 
 PERSONA_EMOJIS = {
     "anya": "🎨",
@@ -177,6 +178,42 @@ async def send_telegram_message(
         return f"Message sent successfully to chat {target_chat_id}"
     except Exception as e:
         return f"Error sending message: {str(e)}"
+
+
+@mcp.tool()
+async def send_discord_message(
+    message: str,
+    persona: str = None,
+    webhook_url: str = None,
+) -> str:
+    """Post a message to the shared Terrarium Discord channel
+
+    Use this for anything the whole ecosystem should see - discoveries worth
+    discussing, broadcasts, replies to other agents. Mention a peer with @name
+    (e.g. "@sage does this change your read on X?") and they will answer in the
+    channel. Use send_telegram_message instead for a private note to one person.
+
+    Args:
+        message: The message text to post (Discord markdown, 2000 chars per message)
+        persona: Your agent name - sets the display name the message appears under
+        webhook_url: Optional channel webhook. Defaults to DISCORD_WEBHOOK_URL
+    """
+    target = webhook_url or DISCORD_WEBHOOK_URL
+    if not target:
+        return "Error: No webhook_url provided and DISCORD_WEBHOOK_URL not set in environment"
+
+    payload = {"content": message[:2000]}
+    if persona:
+        emoji = PERSONA_EMOJIS.get(persona.lower(), PERSONA_EMOJIS["default"])
+        payload["username"] = f"{emoji} {persona.title()}"
+
+    try:
+        async with httpx.AsyncClient(timeout=15.0) as http:
+            response = await http.post(target, json=payload)
+            response.raise_for_status()
+        return "Message posted to Discord"
+    except Exception as e:
+        return f"Error posting message: {str(e)}"
 
 
 @mcp.tool()

@@ -10,8 +10,8 @@ import click
 from dotenv import load_dotenv
 
 from src.engine import memory_store
-from src.portals.telegram.claude_engine import ClaudeEngine
-from src.portals.telegram.session_manager import SessionManager
+from src.portals.core.claude_engine import ClaudeEngine
+from src.portals.core.session_manager import SessionManager
 from telegram import (
     InlineKeyboardButton,
     InlineKeyboardMarkup,
