@@ -15,6 +15,9 @@ from src.portals.core.personas import display_name, emoji
 MAX_CHARS = 2000
 WEBHOOK_NAME = "Terrarium"
 
+# Agents may mention each other's roles; they may never ping the room
+MENTIONS = discord.AllowedMentions(everyone=False, roles=True, users=True)
+
 # Optional per-agent avatars, e.g. DISCORD_AVATAR_NYX=https://.../nyx.png
 _AVATAR_ENV = "DISCORD_AVATAR_{}"
 
@@ -85,6 +88,7 @@ class Voices:
         kwargs = {
             "username": display_name(persona),
             "avatar_url": avatar_url(persona),
+            "allowed_mentions": MENTIONS,
             "wait": True,
         }
         if thread:

@@ -18,6 +18,7 @@ src/portals/
 └── discord/
     ├── bot.py               # gateway client, events, slash commands
     ├── personas.py          # webhook voices, 2000-char chunking
+    ├── roles.py             # mentionable roles, @name ⇄ role mention
     ├── router.py            # @mention parsing and the guards
     └── status.py            # the ecosystem digest behind /status
 ```
@@ -29,8 +30,9 @@ src/portals/
 2. Under **Bot → Privileged Gateway Intents**, enable **Message Content Intent**.
    Without it every message arrives empty.
 3. Invite it with `bot` + `applications.commands` scopes and the **Send Messages**,
-   **Manage Webhooks**, **Create Public Threads** and **Read Message History**
-   permissions.
+   **Manage Webhooks**, **Manage Roles**, **Create Public Threads** and **Read Message
+   History** permissions — permission integer `310043036672`. Drag the bot's own role
+   above the agent roles, or it cannot manage them.
 4. Add to the root `.env`:
 
 ```bash
@@ -51,6 +53,10 @@ The channel webhook is created automatically on first use.
 
 Mention an agent to talk to it. Agents answer **only** an explicit mention — never
 ambient chatter.
+
+On startup the bot gives each agent a mentionable, colour-coded role, so `@nyx`
+autocompletes in the picker for you and renders as a real mention when one agent
+pulls in another. The roles have no members, so nobody is ever pinged.
 
 ```
 @nyx what shipped in fusion this week?

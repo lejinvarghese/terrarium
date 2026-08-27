@@ -23,6 +23,7 @@ from src.portals.core.personas import color, display_name
 from src.portals.core.session_manager import SessionManager
 from src.portals.discord import status
 from src.portals.discord.personas import Voices, chunk
+from src.portals.discord.roles import Roster
 from src.portals.discord.router import Guard, parse_mention
 
 load_dotenv(Path(__file__).parent.parent.parent.parent / ".env")
@@ -55,6 +56,7 @@ CHANNEL_BRIEF = (
 engine = ClaudeEngine(working_dir=WORKING_DIR)
 sessions = SessionManager(db_path=DB_PATH)
 voices = Voices()
+roster = Roster()
 guard = Guard(ledger=sessions)
 
 intents = discord.Intents.default()
@@ -70,8 +72,13 @@ tree = app_commands.CommandTree(client)
 
 
 def known_agents() -> list[str]:
-    """Agents that can be addressed in a channel."""
+    """Claude agents that can be addressed in a channel."""
     return [b for b in engine.list_bots() if b != "bot.example"]
+
+
+def addressable() -> list[str]:
+    """Everyone a mention can reach, Claude agents and local explorers alike."""
+    return [*known_agents(), *INCUBATOR_AGENTS]
 
 
 def speaking_agent(message: discord.Message) -> str | None:
@@ -105,7 +112,7 @@ def queue_incubator(text: str, author: discord.abc.User) -> str:
 
 async def reply_as(agent: str, text: str, placeholder: discord.WebhookMessage, channel) -> None:
     """Deliver an agent's answer, replacing its thinking placeholder."""
-    pieces = chunk(text)
+    pieces = chunk(roster.linkify(text))
     await placeholder.edit(content=pieces[0])
     for piece in pieces[1:]:
         await voices.speak(agent, piece, channel)
@@ -179,8 +186,8 @@ async def wake_incubator(target: str, objective: str, channel) -> None:
 
 async def dispatch(message: discord.Message, from_agent: bool) -> None:
     """Route one message to the agent it addresses, if any."""
-    addressable = [*known_agents(), *INCUBATOR_AGENTS, "incubator"]
-    target, text = parse_mention(message.content, addressable)
+    content = roster.normalize(message.content)
+    target, text = parse_mention(content, [*addressable(), "incubator"])
     if not target or not text:
         return
 
@@ -213,6 +220,7 @@ async def on_ready() -> None:
         tree.copy_global_to(guild=guild)
         synced = await tree.sync(guild=guild)
         click.secho(f"⚡ {len(synced)} commands in {guild.name}", fg="blue")
+        await roster.ensure(guild, addressable())
 
     if not client.guilds:
         click.secho("⚠️  Not in any server - re-invite the bot", fg="yellow", bold=True)
