@@ -25,13 +25,26 @@ from src.portals.discord.router import Guard, parse_mention
 load_dotenv(Path(__file__).parent.parent.parent.parent / ".env")
 
 DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
-GUILD_ID = os.getenv("DISCORD_GUILD_ID")
 DB_PATH = os.getenv("SESSION_DB_PATH", "data/sessions.db")
 WORKING_DIR = os.getenv("CLAUDE_WORKING_DIR", os.getcwd())
 SESSION_EXPIRY_HOURS = int(os.getenv("SESSION_EXPIRY_HOURS", "24"))
 
 # Async exploration agents - messages are queued, not answered live
 INCUBATOR_AGENTS = {"atlas": "A001", "aria": "A002", "aris": "A003", "incubator": "all"}
+
+# An agent's reply is the channel message, so the other portals stay shut for the turn
+OTHER_PORTALS = [
+    "mcp__terrarium__send_telegram_message",
+    "mcp__terrarium__send_telegram_document",
+    "mcp__terrarium__send_discord_message",
+]
+
+CHANNEL_BRIEF = (
+    "You are speaking in the Terrarium's Discord channel. Your reply IS the message "
+    "everyone sees - answer directly, and do not send it through any other portal. "
+    "Keep it conversational and under 2000 characters. To bring in a peer, mention "
+    "them as @name and they will answer here."
+)
 
 engine = ClaudeEngine(working_dir=WORKING_DIR)
 sessions = SessionManager(db_path=DB_PATH)
@@ -115,6 +128,7 @@ async def run_agent(agent: str, prompt: str, channel, from_agent: bool) -> None:
                 message=prompt,
                 session_id=session_id,
                 bot=agent if not session_id else None,
+                disallowed_tools=OTHER_PORTALS,
             )
         except Exception as e:
             await placeholder.edit(content=f"❌ {agent} failed: {e}")
@@ -143,7 +157,7 @@ async def dispatch(message: discord.Message, from_agent: bool) -> None:
         return
 
     voice = speaker or message.author.display_name
-    prompt = f"[{voice} in #{message.channel}]: {text}"
+    prompt = f"{CHANNEL_BRIEF}\n\n[{voice} in #{message.channel}]: {text}"
     await run_agent(target, prompt, message.channel, from_agent)
 
 
@@ -154,13 +168,15 @@ async def dispatch(message: discord.Message, from_agent: bool) -> None:
 
 @client.event
 async def on_ready() -> None:
-    """Sync commands and announce presence."""
-    if GUILD_ID:
-        guild = discord.Object(id=int(GUILD_ID))
+    """Sync commands into every guild - per-guild syncs appear immediately."""
+    for guild in client.guilds:
         tree.copy_global_to(guild=guild)
-        await tree.sync(guild=guild)
-    else:
-        await tree.sync()
+        synced = await tree.sync(guild=guild)
+        click.secho(f"⚡ {len(synced)} commands in {guild.name}", fg="blue")
+
+    if not client.guilds:
+        click.secho("⚠️  Not in any server - re-invite the bot", fg="yellow", bold=True)
+
     click.secho(
         f"✨ Connected as {client.user} - the terrarium is open", fg="bright_green", bold=True
     )

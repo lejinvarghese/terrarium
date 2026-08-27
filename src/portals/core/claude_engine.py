@@ -123,7 +123,13 @@ class ClaudeEngine:
                 bots_info[bot] = description
         return bots_info
 
-    def _build_command(self, message: str, session_id: str | None, bot: str | None) -> list[str]:
+    def _build_command(
+        self,
+        message: str,
+        session_id: str | None,
+        bot: str | None,
+        disallowed_tools: list[str] | None = None,
+    ) -> list[str]:
         """Build Claude CLI command with appropriate flags."""
         cmd = [
             "claude",
@@ -135,6 +141,9 @@ class ClaudeEngine:
 
         if self.working_dir:
             cmd.extend(["--add-dir", self.working_dir])
+
+        if disallowed_tools:
+            cmd.extend(["--disallowed-tools", *disallowed_tools])
 
         if session_id:
             cmd.extend(["--resume", session_id])
@@ -247,6 +256,7 @@ class ClaudeEngine:
         message: str,
         session_id: str | None = None,
         bot: str | None = None,
+        disallowed_tools: list[str] | None = None,
     ) -> tuple[str, str, dict[str, Any]]:
         """
         Send a message to Claude Code CLI.
@@ -255,12 +265,14 @@ class ClaudeEngine:
             message: User message
             session_id: Existing session ID to resume (optional)
             bot: Bot name to use (optional, only for new sessions)
+            disallowed_tools: Tools to withhold for this turn, e.g. the portals
+                              an agent should not answer through
 
         Returns:
             Tuple of (response_text, session_id, metadata)
         """
         try:
-            cmd = self._build_command(message, session_id, bot)
+            cmd = self._build_command(message, session_id, bot, disallowed_tools)
             stdout, stderr, returncode = await self._execute_command(cmd)
 
             if returncode != 0:

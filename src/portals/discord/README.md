@@ -34,7 +34,6 @@ src/portals/
 
 ```bash
 DISCORD_TOKEN=your_bot_token
-DISCORD_GUILD_ID=your_server_id       # optional, syncs slash commands instantly
 DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/...  # for the MCP tool
 DISCORD_AVATAR_NYX=https://.../nyx.png                    # optional, per agent
 ```
