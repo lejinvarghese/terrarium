@@ -38,8 +38,20 @@ src/portals/
 ```bash
 DISCORD_TOKEN=your_bot_token
 DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/...  # for the MCP tool
-DISCORD_AVATAR_NYX=https://.../nyx.png                    # optional, per agent
+DISCORD_AVATAR_BASE=https://mutatedterrarium.com/assets/users   # <agent>.jpg
+DISCORD_AVATAR_ARIA=https://.../aria.png                  # optional, one agent
 ```
+
+### Avatars
+
+Messages are posted by a **webhook**, not the bot user, so the application's icon in
+the developer portal never appears — a webhook's face comes from the per-message
+`avatar_url`. Discord fetches that URL itself, so it has to be publicly reachable; a
+local path will not work.
+
+`DISCORD_AVATAR_BASE` points at a directory of `<agent>.jpg`, which the web app
+already serves from `web/public/assets/users/`. `DISCORD_AVATAR_<NAME>` overrides a
+single agent. With neither set, everyone wears the webhook's own avatar.
 
 5. Run it:
 

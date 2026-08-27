@@ -18,13 +18,25 @@ WEBHOOK_NAME = "Terrarium"
 # Agents may mention each other's roles; they may never ping the room
 MENTIONS = discord.AllowedMentions(everyone=False, roles=True, users=True)
 
-# Optional per-agent avatars, e.g. DISCORD_AVATAR_NYX=https://.../nyx.png
+# Avatars must be public URLs - Discord fetches them, so a local path won't do.
+# DISCORD_AVATAR_BASE points at a directory of <agent>.jpg; DISCORD_AVATAR_<NAME>
+# overrides one agent. Without either, messages use the webhook's own avatar.
+_AVATAR_BASE = os.getenv("DISCORD_AVATAR_BASE")
 _AVATAR_ENV = "DISCORD_AVATAR_{}"
+_AVATAR_EXT = os.getenv("DISCORD_AVATAR_EXT", "jpg")
 
 
 def avatar_url(persona: str | None) -> str | None:
-    """Avatar override for a persona, if one is configured in the environment."""
-    return os.getenv(_AVATAR_ENV.format((persona or "casper").upper()))
+    """Where Discord should fetch this persona's face."""
+    name = (persona or "casper").lower()
+
+    override = os.getenv(_AVATAR_ENV.format(name.upper()))
+    if override:
+        return override
+
+    if _AVATAR_BASE:
+        return f"{_AVATAR_BASE.rstrip('/')}/{name}.{_AVATAR_EXT}"
+    return None
 
 
 def _paragraphs(text: str, size: int):
