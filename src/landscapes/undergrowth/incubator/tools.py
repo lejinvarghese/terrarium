@@ -226,6 +226,50 @@ def _send_telegram_via_api(chat_id: int, text: str, agent_name: str) -> bool:
 # --------------------------------------------------------------------------- #
 # Tool schemas (OpenAI function-calling format, what Ollama expects)
 # --------------------------------------------------------------------------- #
+def _recipients() -> list[str]:
+    """Who can be messaged, from the user database. Never hardcode people here."""
+    try:
+        from src.engine import user_db
+
+        return [u["username"] for u in user_db.get_db().list_users()]
+    except Exception:
+        return []
+
+
+def _telegram_schema() -> dict:
+    """The Telegram tool, with its recipients resolved at load time."""
+    to_user = {
+        "type": "string",
+        "description": "who to send it to - omit to reach the primary user",
+    }
+    known = _recipients()
+    if known:
+        to_user["enum"] = known
+
+    return {
+        "type": "function",
+        "function": {
+            "name": "send_telegram_message",
+            "description": (
+                "Send a discovery to someone via Telegram. Use it when you find "
+                "something interesting, and pick whoever is most likely to care. "
+                "Be enthusiastic and brief!"
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "text": {
+                        "type": "string",
+                        "description": "your discovery message - exciting and brief",
+                    },
+                    "to_user": to_user,
+                },
+                "required": ["text"],
+            },
+        },
+    }
+
+
 TOOL_SCHEMAS = [
     {
         "type": "function",
@@ -280,48 +324,35 @@ TOOL_SCHEMAS = [
             },
         },
     },
-    {
-        "type": "function",
-        "function": {
-            "name": "send_telegram_message",
-            "description": (
-                "Send a discovery via Telegram. Pick recipient based on content:\n"
-                "- Tech/research/AI → 'lejin' (main user)\n"
-                "- Music/art/creative/fun → 'danielle' (she loves music/art discoveries)\n"
-                "Use when you find something interesting. Be enthusiastic and brief!"
-            ),
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "text": {
-                        "type": "string",
-                        "description": "your discovery message - exciting and brief",
-                    },
-                    "to_user": {
-                        "type": "string",
-                        "description": "who to send to: 'lejin' or 'danielle' (pick based on content)",
-                        "enum": ["lejin", "danielle"],
-                    },
-                },
-                "required": ["text", "to_user"],
-            },
-        },
-    },
+    _telegram_schema(),
 ]
 
 
 class Toolbox:
-    """Binds the four tools to one agent and the shared Store."""
+    """Binds the tools to one agent and the shared Store.
+
+    `allow` narrows the toolset for contexts that need only some of it - a
+    conversation, for instance, wants research but no way to answer somewhere
+    other than where it was asked.
+    """
 
     schemas = TOOL_SCHEMAS
 
-    def __init__(self, store, agent_id: str, agent_name: str):
+    def __init__(self, store, agent_id: str, agent_name: str, allow: tuple[str, ...] | None = None):
         self.store = store
         self.agent_id = agent_id
         self.agent_name = agent_name
+        self.allow = set(allow) if allow else None
+        self.schemas = (
+            TOOL_SCHEMAS
+            if self.allow is None
+            else [s for s in TOOL_SCHEMAS if s["function"]["name"] in self.allow]
+        )
 
     def call(self, name: str, args: dict) -> str:
         args = args or {}
+        if self.allow is not None and name not in self.allow:
+            return f"{name} is not available here."
         try:
             if name == "web_search":
                 return web_search(args.get("query", ""))
@@ -332,9 +363,7 @@ class Toolbox:
             if name == "write_message":
                 return self._write_message(args.get("to", ""), args.get("content", ""))
             if name == "send_telegram_message":
-                return self._send_telegram_message(
-                    args.get("text", ""), args.get("to_user", "lejin")
-                )
+                return self._send_telegram_message(args.get("text", ""), args.get("to_user"))
             return f"Unknown tool: {name}"
         except Exception as e:
             return f"Tool {name} error: {e}"
@@ -353,36 +382,22 @@ class Toolbox:
         self.store.write_message(self.agent_id, self.agent_name, to, content)
         return f"Message left for {to}."
 
-    def _send_telegram_message(self, text: str, to_user: str = "lejin") -> str:
-        """Send a Telegram message to specified user."""
+    def _send_telegram_message(self, text: str, to_user: str | None = None) -> str:
+        """Send a Telegram message. The recipient is resolved from the user database."""
         text = (text or "").strip()
-        to_user = (to_user or "lejin").strip().lower()
-
         if not text:
             return "send_telegram_message error: empty text."
 
-        # Map user names to chat IDs
-        user_map = {
-            "lejin": os.environ.get("TELEGRAM_CHAT_ID"),
-            "danielle": os.environ.get("DANIELLE_TELEGRAM_CHAT_ID"),
-        }
+        from src.engine import user_db
 
-        chat_id_str = user_map.get(to_user)
-        if not chat_id_str:
-            return (
-                f"send_telegram_message error: unknown user '{to_user}' (use 'lejin' or 'danielle')"
-            )
-
+        recipient = (to_user or "").strip().lower() or None
         try:
-            chat_id = int(chat_id_str)
+            chat_id = int(user_db.resolve_user_id(recipient))
         except (ValueError, TypeError):
-            return f"send_telegram_message error: invalid chat ID for {to_user}"
+            return f"send_telegram_message error: no known recipient '{to_user}'."
 
-        # Send via Telegram API
-        success = _send_telegram_via_api(chat_id, text, self.agent_name)
-
-        if success:
-            return f"Message sent to {to_user} via Telegram."
+        if _send_telegram_via_api(chat_id, text, self.agent_name):
+            return f"Message sent to {recipient or 'the primary user'} via Telegram."
         else:
             return (
                 "send_telegram_message failed: could not reach Telegram API. "

@@ -16,7 +16,7 @@ from dotenv import load_dotenv
 import discord
 from discord import app_commands
 from src.engine import memory_store, user_db
-from src.landscapes.undergrowth.incubator.explore import run_episode
+from src.landscapes.undergrowth.incubator.explore import converse
 from src.landscapes.undergrowth.incubator.store import Store
 from src.portals.core.claude_engine import ClaudeEngine
 from src.portals.core.personas import color, display_name
@@ -36,7 +36,6 @@ SESSION_EXPIRY_HOURS = int(os.getenv("SESSION_EXPIRY_HOURS", "24"))
 # Local exploration agents. Naming one wakes it for a live episode; @incubator
 # leaves a note for all three to pick up on their next scheduled run instead.
 INCUBATOR_AGENTS = {"atlas": "A001", "aria": "A002", "aris": "A003"}
-INCUBATOR_STEPS = 3
 INCUBATOR_LOCK = asyncio.Semaphore(1)  # one small model, one GPU
 
 # An agent's reply is the channel message, so the other portals stay shut for the turn
@@ -79,6 +78,17 @@ def known_agents() -> list[str]:
 def addressable() -> list[str]:
     """Everyone a mention can reach, Claude agents and local explorers alike."""
     return [*known_agents(), *INCUBATOR_AGENTS]
+
+
+def roster_brief() -> str:
+    """Who else is in the room. The two colonies are otherwise unaware of each other."""
+    terrarium = ", ".join(a.title() for a in known_agents())
+    undergrowth = ", ".join(a.title() for a in INCUBATOR_AGENTS)
+    return (
+        f"\n\nAlso in this channel - Terrarium agents: {terrarium}. "
+        f"Undergrowth explorers: {undergrowth}. "
+        "Mention any of them as @name to bring them into the conversation."
+    )
 
 
 def speaking_agent(message: discord.Message) -> str | None:
@@ -155,8 +165,8 @@ async def run_agent(agent: str, prompt: str, channel, from_agent: bool) -> None:
     click.secho(f"✅ {agent} answered in #{channel} ({len(response)} chars)", fg="green")
 
 
-async def wake_incubator(target: str, objective: str, channel) -> None:
-    """Run a live exploration episode for a local agent and post what it found."""
+async def run_explorer(target: str, message: str, channel) -> None:
+    """Answer as a local Ollama agent - a conversation, not a daily exploration."""
     refusal = guard.check(target, channel.id, channel.id, from_agent=False)
     if refusal:
         click.secho(f"🛑 {target} skipped: {refusal}", fg="yellow")
@@ -168,20 +178,20 @@ async def wake_incubator(target: str, objective: str, channel) -> None:
     async with INCUBATOR_LOCK:
         try:
             result = await asyncio.to_thread(
-                run_episode,
+                converse,
                 INCUBATOR_AGENTS[target],
-                objective=objective,
-                steps=INCUBATOR_STEPS,
-                verbose=False,
+                message,
+                context=roster_brief(),
+                delivery="discord",
             )
         except Exception as e:
-            await placeholder.edit(content=f"❌ {target} failed to wake: {e}")
+            await placeholder.edit(content=f"❌ {target} failed to answer: {e}")
             click.secho(f"🔥 {target}: {e}", fg="red", bold=True)
             return
 
     footer = f"-# {result['tool_calls']} tool calls · {result['duration_s']}s · local"
-    await reply_as(target, f"{result['summary']}\n\n{footer}", placeholder, channel)
-    click.secho(f"✅ {target} explored in #{channel} (ep {result['episode_id']})", fg="green")
+    await reply_as(target, f"{result['reply']}\n\n{footer}", placeholder, channel)
+    click.secho(f"✅ {target} answered in #{channel} (ep {result['episode_id']})", fg="green")
 
 
 async def dispatch(message: discord.Message, from_agent: bool) -> None:
@@ -196,7 +206,7 @@ async def dispatch(message: discord.Message, from_agent: bool) -> None:
         return
 
     if target in INCUBATOR_AGENTS:
-        await wake_incubator(target, text, message.channel)
+        await run_explorer(target, text, message.channel)
         return
 
     speaker = speaking_agent(message)
@@ -204,7 +214,7 @@ async def dispatch(message: discord.Message, from_agent: bool) -> None:
         return
 
     voice = speaker or message.author.display_name
-    prompt = f"{CHANNEL_BRIEF}\n\n[{voice} in #{message.channel}]: {text}"
+    prompt = f"{CHANNEL_BRIEF}{roster_brief()}\n\n[{voice} in #{message.channel}]: {text}"
     await run_agent(target, prompt, message.channel, from_agent)
 
 
