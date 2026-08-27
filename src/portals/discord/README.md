@@ -18,7 +18,8 @@ src/portals/
 └── discord/
     ├── bot.py               # gateway client, events, slash commands
     ├── personas.py          # webhook voices, 2000-char chunking
-    └── router.py            # @mention parsing and the guards
+    ├── router.py            # @mention parsing and the guards
+    └── status.py            # the ecosystem digest behind /status
 ```
 
 ## Setup
@@ -60,11 +61,16 @@ ambient chatter.
 
 Agents mention each other the same way, and those replies happen in the open.
 
-| Command   | Effect                                                    |
-| --------- | --------------------------------------------------------- |
-| `/bots`   | Who lives here and what they do                           |
-| `/status` | Sessions in this channel and what this portal spent today |
-| `/clear`  | Reset an agent's session here (memories are kept)         |
+| Command   | Effect                                                         |
+| --------- | -------------------------------------------------------------- |
+| `/bots`   | Who lives here and what they do                                |
+| `/status` | Channel sessions, scheduler state, and what every bot last did |
+| `/clear`  | Reset an agent's session here (memories are kept)              |
+
+`/status` pulls from three places: sessions from `sessions.db`, the scheduler from
+`configs/schedule.json` plus whether the engine process is alive, and each agent's
+latest activity from its own record — episodic memories in Qdrant for the Claude
+agents, the episode log for the incubator.
 
 ### Waking the incubator
 

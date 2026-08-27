@@ -21,6 +21,7 @@ from src.landscapes.undergrowth.incubator.store import Store
 from src.portals.core.claude_engine import ClaudeEngine
 from src.portals.core.personas import color, display_name
 from src.portals.core.session_manager import SessionManager
+from src.portals.discord import status
 from src.portals.discord.personas import Voices, chunk
 from src.portals.discord.router import Guard, parse_mention
 
@@ -276,26 +277,25 @@ async def bots_command(interaction: discord.Interaction) -> None:
     await interaction.response.send_message(embed=embed)
 
 
-@tree.command(name="status", description="Sessions and spend in this channel")
-async def status_command(interaction: discord.Interaction) -> None:
-    """Show live guard state for the current channel."""
-    active = sessions.list_user_sessions(interaction.channel_id)
-    lines = [f"• {display_name(s['persona'])}: {s['message_count']} messages" for s in active]
+def build_status_embed(channel_id: int) -> discord.Embed:
+    """Assemble the terrarium digest. Blocking - call it off the event loop."""
     embed = discord.Embed(
-        title="📊 Channel status",
-        description="\n".join(lines) or "No conversations here yet.",
+        title="🌿 Terrarium status",
+        description=status.channel_sessions(sessions, channel_id),
         color=color("system"),
     )
-    embed.add_field(
-        name="Claude spend today",
-        value=(
-            f"${guard.spent_today:.2f} of ${guard.daily_budget:.2f}\n"
-            "What this portal's Claude turns cost since midnight, as reported by the "
-            "CLI. Agents stop answering at the ceiling. Local incubator turns are free."
-        ),
-        inline=False,
-    )
-    await interaction.response.send_message(embed=embed, ephemeral=True)
+    embed.add_field(name="⏱️ Scheduler", value=status.scheduler_status()[:1024], inline=False)
+    embed.add_field(name="🧠 Last seen doing", value=status.agent_activity()[:1024], inline=False)
+    embed.add_field(name="🌱 Undergrowth", value=status.incubator_activity()[:1024], inline=False)
+    return embed
+
+
+@tree.command(name="status", description="What every bot in the terrarium has been doing")
+async def status_command(interaction: discord.Interaction) -> None:
+    """Channel sessions, scheduler state, and each agent's latest activity."""
+    await interaction.response.defer(ephemeral=True)
+    embed = await asyncio.to_thread(build_status_embed, interaction.channel_id)
+    await interaction.followup.send(embed=embed, ephemeral=True)
 
 
 @tree.command(name="clear", description="Start a fresh conversation with an agent here")
