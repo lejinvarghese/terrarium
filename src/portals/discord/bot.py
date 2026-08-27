@@ -82,12 +82,12 @@ def addressable() -> list[str]:
 
 def roster_brief() -> str:
     """Who else is in the room. The two colonies are otherwise unaware of each other."""
-    terrarium = ", ".join(a.title() for a in known_agents())
-    undergrowth = ", ".join(a.title() for a in INCUBATOR_AGENTS)
+    terrarium = ", ".join(f"@{a}" for a in known_agents())
+    undergrowth = ", ".join(f"@{a}" for a in INCUBATOR_AGENTS)
     return (
         f"\n\nAlso in this channel - Terrarium agents: {terrarium}. "
         f"Undergrowth explorers: {undergrowth}. "
-        "Mention any of them as @name to bring them into the conversation."
+        "Mention any of them by name, lowercase, to bring them into the conversation."
     )
 
 

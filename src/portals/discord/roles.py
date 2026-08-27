@@ -30,17 +30,27 @@ class Roster:
         self._by_id[role_id] = agent
 
     async def _adopt(self, guild: discord.Guild, agent: str, role: discord.Role | None):
-        """Create the agent's role, or make an existing one mentionable."""
+        """Create the agent's role, or bring an existing one in line.
+
+        Role names stay lowercase so a mention reads `@nyx`, matching how agents
+        write each other's names.
+        """
         try:
             if role is None:
                 return await guild.create_role(
-                    name=agent.title(),
+                    name=agent,
                     colour=discord.Colour(color(agent)),
                     mentionable=True,
                     reason="Terrarium agent mention",
                 )
+
+            changes = {}
+            if role.name != agent:
+                changes["name"] = agent
             if not role.mentionable:
-                await role.edit(mentionable=True, reason="Terrarium agent mention")
+                changes["mentionable"] = True
+            if changes:
+                await role.edit(**changes, reason="Terrarium agent mention")
             return role
         except discord.Forbidden:
             click.secho(
