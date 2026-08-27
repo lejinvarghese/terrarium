@@ -9,7 +9,6 @@ room full of agents from talking to each other until the money runs out.
 import asyncio
 import re
 import time
-from datetime import date
 
 import click
 
@@ -38,19 +37,21 @@ class Guard:
 
     def __init__(
         self,
+        ledger,
+        portal: str = "discord",
         max_hops: int = MAX_HOPS,
         cooldown: int = COOLDOWN_SECONDS,
         daily_budget: float = DAILY_BUDGET_USD,
         max_concurrent: int = MAX_CONCURRENT,
     ):
+        self.ledger = ledger
+        self.portal = portal
         self.max_hops = max_hops
         self.cooldown = cooldown
         self.daily_budget = daily_budget
         self.semaphore = asyncio.Semaphore(max_concurrent)
         self._hops: dict[int, int] = {}
         self._last_spoke: dict[tuple[str, int], float] = {}
-        self._spent = 0.0
-        self._spent_on = date.today()
 
     # -- hop budget ---------------------------------------------------------
     def reset_hops(self, root_id: int) -> None:
@@ -61,14 +62,12 @@ class Guard:
         return self.max_hops - self._hops.get(root_id, 0)
 
     def spend(self, cost: float | None) -> None:
-        """Record what a turn cost, rolling over at midnight."""
-        if date.today() != self._spent_on:
-            self._spent, self._spent_on = 0.0, date.today()
-        self._spent += cost or 0.0
+        """Record what a turn cost. Persisted, so a restart doesn't reset the ceiling."""
+        self.ledger.record_spend(self.portal, cost or 0.0)
 
     @property
     def spent_today(self) -> float:
-        return self._spent if date.today() == self._spent_on else 0.0
+        return self.ledger.spend_today(self.portal)
 
     # -- the gate -----------------------------------------------------------
     def check(self, agent: str, root_id: int, channel_id: int, from_agent: bool) -> str | None:

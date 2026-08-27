@@ -58,8 +58,42 @@ class SessionManager:
             """
             )
 
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS spend (
+                    day TEXT NOT NULL,
+                    portal TEXT NOT NULL,
+                    amount REAL DEFAULT 0.0,
+                    PRIMARY KEY (day, portal)
+                )
+            """
+            )
+
             conn.commit()
             click.secho("📊 Database tables initialized", fg="green")
+
+    def record_spend(self, portal: str, amount: float):
+        """Add to today's spend for a portal. Survives restarts."""
+        if not amount:
+            return
+        with self._get_connection() as conn:
+            conn.execute(
+                """
+                INSERT INTO spend (day, portal, amount) VALUES (DATE('now'), ?, ?)
+                ON CONFLICT(day, portal) DO UPDATE SET amount = amount + excluded.amount
+                """,
+                (portal, amount),
+            )
+            conn.commit()
+
+    def spend_today(self, portal: str) -> float:
+        """What a portal has spent so far today."""
+        with self._get_connection() as conn:
+            row = conn.execute(
+                "SELECT amount FROM spend WHERE day = DATE('now') AND portal = ?",
+                (portal,),
+            ).fetchone()
+            return row["amount"] if row else 0.0
 
     @contextmanager
     def _get_connection(self):

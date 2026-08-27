@@ -2,6 +2,9 @@
 
 PERSONA_EMOJIS = {
     "anya": "🎨",
+    "aria": "🎵",
+    "aris": "🦉",
+    "atlas": "🌐",
     "casper": "🪴",
     "cassia": "📅",
     "freya": "💪",
@@ -16,6 +19,9 @@ PERSONA_EMOJIS = {
 # Discord embed / webhook accent colours
 PERSONA_COLORS = {
     "anya": 0xE91E63,
+    "aria": 0x8E44AD,
+    "aris": 0x16A085,
+    "atlas": 0x2980B9,
     "casper": 0x2ECC71,
     "cassia": 0xF1C40F,
     "freya": 0xE74C3C,

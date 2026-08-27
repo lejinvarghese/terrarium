@@ -6,6 +6,7 @@ like a room full of inhabitants. Agents answer only an explicit @mention, and
 agent-to-agent replies draw on a hop budget only a human can refill.
 """
 
+import asyncio
 import os
 from pathlib import Path
 
@@ -15,6 +16,7 @@ from dotenv import load_dotenv
 import discord
 from discord import app_commands
 from src.engine import memory_store, user_db
+from src.landscapes.undergrowth.incubator.explore import run_episode
 from src.landscapes.undergrowth.incubator.store import Store
 from src.portals.core.claude_engine import ClaudeEngine
 from src.portals.core.personas import color, display_name
@@ -29,8 +31,11 @@ DB_PATH = os.getenv("SESSION_DB_PATH", "data/sessions.db")
 WORKING_DIR = os.getenv("CLAUDE_WORKING_DIR", os.getcwd())
 SESSION_EXPIRY_HOURS = int(os.getenv("SESSION_EXPIRY_HOURS", "24"))
 
-# Async exploration agents - messages are queued, not answered live
-INCUBATOR_AGENTS = {"atlas": "A001", "aria": "A002", "aris": "A003", "incubator": "all"}
+# Local exploration agents. Naming one wakes it for a live episode; @incubator
+# leaves a note for all three to pick up on their next scheduled run instead.
+INCUBATOR_AGENTS = {"atlas": "A001", "aria": "A002", "aris": "A003"}
+INCUBATOR_STEPS = 3
+INCUBATOR_LOCK = asyncio.Semaphore(1)  # one small model, one GPU
 
 # An agent's reply is the channel message, so the other portals stay shut for the turn
 OTHER_PORTALS = [
@@ -49,7 +54,7 @@ CHANNEL_BRIEF = (
 engine = ClaudeEngine(working_dir=WORKING_DIR)
 sessions = SessionManager(db_path=DB_PATH)
 voices = Voices()
-guard = Guard()
+guard = Guard(ledger=sessions)
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -82,19 +87,19 @@ def resolve_user(author: discord.abc.User) -> str | None:
     return record["user_id"] if record else None
 
 
-def queue_incubator(target: str, text: str, author: discord.abc.User) -> str:
-    """Leave a note for an exploration agent to pick up on its next run."""
+def queue_incubator(text: str, author: discord.abc.User) -> str:
+    """Leave a note for every exploration agent to pick up on its next run."""
     store = Store()
     try:
         store.write_message(
             from_agent=f"DISCORD_{author.id}",
             from_name=author.display_name,
-            to_agent=INCUBATOR_AGENTS[target],
+            to_agent="all",
             content=text,
         )
     finally:
         store.close()
-    return f"📨 Queued for **{target.title()}** - they'll see it on their next exploration."
+    return "📨 Noted for Atlas, Aria and Aris - they'll read it on their next exploration."
 
 
 async def reply_as(agent: str, text: str, placeholder: discord.WebhookMessage, channel) -> None:
@@ -142,14 +147,48 @@ async def run_agent(agent: str, prompt: str, channel, from_agent: bool) -> None:
     click.secho(f"✅ {agent} answered in #{channel} ({len(response)} chars)", fg="green")
 
 
+async def wake_incubator(target: str, objective: str, channel) -> None:
+    """Run a live exploration episode for a local agent and post what it found."""
+    refusal = guard.check(target, channel.id, channel.id, from_agent=False)
+    if refusal:
+        click.secho(f"🛑 {target} skipped: {refusal}", fg="yellow")
+        return
+
+    guard.claim(target, channel.id, channel.id, from_agent=False)
+    placeholder = await voices.thinking(target, channel)
+
+    async with INCUBATOR_LOCK:
+        try:
+            result = await asyncio.to_thread(
+                run_episode,
+                INCUBATOR_AGENTS[target],
+                objective=objective,
+                steps=INCUBATOR_STEPS,
+                verbose=False,
+            )
+        except Exception as e:
+            await placeholder.edit(content=f"❌ {target} failed to wake: {e}")
+            click.secho(f"🔥 {target}: {e}", fg="red", bold=True)
+            return
+
+    footer = f"-# {result['tool_calls']} tool calls · {result['duration_s']}s · local"
+    await reply_as(target, f"{result['summary']}\n\n{footer}", placeholder, channel)
+    click.secho(f"✅ {target} explored in #{channel} (ep {result['episode_id']})", fg="green")
+
+
 async def dispatch(message: discord.Message, from_agent: bool) -> None:
     """Route one message to the agent it addresses, if any."""
-    target, text = parse_mention(message.content, [*known_agents(), *INCUBATOR_AGENTS])
+    addressable = [*known_agents(), *INCUBATOR_AGENTS, "incubator"]
+    target, text = parse_mention(message.content, addressable)
     if not target or not text:
         return
 
+    if target == "incubator":
+        await message.channel.send(queue_incubator(text, message.author))
+        return
+
     if target in INCUBATOR_AGENTS:
-        await message.channel.send(queue_incubator(target, text, message.author))
+        await wake_incubator(target, text, message.channel)
         return
 
     speaker = speaking_agent(message)
@@ -248,7 +287,13 @@ async def status_command(interaction: discord.Interaction) -> None:
         color=color("system"),
     )
     embed.add_field(
-        name="Spent today", value=f"${guard.spent_today:.2f} / ${guard.daily_budget:.2f}"
+        name="Claude spend today",
+        value=(
+            f"${guard.spent_today:.2f} of ${guard.daily_budget:.2f}\n"
+            "What this portal's Claude turns cost since midnight, as reported by the "
+            "CLI. Agents stop answering at the ceiling. Local incubator turns are free."
+        ),
+        inline=False,
     )
     await interaction.response.send_message(embed=embed, ephemeral=True)
 
