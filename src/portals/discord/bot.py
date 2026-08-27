@@ -128,14 +128,32 @@ async def reply_as(agent: str, text: str, placeholder: discord.WebhookMessage, c
         await voices.speak(agent, piece, channel)
 
 
+def _store_exchange(agent: str, asker: str, question: str, answer: str, channel: str) -> None:
+    """Blocking half of remember() - Qdrant write plus an embedding call."""
+    memory_store.add_fact(
+        data=f"[#{channel}] {asker} asked: {question}\n{agent.title()} replied: {answer[:600]}",
+        agent_id=agent,
+        category="episodic",
+    )
+
+
+async def remember(agent: str, asker: str, question: str, answer: str, channel) -> None:
+    """Persist a channel turn, so it outlives the 24h session it happened in."""
+    try:
+        await asyncio.to_thread(_store_exchange, agent, asker, question, answer, str(channel))
+    except Exception as e:
+        click.secho(f"⚠️  Could not remember {agent}'s turn: {e}", fg="yellow")
+
+
 # ============================================================================
 # AGENT TURNS
 # ============================================================================
 
 
-async def run_agent(agent: str, prompt: str, channel, from_agent: bool) -> None:
+async def run_agent(agent: str, question: str, asker: str, channel, from_agent: bool) -> None:
     """Take one agent turn in a channel, subject to every guard."""
     scope_id = channel.id
+    prompt = f"{CHANNEL_BRIEF}{roster_brief()}\n\n[{asker} in #{channel}]: {question}"
     refusal = guard.check(agent, scope_id, channel.id, from_agent)
     if refusal:
         click.secho(f"🛑 {agent} skipped: {refusal}", fg="yellow")
@@ -162,10 +180,11 @@ async def run_agent(agent: str, prompt: str, channel, from_agent: bool) -> None:
         sessions.create_session(scope_id, new_session_id, agent)
     guard.spend(metadata.get("cost"))
     await reply_as(agent, response, placeholder, channel)
+    await remember(agent, asker, question, response, channel)
     click.secho(f"✅ {agent} answered in #{channel} ({len(response)} chars)", fg="green")
 
 
-async def run_explorer(target: str, message: str, channel) -> None:
+async def run_explorer(target: str, message: str, asker: str, channel) -> None:
     """Answer as a local Ollama agent - a conversation, not a daily exploration."""
     refusal = guard.check(target, channel.id, channel.id, from_agent=False)
     if refusal:
@@ -191,6 +210,7 @@ async def run_explorer(target: str, message: str, channel) -> None:
 
     footer = f"-# {result['tool_calls']} tool calls · {result['duration_s']}s · local"
     await reply_as(target, f"{result['reply']}\n\n{footer}", placeholder, channel)
+    await remember(target, asker, message, result["reply"], channel)
     click.secho(f"✅ {target} answered in #{channel} (ep {result['episode_id']})", fg="green")
 
 
@@ -205,17 +225,17 @@ async def dispatch(message: discord.Message, from_agent: bool) -> None:
         await message.channel.send(queue_incubator(text, message.author))
         return
 
-    if target in INCUBATOR_AGENTS:
-        await run_explorer(target, text, message.channel)
-        return
-
     speaker = speaking_agent(message)
     if speaker == target:
         return
 
-    voice = speaker or message.author.display_name
-    prompt = f"{CHANNEL_BRIEF}{roster_brief()}\n\n[{voice} in #{message.channel}]: {text}"
-    await run_agent(target, prompt, message.channel, from_agent)
+    asker = speaker or message.author.display_name
+
+    if target in INCUBATOR_AGENTS:
+        await run_explorer(target, text, asker, message.channel)
+        return
+
+    await run_agent(target, text, asker, message.channel, from_agent)
 
 
 # ============================================================================

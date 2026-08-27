@@ -87,6 +87,26 @@ def _as_message_dict(msg) -> dict:
 
 
 CONVERSE_TOOLS = ("web_search", "web_fetch")
+CHAT_MEMORY_TURNS = 6
+
+
+def _background(carry: dict | None) -> str:
+    """What the agent has been exploring lately, as background rather than an agenda."""
+    if not carry or not carry.get("summary"):
+        return ""
+    return (
+        "\n\nWhat you've been exploring lately (background — bring it up only if it's "
+        f"relevant, never lead with it):\n{carry['summary'][:400]}"
+    )
+
+
+def _prior_turns(past: list[dict]) -> list[dict]:
+    """Earlier exchanges, replayed as conversation so the agent remembers them."""
+    turns = []
+    for chat in past:
+        turns.append({"role": "user", "content": chat["objective"].removeprefix("[chat] ")})
+        turns.append({"role": "assistant", "content": chat["summary"]})
+    return turns
 
 
 class _Recorder:
@@ -236,9 +256,16 @@ def converse(
     store = store or Store()
     toolbox = Toolbox(store, agent_id, cfg["name"], allow=CONVERSE_TOOLS)
 
+    carry = store.last_journal(agent_id)
+    past = store.recent_chats(agent_id, limit=CHAT_MEMORY_TURNS)
+
     ep_id = store.start_episode(agent_id, cfg["name"], f"[chat] {message[:120]}")
     history = [
-        {"role": "system", "content": _build_chat_prompt(cfg, delivery, context)},
+        {
+            "role": "system",
+            "content": _build_chat_prompt(cfg, delivery, context) + _background(carry),
+        },
+        *_prior_turns(past),
         {"role": "user", "content": message},
     ]
 

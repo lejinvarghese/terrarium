@@ -247,6 +247,21 @@ class Store:
             ).fetchall()
         return [dict(r) for r in rows]
 
+    def recent_chats(self, agent_id, limit=6) -> list[dict]:
+        """Finished conversation turns for this agent, oldest first.
+
+        This is what lets a conversation carry across messages: an in-flight
+        episode has no summary yet, so it never sees itself.
+        """
+        rows = self.conn.execute(
+            "SELECT objective, summary, started_at FROM episodes "
+            "WHERE agent_id=? AND objective LIKE '[chat]%' "
+            "AND summary IS NOT NULL AND summary != '' "
+            "ORDER BY id DESC LIMIT ?",
+            (agent_id, limit),
+        ).fetchall()
+        return [dict(r) for r in reversed(rows)]
+
     def episode_steps(self, episode_id) -> list[dict]:
         rows = self.conn.execute(
             "SELECT * FROM steps WHERE episode_id=? ORDER BY idx", (episode_id,)
