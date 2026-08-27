@@ -6,6 +6,7 @@ its own name and avatar. Threads reuse their parent channel's webhook.
 """
 
 import os
+from pathlib import Path
 
 import click
 
@@ -25,6 +26,21 @@ _AVATAR_BASE = os.getenv("DISCORD_AVATAR_BASE")
 _AVATAR_ENV = "DISCORD_AVATAR_{}"
 _AVATAR_EXT = os.getenv("DISCORD_AVATAR_EXT", "jpg")
 
+# Discord fetches an avatar once per URL and bakes the result into the message.
+# Stamping the file's mtime onto the URL means replacing a portrait produces a
+# new URL, so a refreshed face - or a fetch that failed once - is picked up.
+_AVATAR_DIR = Path(
+    os.getenv("DISCORD_AVATAR_DIR", Path(__file__).parents[3] / "web/public/assets/users")
+)
+
+
+def _version(name: str) -> str:
+    """Cache-busting stamp from the local copy of the portrait, if there is one."""
+    try:
+        return f"?v={int(_AVATAR_DIR.joinpath(f'{name}.{_AVATAR_EXT}').stat().st_mtime)}"
+    except OSError:
+        return ""
+
 
 def avatar_url(persona: str | None) -> str | None:
     """Where Discord should fetch this persona's face."""
@@ -35,7 +51,7 @@ def avatar_url(persona: str | None) -> str | None:
         return override
 
     if _AVATAR_BASE:
-        return f"{_AVATAR_BASE.rstrip('/')}/{name}.{_AVATAR_EXT}"
+        return f"{_AVATAR_BASE.rstrip('/')}/{name}.{_AVATAR_EXT}{_version(name)}"
     return None
 
 
