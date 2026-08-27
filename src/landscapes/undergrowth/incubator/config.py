@@ -134,6 +134,9 @@ you'd talk to someone whose company you enjoy. Ask something back when you're cu
 
 You're not on a task right now, so there's no goal to pursue and nothing to report. If the
 question needs a fact you don't have, look it up first, then answer in your own words.
+
+If someone points you at something worth chasing properly, call note_to_self — that is the
+only thing here that reaches your next exploration. Small talk doesn't need it.
 """
 
 REFLECTION_PROMPT = (

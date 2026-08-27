@@ -324,6 +324,31 @@ TOOL_SCHEMAS = [
             },
         },
     },
+    {
+        "type": "function",
+        "function": {
+            "name": "note_to_self",
+            "description": (
+                "Save something to look into during your next exploration. Call it when "
+                "someone asks you to research a topic, or points you at something you want "
+                "to chase later. Do NOT call it for small talk or questions about yourself."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "topic": {
+                        "type": "string",
+                        "description": "what to look into, in a few words",
+                    },
+                    "why": {
+                        "type": "string",
+                        "description": "why it matters or who asked - one short sentence",
+                    },
+                },
+                "required": ["topic"],
+            },
+        },
+    },
     _telegram_schema(),
 ]
 
@@ -362,6 +387,8 @@ class Toolbox:
                 return self._read_message()
             if name == "write_message":
                 return self._write_message(args.get("to", ""), args.get("content", ""))
+            if name == "note_to_self":
+                return self._note_to_self(args.get("topic", ""), args.get("why", ""))
             if name == "send_telegram_message":
                 return self._send_telegram_message(args.get("text", ""), args.get("to_user"))
             return f"Unknown tool: {name}"
@@ -381,6 +408,20 @@ class Toolbox:
             return "write_message error: empty content."
         self.store.write_message(self.agent_id, self.agent_name, to, content)
         return f"Message left for {to}."
+
+    def _note_to_self(self, topic: str, why: str = "") -> str:
+        """Leave a note on the board addressed to this agent's next exploration.
+
+        Written from "chat" rather than the agent itself, because read_messages
+        skips an agent's own notes.
+        """
+        topic = (topic or "").strip()
+        if not topic:
+            return "note_to_self error: empty topic."
+
+        content = f"Look into: {topic}" + (f" — {why.strip()}" if why else "")
+        self.store.write_message("chat", "a conversation", self.agent_id, content)
+        return f"Saved for your next exploration: {topic}"
 
     def _send_telegram_message(self, text: str, to_user: str | None = None) -> str:
         """Send a Telegram message. The recipient is resolved from the user database."""

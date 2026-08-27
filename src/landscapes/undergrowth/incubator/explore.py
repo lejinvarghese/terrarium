@@ -72,7 +72,7 @@ def _build_kickoff(objective: str, carry: dict | None, inbox: list[dict]) -> str
         notes = "\n".join(
             f"  - {m['from_name']} ({m['from_agent']}): {m['content']}" for m in inbox
         )
-        parts.append(f"\nNotes waiting for you from other agents:\n{notes}")
+        parts.append(f"\nNotes waiting for you:\n{notes}")
     parts.append("\nBegin exploring now. Reach for a tool on your very first move.")
     return "\n".join(parts)
 
@@ -86,7 +86,7 @@ def _as_message_dict(msg) -> dict:
     return d
 
 
-CONVERSE_TOOLS = ("web_search", "web_fetch")
+CONVERSE_TOOLS = ("web_search", "web_fetch", "note_to_self")
 CHAT_MEMORY_TURNS = 6
 
 
