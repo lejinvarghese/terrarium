@@ -195,19 +195,50 @@ class ClaudeEngine:
                 return item.get("text", "")
         return ""
 
-    def _extract_response_text(self, events: list[dict]) -> str:
-        """Extract assistant message text from event stream."""
-        for event in events:
+    def _last_assistant_text(self, events: list[dict]) -> str:
+        """The last thing the agent actually said."""
+        for event in reversed(events):
             if event.get("type") != "assistant":
                 continue
             message = event.get("message")
             if not isinstance(message, dict):
                 continue
-            content = message.get("content", [])
-            text = self._extract_text_from_content(content)
+            text = self._extract_text_from_content(message.get("content", []))
             if text:
                 return text
         return ""
+
+    def _extract_response_text(self, events: list[dict]) -> str:
+        """The agent's finished answer.
+
+        An agent narrates before it acts - "hold on, let me check" - and then
+        calls tools and answers properly, so the first assistant message is a
+        preamble rather than the reply. The result event carries the finished
+        answer; failing that, take the last thing it said.
+        """
+        for event in events:
+            if event.get("type") == "result" and event.get("result"):
+                return str(event["result"])
+        return self._last_assistant_text(events)
+
+    def _content_blocks(self, events: list[dict]):
+        """Every content block the agent produced, across all its messages."""
+        for event in events:
+            if event.get("type") != "assistant":
+                continue
+            message = event.get("message")
+            content = message.get("content", []) if isinstance(message, dict) else []
+            if isinstance(content, list):
+                yield from content
+
+    def _tools_used(self, events: list[dict]) -> list[str]:
+        """Tools the agent reached for, in order, without repeats."""
+        used = []
+        for block in self._content_blocks(events):
+            name = block.get("name")
+            if block.get("type") == "tool_use" and name and name not in used:
+                used.append(name)
+        return used
 
     def _extract_metadata(self, events: list[dict]) -> dict[str, Any]:
         """Extract metadata from result event."""
@@ -217,6 +248,7 @@ class ClaudeEngine:
                     "cost": event.get("total_cost_usd"),
                     "duration": event.get("duration_ms"),
                     "turn": event.get("num_turns"),
+                    "tools": self._tools_used(events),
                     "model": None,
                 }
         return {}

@@ -150,6 +150,16 @@ async def remember(agent: str, asker: str, question: str, answer: str, channel) 
 # ============================================================================
 
 
+def _worked(metadata: dict) -> str:
+    """A footer showing what the agent reached for, so a long turn is legible."""
+    tools = [t.split("__")[-1] for t in metadata.get("tools") or []]
+    if not tools:
+        return ""
+    shown = ", ".join(tools[:5]) + (f" +{len(tools) - 5}" if len(tools) > 5 else "")
+    seconds = (metadata.get("duration") or 0) / 1000
+    return f"\n\n-# {shown} · {seconds:.0f}s"
+
+
 async def run_agent(agent: str, question: str, asker: str, channel, from_agent: bool) -> None:
     """Take one agent turn in a channel, subject to every guard."""
     scope_id = channel.id
@@ -179,7 +189,7 @@ async def run_agent(agent: str, question: str, asker: str, channel, from_agent: 
     if new_session_id:
         sessions.create_session(scope_id, new_session_id, agent)
     guard.spend(metadata.get("cost"))
-    await reply_as(agent, response, placeholder, channel)
+    await reply_as(agent, response + _worked(metadata), placeholder, channel)
     await remember(agent, asker, question, response, channel)
     click.secho(f"✅ {agent} answered in #{channel} ({len(response)} chars)", fg="green")
 
