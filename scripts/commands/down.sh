@@ -17,11 +17,19 @@ load_env
 echo "🛑 Stopping Terrarium services."
 STOPPED=0
 
-# Stop all core services (Archive service cleanup handles Docker container)
+# Stop all core services (Archive and World Monitor cleanup handle their Docker containers)
 for service in "${SERVICES[@]}"; do
     IFS='|' read -r name session display_name command working_dir <<< "$service"
 
-    if stop_service "$session" "$display_name"; then
+    cleanup_command=""
+    if [ "$name" = "monitor" ]; then
+        # tmux kill-session only kills the `docker compose logs -f` pane — the
+        # containers themselves run under dockerd and survive that. Tear them
+        # down explicitly, same reasoning as archive's docker cleanup on start.
+        cleanup_command="cd '$PROJECT_ROOT/${working_dir:-.}' && docker compose down"
+    fi
+
+    if stop_service "$session" "$display_name" "$cleanup_command"; then
         STOPPED=1
     fi
 done
