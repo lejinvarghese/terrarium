@@ -15,6 +15,8 @@ from runware.types import ILora  # noqa: E402
 from telegram import Bot  # noqa: E402
 
 from src.engine import memory_store, user_db  # noqa: E402
+from src.mcp.goodreads_scraper import GoodreadsScraper  # noqa: E402
+from src.mcp.letterboxd_scraper import LetterboxdScraper  # noqa: E402
 
 load_dotenv()
 
@@ -607,6 +609,143 @@ async def get_user_profile() -> str:
         return memory_store.render_profile() or "No profile data found"
     except Exception as e:
         return f"Error loading profile: {str(e)}"
+
+
+# Goodreads Integration
+
+
+@mcp.tool()
+async def goodreads_get_profile(username: str) -> dict:
+    """Get basic profile info for a public Goodreads user.
+
+    Args:
+        username: Goodreads username or numeric user ID
+
+    Returns:
+        Profile with name, stats (books, reviews, etc.), currently reading list
+
+    Note: Goodreads shut down its API in 2020. This scrapes public profile data.
+    The user's profile must be public for this to work.
+    """
+    scraper = GoodreadsScraper()
+    try:
+        return await scraper.get_user_profile(username)
+    finally:
+        await scraper.close()
+
+
+@mcp.tool()
+async def goodreads_get_books(username: str, shelf: str = "read", limit: int = 20) -> dict:
+    """Get books from a user's Goodreads shelf.
+
+    Args:
+        username: Goodreads username or numeric user ID
+        shelf: Shelf name - 'read', 'currently-reading', 'to-read', or custom shelf
+        limit: Max books to return (default 20, max 100)
+
+    Returns:
+        List of books with title, author, rating, date read, review snippet
+
+    Examples:
+        - Recently read: goodreads_get_books("username", shelf="read", limit=10)
+        - Current reads: goodreads_get_books("username", shelf="currently-reading")
+        - TBR pile: goodreads_get_books("username", shelf="to-read", limit=50)
+    """
+    scraper = GoodreadsScraper()
+    try:
+        return await scraper.get_user_books(username, shelf=shelf, limit=min(limit, 100))
+    finally:
+        await scraper.close()
+
+
+@mcp.tool()
+async def goodreads_get_book(book_id: str) -> dict:
+    """Get details for a specific book on Goodreads.
+
+    Args:
+        book_id: Goodreads book ID (numeric) or book URL
+
+    Returns:
+        Book details with title, author, rating, description, review count
+
+    Examples:
+        - By ID: goodreads_get_book("123456")
+        - By URL: goodreads_get_book("https://www.goodreads.com/book/show/123456-book-title")
+    """
+    scraper = GoodreadsScraper()
+    try:
+        return await scraper.get_book_details(book_id)
+    finally:
+        await scraper.close()
+
+
+# Letterboxd Integration
+
+
+@mcp.tool()
+async def letterboxd_get_profile(username: str) -> dict:
+    """Get basic profile info for a public Letterboxd user.
+
+    Args:
+        username: Letterboxd username
+
+    Returns:
+        Profile with name, stats (films, lists, etc.), favorites, recent activity
+
+    Note: Letterboxd's API is not public. This scrapes public profile data.
+    The user's profile must be public for this to work.
+    """
+    scraper = LetterboxdScraper()
+    try:
+        return await scraper.get_user_profile(username)
+    finally:
+        await scraper.close()
+
+
+@mcp.tool()
+async def letterboxd_get_films(username: str, list_type: str = "films", limit: int = 20) -> dict:
+    """Get films from a user's Letterboxd list.
+
+    Args:
+        username: Letterboxd username
+        list_type: Type of list - 'films' (all rated), 'diary', 'watchlist', 'likes'
+        limit: Max films to return (default 20, max 100)
+
+    Returns:
+        List of films with title, year, rating (if rated), URL
+
+    Examples:
+        - All rated films: letterboxd_get_films("username", "films", 50)
+        - Diary entries: letterboxd_get_films("username", "diary", 20)
+        - Watchlist: letterboxd_get_films("username", "watchlist")
+        - Liked films: letterboxd_get_films("username", "likes", 30)
+    """
+    scraper = LetterboxdScraper()
+    try:
+        return await scraper.get_user_films(username, list_type=list_type, limit=min(limit, 100))
+    finally:
+        await scraper.close()
+
+
+@mcp.tool()
+async def letterboxd_get_film(film_slug: str) -> dict:
+    """Get details for a specific film on Letterboxd.
+
+    Args:
+        film_slug: Letterboxd film slug (e.g., 'the-matrix', 'parasite-2019')
+
+    Returns:
+        Film details with title, year, director, rating, description, genres
+
+    Examples:
+        - letterboxd_get_film("the-matrix")
+        - letterboxd_get_film("everything-everywhere-all-at-once")
+    """
+    scraper = LetterboxdScraper()
+    try:
+        return await scraper.get_film_details(film_slug)
+    finally:
+        await scraper.close()
 
 
 if __name__ == "__main__":
