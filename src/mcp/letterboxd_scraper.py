@@ -1,46 +1,70 @@
-"""Letterboxd public profile scraper - no API key required.
+"""Letterboxd public profile scraper - uses Playwright for Cloudflare bypass.
 
 Letterboxd's API is not public (request-only). This module scrapes
-public profile data using BeautifulSoup.
+public profile data using Playwright headless browser to bypass Cloudflare.
 """
 
 import re
 from typing import Any
 
-import httpx
 from bs4 import BeautifulSoup
+from playwright.async_api import async_playwright
 
 
 class LetterboxdScraper:
-    """Scraper for public Letterboxd profiles."""
+    """Scraper for public Letterboxd profiles using Playwright."""
 
     BASE_URL = "https://letterboxd.com"
-    HEADERS = {
-        "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
-        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
-        "Accept-Language": "en-US,en;q=0.5",
-        "Accept-Encoding": "gzip, deflate, br",
-        "DNT": "1",
-        "Connection": "keep-alive",
-        "Upgrade-Insecure-Requests": "1",
-        "Sec-Fetch-Dest": "document",
-        "Sec-Fetch-Mode": "navigate",
-        "Sec-Fetch-Site": "none",
-        "Cache-Control": "max-age=0",
-    }
 
     def __init__(self):
-        self.client = httpx.AsyncClient(headers=self.HEADERS, timeout=30.0, follow_redirects=True)
+        self.playwright = None
+        self.browser = None
+        self.context = None
+
+    async def _ensure_browser(self):
+        """Ensure browser is initialized."""
+        if not self.browser:
+            self.playwright = await async_playwright().start()
+            self.browser = await self.playwright.chromium.launch(headless=True)
+            self.context = await self.browser.new_context(
+                viewport={"width": 1920, "height": 1080},
+                user_agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+            )
 
     async def close(self):
-        """Close the HTTP client."""
-        await self.client.aclose()
+        """Close the browser and playwright."""
+        if self.context:
+            await self.context.close()
+        if self.browser:
+            await self.browser.close()
+        if self.playwright:
+            await self.playwright.stop()
+
+    async def _fetch_page(self, url: str) -> str:
+        """Fetch page content using Playwright."""
+        await self._ensure_browser()
+        page = await self.context.new_page()
+        try:
+            # Navigate and wait for DOM to load (not networkidle - Cloudflare challenges don't settle)
+            await page.goto(url, wait_until="domcontentloaded", timeout=60000)
+            # Wait for Cloudflare challenge to complete (if present)
+            await page.wait_for_timeout(5000)
+            # Wait for profile content to appear
+            try:
+                await page.wait_for_selector("h1.title-1", timeout=10000)
+            except Exception:
+                pass  # Profile might not have this element
+            content = await page.content()
+            return content
+        finally:
+            await page.close()
 
     def _extract_profile_stats(self, soup: BeautifulSoup) -> dict[str, str]:
         """Extract profile statistics from soup."""
         stats = {}
-        stat_links = soup.select(".profile-stats .definition-list a")
-        for link in stat_links:
+        # Stats are in h4.profile-statistic elements
+        stat_elems = soup.select("h4.profile-statistic a")
+        for link in stat_elems:
             count_elem = link.select_one(".value")
             label_elem = link.select_one(".definition")
             if count_elem and label_elem:
@@ -65,15 +89,23 @@ class LetterboxdScraper:
     def _extract_recent_activity(self, soup: BeautifulSoup) -> list[dict[str, Any]]:
         """Extract recent film activity from soup."""
         recent_films = []
-        recent_section = soup.select(".film-detail")
-        for film in recent_section[:5]:
-            title_elem = film.select_one(".film-title-wrapper a")
-            if title_elem:
-                film_data = {"title": title_elem.get_text(strip=True)}
-                rating_elem = film.select_one(".rating")
+        # Activity is in span.activity-summary elements
+        activity_items = soup.select("span.activity-summary")
+        for activity in activity_items[:5]:
+            # Film link in .target
+            film_link = activity.select_one(".target")
+            if film_link:
+                title = film_link.get_text(strip=True)
+                film_data = {"title": title}
+
+                # Rating in .rating.-tiny
+                rating_elem = activity.select_one(".rating.-tiny")
                 if rating_elem:
-                    stars = len(rating_elem.select(".rated-"))
-                    film_data["rating"] = stars / 2
+                    # Count stars - each one is a full star
+                    star_text = rating_elem.get_text(strip=True)
+                    star_count = star_text.count("★")
+                    film_data["rating"] = float(star_count)
+
                 recent_films.append(film_data)
         return recent_films
 
@@ -89,9 +121,8 @@ class LetterboxdScraper:
         url = f"{self.BASE_URL}/{username}/"
 
         try:
-            response = await self.client.get(url)
-            response.raise_for_status()
-            soup = BeautifulSoup(response.text, "lxml")
+            html = await self._fetch_page(url)
+            soup = BeautifulSoup(html, "lxml")
 
             name_elem = soup.select_one("h1.title-1")
             name = name_elem.get_text(strip=True) if name_elem else username
@@ -109,10 +140,6 @@ class LetterboxdScraper:
                 "recent_activity": recent_films,
             }
 
-        except httpx.HTTPStatusError as e:
-            if e.response.status_code == 404:
-                return {"error": f"User '{username}' not found"}
-            return {"error": f"HTTP error {e.response.status_code}"}
         except Exception as e:
             return {"error": f"Failed to fetch profile: {str(e)}"}
 
@@ -174,9 +201,8 @@ class LetterboxdScraper:
         url = f"{self.BASE_URL}/{username}/{list_type}/"
 
         try:
-            response = await self.client.get(url)
-            response.raise_for_status()
-            soup = BeautifulSoup(response.text, "lxml")
+            html = await self._fetch_page(url)
+            soup = BeautifulSoup(html, "lxml")
 
             films = []
             film_items = soup.select("li.poster-container")
@@ -188,10 +214,6 @@ class LetterboxdScraper:
 
             return {"list_type": list_type, "count": len(films), "films": films}
 
-        except httpx.HTTPStatusError as e:
-            if e.response.status_code == 404:
-                return {"error": "User or list not found"}
-            return {"error": f"HTTP error {e.response.status_code}"}
         except Exception as e:
             return {"error": f"Failed to fetch films: {str(e)}"}
 
@@ -253,9 +275,8 @@ class LetterboxdScraper:
         url = f"{self.BASE_URL}/film/{film_slug}/"
 
         try:
-            response = await self.client.get(url)
-            response.raise_for_status()
-            soup = BeautifulSoup(response.text, "lxml")
+            html = await self._fetch_page(url)
+            soup = BeautifulSoup(html, "lxml")
 
             metadata = self._extract_film_metadata(soup)
             rating, rating_count = self._extract_film_rating(soup)
@@ -271,9 +292,5 @@ class LetterboxdScraper:
                 "url": url,
             }
 
-        except httpx.HTTPStatusError as e:
-            if e.response.status_code == 404:
-                return {"error": "Film not found"}
-            return {"error": f"HTTP error {e.response.status_code}"}
         except Exception as e:
             return {"error": f"Failed to fetch film: {str(e)}"}
