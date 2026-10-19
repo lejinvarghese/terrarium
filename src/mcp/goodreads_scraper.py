@@ -33,9 +33,11 @@ class GoodreadsScraper:
             return f"{self.BASE_URL}/user/show/{username}"
         return f"{self.BASE_URL}/{username}"
 
-    def _extract_profile_stats(self, soup: BeautifulSoup) -> dict[str, int]:
-        """Extract profile statistics from soup."""
+    def _extract_profile_stats(self, soup: BeautifulSoup) -> dict[str, Any]:
+        """Extract profile statistics from soup and meta tags."""
         stats = {}
+
+        # Try structured stats first
         stat_elems = soup.select(".userStats .statItem")
         for stat in stat_elems:
             label_elem = stat.select_one(".statLabel")
@@ -44,22 +46,44 @@ class GoodreadsScraper:
                 label = label_elem.get_text(strip=True).lower()
                 count_text = count_elem.get_text(strip=True)
                 stats[label] = int(count_text.replace(",", ""))
+
+        # Fallback: extract from meta description
+        # e.g., "Lejin Varghese has 319 books on Goodreads"
+        if not stats:
+            meta = soup.find("meta", {"name": "description"})
+            if meta:
+                import re
+
+                desc = meta.get("content", "")
+                book_count_match = re.search(r"has (\d+) books", desc)
+                if book_count_match:
+                    stats["books"] = int(book_count_match.group(1))
+
         return stats
 
     def _extract_currently_reading(self, soup: BeautifulSoup) -> list[dict[str, Any]]:
-        """Extract currently reading books from soup."""
+        """Extract currently reading books from profile page.
+
+        Note: Goodreads only shows 1-3 books on the public profile page.
+        For full shelf access, use get_user_books() with shelf='currently-reading'.
+        """
         currently_reading = []
-        reading_section = soup.select(".currentlyReadingReviews .bookalike")
-        for book in reading_section[:5]:
-            title_elem = book.select_one(".title")
-            author_elem = book.select_one(".author")
-            if title_elem:
-                currently_reading.append(
-                    {
-                        "title": title_elem.get_text(strip=True),
-                        "author": (author_elem.get_text(strip=True) if author_elem else None),
-                    }
-                )
+
+        # Profile page uses .Updates.no_border for currently reading
+        current_reading_div = soup.select_one("#currentlyReadingReviews")
+        if current_reading_div:
+            books = current_reading_div.select(".Updates.no_border")
+            for book in books[:5]:
+                title_elem = book.select_one(".bookTitle")
+                author_elem = book.select_one(".authorName")
+                if title_elem:
+                    currently_reading.append(
+                        {
+                            "title": title_elem.get_text(strip=True),
+                            "author": (author_elem.get_text(strip=True) if author_elem else None),
+                        }
+                    )
+
         return currently_reading
 
     async def get_user_profile(self, username: str) -> dict[str, Any]:
