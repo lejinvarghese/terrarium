@@ -69,11 +69,11 @@ class GoodreadsScraper:
         """
         currently_reading = []
 
-        # Profile page uses .Updates.no_border for currently reading
+        # Profile page uses ALL .Updates divs (not just .no_border)
         current_reading_div = soup.select_one("#currentlyReadingReviews")
         if current_reading_div:
-            books = current_reading_div.select(".Updates.no_border")
-            for book in books[:5]:
+            books = current_reading_div.select(".Updates")
+            for book in books:
                 title_elem = book.select_one(".bookTitle")
                 author_elem = book.select_one(".authorName")
                 if title_elem:
