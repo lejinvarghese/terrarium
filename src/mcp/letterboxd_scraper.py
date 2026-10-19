@@ -2,9 +2,10 @@
 
 Letterboxd's API is not public (request-only). This module scrapes
 public profile data using Playwright headless browser to bypass Cloudflare.
+
+ONLY WORKING METHODS INCLUDED - broken films/details methods removed.
 """
 
-import re
 from typing import Any
 
 from bs4 import BeautifulSoup
@@ -116,7 +117,7 @@ class LetterboxdScraper:
             username: Letterboxd username
 
         Returns:
-            Dict with name, profile_url, film_count, stats, etc.
+            Dict with name, profile_url, stats, favorites, recent_activity
         """
         url = f"{self.BASE_URL}/{username}/"
 
@@ -142,155 +143,3 @@ class LetterboxdScraper:
 
         except Exception as e:
             return {"error": f"Failed to fetch profile: {str(e)}"}
-
-    def _parse_film_item(self, item: Any) -> dict[str, Any] | None:
-        """Parse a single film item from list."""
-        poster = item.select_one(".film-poster")
-        if not poster:
-            return None
-
-        title = poster.get("data-film-name", "Unknown")
-        film_slug = poster.get("data-film-slug")
-        film_url = f"{self.BASE_URL}/film/{film_slug}/" if film_slug else None
-
-        year = self._extract_film_year(item)
-        rating = self._extract_user_rating(item)
-
-        return {
-            "title": title,
-            "year": year,
-            "rating": rating,
-            "url": film_url,
-            "slug": film_slug,
-        }
-
-    def _extract_film_year(self, item: Any) -> int | None:
-        """Extract release year from film item."""
-        year_elem = item.select_one(".film-poster img")
-        if not year_elem:
-            return None
-
-        alt_text = year_elem.get("alt")
-        if alt_text and isinstance(alt_text, str):
-            year_match = re.search(r"\((\d{4})\)", alt_text)
-            if year_match:
-                return int(year_match.group(1))
-        return None
-
-    def _extract_user_rating(self, item: Any) -> float | None:
-        """Extract user rating from film item."""
-        rating_elem = item.select_one(".poster-viewingdata .rating")
-        if rating_elem:
-            stars = len(rating_elem.select(".rated-"))
-            return stars / 2
-        return None
-
-    async def get_user_films(
-        self, username: str, list_type: str = "films", limit: int = 20
-    ) -> dict[str, Any]:
-        """Get films from a user's list.
-
-        Args:
-            username: Letterboxd username
-            list_type: Type of list - 'films' (all), 'diary', 'watchlist', 'likes'
-            limit: Max films to return (default 20)
-
-        Returns:
-            Dict with films list and metadata
-        """
-        url = f"{self.BASE_URL}/{username}/{list_type}/"
-
-        try:
-            html = await self._fetch_page(url)
-            soup = BeautifulSoup(html, "lxml")
-
-            films = []
-            film_items = soup.select("li.poster-container")
-
-            for item in film_items[:limit]:
-                film = self._parse_film_item(item)
-                if film:
-                    films.append(film)
-
-            return {"list_type": list_type, "count": len(films), "films": films}
-
-        except Exception as e:
-            return {"error": f"Failed to fetch films: {str(e)}"}
-
-    def _extract_film_metadata(self, soup: BeautifulSoup) -> dict[str, Any]:
-        """Extract film metadata from soup."""
-        title_elem = soup.select_one("h1.headline-1")
-        title = title_elem.get_text(strip=True) if title_elem else "Unknown"
-
-        year_elem = soup.select_one(".film-title-wrapper .metadata a")
-        year = year_elem.get_text(strip=True) if year_elem else None
-
-        director_elem = soup.select_one("#tab-crew .text-slug")
-        director = director_elem.get_text(strip=True) if director_elem else None
-
-        return {"title": title, "year": year, "director": director}
-
-    def _extract_film_rating(self, soup: BeautifulSoup) -> tuple[float | None, int | None]:
-        """Extract film rating and count."""
-        rating = None
-        rating_elem = soup.select_one(".average-rating a")
-        if rating_elem:
-            rating_text = rating_elem.get_text(strip=True)
-            try:
-                rating = float(rating_text)
-            except ValueError:
-                pass
-
-        rating_count = None
-        rating_count_elem = soup.select_one(".all-link")
-        if rating_count_elem:
-            count_match = re.search(r"([\d,]+)\s+ratings", rating_count_elem.get_text())
-            if count_match:
-                rating_count = int(count_match.group(1).replace(",", ""))
-
-        return rating, rating_count
-
-    def _extract_film_description(self, soup: BeautifulSoup) -> str | None:
-        """Extract film description."""
-        desc_elem = soup.select_one(".truncate p")
-        return desc_elem.get_text(strip=True) if desc_elem else None
-
-    def _extract_film_genres(self, soup: BeautifulSoup) -> list[str]:
-        """Extract film genres."""
-        genres = []
-        genre_elems = soup.select("#tab-genres .text-slug")
-        for genre in genre_elems:
-            genres.append(genre.get_text(strip=True))
-        return genres
-
-    async def get_film_details(self, film_slug: str) -> dict[str, Any]:
-        """Get details for a specific film.
-
-        Args:
-            film_slug: Letterboxd film slug (e.g., 'the-matrix')
-
-        Returns:
-            Dict with title, year, director, rating, description, etc.
-        """
-        url = f"{self.BASE_URL}/film/{film_slug}/"
-
-        try:
-            html = await self._fetch_page(url)
-            soup = BeautifulSoup(html, "lxml")
-
-            metadata = self._extract_film_metadata(soup)
-            rating, rating_count = self._extract_film_rating(soup)
-            description = self._extract_film_description(soup)
-            genres = self._extract_film_genres(soup)
-
-            return {
-                **metadata,
-                "rating": rating,
-                "rating_count": rating_count,
-                "description": description,
-                "genres": genres,
-                "url": url,
-            }
-
-        except Exception as e:
-            return {"error": f"Failed to fetch film: {str(e)}"}
